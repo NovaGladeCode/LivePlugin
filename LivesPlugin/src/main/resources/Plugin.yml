@@ -1,0 +1,17 @@
+name: LivesPlugin
+version: 1.0
+main: com.yourname.livesplugin.LivesPlugin
+api-version: 1.21
+author: YourName
+description: A lives system with levels and effects
+
+commands:
+  level:
+    description: Check your current level and lives
+    usage: /level
+  invis:
+    description: Toggle invisibility (requires level 9+)
+    usage: /invis
+  unban:
+    description: Unban a player using an Unban Item
+    usage: /unban <player>
