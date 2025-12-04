@@ -12,6 +12,9 @@ commands:
   invis:
     description: Toggle invisibility (requires level 9+)
     usage: /invis
+  live:
+    description: Reset your level to 5 (OP only)
+    usage: /live reset
   unban:
     description: Unban a player using an Unban Item
     usage: /unban <player>
