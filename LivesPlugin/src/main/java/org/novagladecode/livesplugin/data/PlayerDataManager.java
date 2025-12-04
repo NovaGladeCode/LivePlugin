@@ -93,4 +93,18 @@ public class PlayerDataManager {
         }
         return null;
     }
+
+    public java.util.List<UUID> getBannedPlayers() {
+        java.util.List<UUID> bannedPlayers = new java.util.ArrayList<>();
+        for (String key : dataConfig.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(key);
+                if (dataConfig.getBoolean(uuid + ".banned")) {
+                    bannedPlayers.add(uuid);
+                }
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+        return bannedPlayers;
+    }
 }

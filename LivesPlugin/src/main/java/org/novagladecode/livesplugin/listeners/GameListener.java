@@ -4,10 +4,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
+import org.novagladecode.livesplugin.gui.UnbanGUI;
 import org.novagladecode.livesplugin.logic.EffectManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
 
@@ -19,13 +23,15 @@ public class GameListener implements Listener {
     private final PlayerDataManager dataManager;
     private final ItemManager itemManager;
     private final EffectManager effectManager;
+    private final UnbanGUI unbanGUI;
 
     public GameListener(JavaPlugin plugin, PlayerDataManager dataManager, ItemManager itemManager,
-            EffectManager effectManager) {
+            EffectManager effectManager, UnbanGUI unbanGUI) {
         this.plugin = plugin;
         this.dataManager = dataManager;
         this.itemManager = itemManager;
         this.effectManager = effectManager;
+        this.unbanGUI = unbanGUI;
     }
 
     @EventHandler
@@ -35,7 +41,7 @@ public class GameListener implements Listener {
 
         // Check if banned
         if (dataManager.isBanned(p.getUniqueId())) {
-            p.kickPlayer("§cYou are banned! Someone must craft an Unban Item to revive you.");
+            p.kickPlayer("§cYou are banned! Someone must craft an Unban Token to revive you.");
         } else {
             int level = dataManager.getLevel(p.getUniqueId());
             boolean invis = dataManager.isInvisibilityEnabled(p.getUniqueId());
@@ -61,7 +67,7 @@ public class GameListener implements Listener {
             dataManager.setBanned(victimUUID, true);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 victim.kickPlayer(
-                        "§cYou have lost all your levels! You are banned until someone crafts an Unban Item.");
+                        "§cYou have lost all your levels! You are banned until someone crafts an Unban Token.");
             }, 5L);
         }
 
@@ -81,6 +87,25 @@ public class GameListener implements Listener {
 
             boolean invis = dataManager.isInvisibilityEnabled(killerUUID);
             effectManager.applyEffects(killer, killerLevel, invis);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        ItemStack item = e.getItem();
+
+        if (item == null)
+            return;
+
+        // Check if right-clicking with Unban Token
+        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+                && itemManager.isUnbanItem(item)) {
+            e.setCancelled(true);
+            unbanGUI.openUnbanMenu(p);
+
+            // Consume the item
+            item.setAmount(item.getAmount() - 1);
         }
     }
 

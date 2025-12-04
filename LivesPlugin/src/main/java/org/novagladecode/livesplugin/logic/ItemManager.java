@@ -42,8 +42,8 @@ public class ItemManager {
     public ItemStack createUnbanItem() {
         ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName("§5Unban Item");
-        meta.setLore(Arrays.asList("§7Crafted to unban a player."));
+        meta.setDisplayName("§5Unban Token");
+        meta.setLore(Arrays.asList("§7Right-click to open unban menu."));
         item.setItemMeta(meta);
         return item;
     }
@@ -59,6 +59,6 @@ public class ItemManager {
         if (item == null || item.getType() != Material.NETHER_STAR)
             return false;
         ItemMeta meta = item.getItemMeta();
-        return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§5Unban Item");
+        return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§5Unban Token");
     }
 }

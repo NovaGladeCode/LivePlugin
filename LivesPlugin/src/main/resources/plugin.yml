@@ -15,6 +15,3 @@ commands:
   live:
     description: Reset your level to 5 (OP only)
     usage: /live reset
-  unban:
-    description: Unban a player using an Unban Item
-    usage: /unban <player>
