@@ -5,9 +5,9 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>com.yourname</groupId>
+    <groupId>org.novagladecode</groupId>
     <artifactId>LivesPlugin</artifactId>
-    <version>1.0</version>
+    <version>0.1</version>
     <packaging>jar</packaging>
     
     <name>LivesPlugin</name>
