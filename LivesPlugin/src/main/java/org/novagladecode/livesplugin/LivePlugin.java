@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.commands.InvisCommand;
 import org.novagladecode.livesplugin.commands.LevelCommand;
+import org.novagladecode.livesplugin.commands.LifeCommand;
 import org.novagladecode.livesplugin.commands.UnbanCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.listeners.GameListener;
@@ -34,6 +35,7 @@ public class LivePlugin extends JavaPlugin {
         // Register Commands
         getCommand("level").setExecutor(new LevelCommand(dataManager));
         getCommand("invis").setExecutor(new InvisCommand(dataManager, effectManager));
+        getCommand("life").setExecutor(new LifeCommand(dataManager));
         getCommand("unban").setExecutor(new UnbanCommand(dataManager, itemManager));
 
         getLogger().info("Lives Plugin has been enabled!");

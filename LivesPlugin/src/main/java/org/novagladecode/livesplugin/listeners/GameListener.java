@@ -54,12 +54,8 @@ public class GameListener implements Listener {
         int lives = dataManager.getLives(victimUUID);
         int level = dataManager.getLevel(victimUUID);
 
-        // Drop level item if they have any levels
+        // Victim loses one level on death (if they have any)
         if (level > 0) {
-            ItemStack levelItem = itemManager.createLevelItem();
-            victim.getWorld().dropItemNaturally(victim.getLocation(), levelItem);
-
-            // Decrease level
             level--;
             dataManager.setLevel(victimUUID, level);
         }
@@ -85,8 +81,6 @@ public class GameListener implements Listener {
             killerLevel++;
             dataManager.setLevel(killerUUID, killerLevel);
 
-            ItemStack levelItem = itemManager.createLevelItem();
-            killer.getInventory().addItem(levelItem);
             killer.sendMessage("§aYou killed " + victim.getName() + "! Your level is now: " + killerLevel);
 
             dataManager.saveData();
@@ -96,26 +90,4 @@ public class GameListener implements Listener {
         }
     }
 
-    @EventHandler
-    public void onPlayerInteract(PlayerInteractEvent e) {
-        Player p = e.getPlayer();
-        ItemStack item = e.getItem();
-
-        if (itemManager.isLevelItem(item)) {
-            e.setCancelled(true);
-
-            UUID uuid = p.getUniqueId();
-            int level = dataManager.getLevel(uuid);
-            level++;
-            dataManager.setLevel(uuid, level);
-
-            item.setAmount(item.getAmount() - 1);
-            p.sendMessage("§aYou used a Level Item! Your level is now: " + level);
-
-            dataManager.saveData();
-
-            boolean invis = dataManager.isInvisibilityEnabled(uuid);
-            effectManager.applyEffects(p, level, invis);
-        }
-    }
 }

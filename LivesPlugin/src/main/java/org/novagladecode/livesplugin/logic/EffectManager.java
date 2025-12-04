@@ -54,8 +54,11 @@ public class EffectManager {
             }
         }
         if (level >= 10) {
+            // Strength scales: level 10 = Strength I (0), level 11 = Strength II (1), ...,
+            // level 14+ = Strength V (4)
+            int strengthLevel = Math.min(level - 10, 4);
             p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE,
-                    Math.min(goodLevels - 1, 4), true, false));
+                    strengthLevel, true, false));
         }
     }
 
