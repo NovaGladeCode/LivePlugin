@@ -7,7 +7,7 @@
     
     <groupId>org.novagladecode</groupId>
     <artifactId>LivesPlugin</artifactId>
-    <version>0.1</version>
+    <version>2.0</version>
     <packaging>jar</packaging>
     
     <name>LivesPlugin</name>
