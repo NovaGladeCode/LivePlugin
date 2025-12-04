@@ -4,7 +4,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.commands.InvisCommand;
-import org.novagladecode.livesplugin.commands.LevelCommand;
 import org.novagladecode.livesplugin.commands.LiveCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.UnbanGUI;
@@ -36,7 +35,6 @@ public class LivePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(unbanGUI, this);
 
         // Register Commands
-        getCommand("level").setExecutor(new LevelCommand(dataManager));
         getCommand("invis").setExecutor(new InvisCommand(dataManager, effectManager));
         getCommand("life").setExecutor(new LiveCommand(dataManager, itemManager));
 

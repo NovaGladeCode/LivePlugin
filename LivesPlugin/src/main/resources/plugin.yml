@@ -6,12 +6,10 @@ author: YourName
 description: A lives system with levels and effects
 
 commands:
-  level:
-    description: Check your current level
-    usage: /level
+
   invis:
     description: Toggle invisibility (requires level 9+)
     usage: /invis
   life:
-    description: Manage your levels
-    usage: /life <reset|withdraw>
+    description: Manage your levels and lives
+    usage: /life <level|withdraw|reset|help>

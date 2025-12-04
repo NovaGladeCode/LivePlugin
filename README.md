@@ -51,19 +51,21 @@ Effects change as you level up - debuffs are removed and buffs are added.
     - Material: Nether Star
     - Name: `§5Unban Token`
     - Usage: Right-click to open a GUI to select and revive a banned player. Revived players start at level 1.
-    - Recipe: Crafted with 4 Diamond Blocks and 1 Level Item.
+    - Recipe: Crafted with 4 Netherite Scrap and 1 Level Item.
       - Shape:
         ```
-          D
-        D L D
-          D
+          N
+        N L N
+          N
         ```
-        (D = Diamond Block, L = Level Item)
+        (N = Netherite Scrap, L = Level Item)
 
 ## Commands
-- `/level`: Displays current level and remaining lives.
-- `/invis`: Toggles invisibility effect (Requires Level 9+).
-- `/life withdraw`: Converts 1 level into 1 Level Item (Nether Star).
+- `/life level`: Check your current level
+- `/life withdraw`: Convert 1 level into a Level Item
+- `/life reset`: Reset your level to 5 (OP only)
+- `/life help`: Show all available commands
+- `/invis`: Toggle invisibility effect (Requires Level 9+)
 
 
 ## Permissions

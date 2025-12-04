@@ -1,0 +1,15 @@
+name: LivesPlugin
+version: 2.0
+main: org.novagladecode.livesplugin.LivePlugin
+api-version: 1.21
+author: YourName
+description: A lives system with levels and effects
+
+commands:
+
+  invis:
+    description: Toggle invisibility (requires level 9+)
+    usage: /invis
+  life:
+    description: Manage your levels and lives
+    usage: /life <level|withdraw|reset|help>
