@@ -23,10 +23,12 @@ jobs:
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
     - name: Update POM Version
-      run: mvn versions:set -DnewVersion=${{ env.VERSION }} --file LivesPlugin/pom.xml
+      working-directory: LivesPlugin
+      run: mvn versions:set -DnewVersion=${{ env.VERSION }}
 
     - name: Build with Maven
-      run: mvn -B package --file LivesPlugin/pom.xml
+      working-directory: LivesPlugin
+      run: mvn -B package
 
     - name: Upload Release Asset
       uses: softprops/action-gh-release@v2
