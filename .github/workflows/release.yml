@@ -29,6 +29,6 @@ jobs:
       run: mvn -B package --file LivesPlugin/pom.xml
 
     - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: LivesPlugin/target/LivesPlugin-${{ env.VERSION }}.jar
