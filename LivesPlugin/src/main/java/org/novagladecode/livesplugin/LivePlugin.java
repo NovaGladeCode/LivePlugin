@@ -5,13 +5,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.commands.InvisCommand;
 import org.novagladecode.livesplugin.commands.LiveCommand;
-import org.novagladecode.livesplugin.commands.PowerCommand;
+import org.novagladecode.livesplugin.commands.AirBoostCommand;
+import org.novagladecode.livesplugin.commands.DragonBreathCommand;
+import org.novagladecode.livesplugin.commands.MaceCommand;
+import org.novagladecode.livesplugin.commands.WardenMaceCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.UnbanGUI;
 import org.novagladecode.livesplugin.listeners.GameListener;
 import org.novagladecode.livesplugin.logic.EffectManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
-import org.novagladecode.livesplugin.logic.PowerManager;
 
 public class LivePlugin extends JavaPlugin {
 
@@ -35,12 +37,14 @@ public class LivePlugin extends JavaPlugin {
                 new GameListener(this, dataManager, itemManager, effectManager, unbanGUI),
                 this);
         getServer().getPluginManager().registerEvents(unbanGUI, this);
-        getServer().getPluginManager().registerEvents(new PowerManager(dataManager), this);
 
         // Register Commands
         getCommand("invis").setExecutor(new InvisCommand(this, dataManager, effectManager));
         getCommand("life").setExecutor(new LiveCommand(dataManager, itemManager));
-        getCommand("power").setExecutor(new PowerCommand(dataManager));
+        getCommand("airboost").setExecutor(new AirBoostCommand(dataManager));
+        getCommand("dragonbreath").setExecutor(new DragonBreathCommand());
+        getCommand("mace").setExecutor(new MaceCommand());
+        getCommand("wardenmace").setExecutor(new WardenMaceCommand(this));
 
         getLogger().info("Lives Plugin has been enabled!");
 

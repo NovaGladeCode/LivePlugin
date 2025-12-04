@@ -132,4 +132,24 @@ public class GameListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void onEntityDamageByEntity(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+        if (!(e.getEntity() instanceof Player))
+            return;
+
+        Player victim = (Player) e.getEntity();
+
+        // Check if damage source is AreaEffectCloud (Dragon Breath)
+        if (e.getDamager() instanceof org.bukkit.entity.AreaEffectCloud) {
+            org.bukkit.entity.AreaEffectCloud cloud = (org.bukkit.entity.AreaEffectCloud) e.getDamager();
+
+            if (cloud.getParticle() == org.bukkit.Particle.DRAGON_BREATH) {
+                // Check if victim has Dragon Egg
+                if (victim.getInventory().contains(org.bukkit.Material.DRAGON_EGG)) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
 }

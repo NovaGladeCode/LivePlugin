@@ -72,19 +72,6 @@ Effects change as you level up - debuffs are removed and buffs are added.
 - `/life reset`: Reset your level to 5 (OP only)
 - `/life help`: Show all available commands
 - `/invis`: Activate invisibility for 30 seconds (3 minute cooldown) (Requires Level 9+)
-- `/power roll [player]`: Assign a random elemental power to a player (OP only)
-
-## Elemental Powers
-Players can be assigned an elemental power using `/power roll`. These powers are triggered when shooting a bow.
-
-| Power | Effect |
-| :--- | :--- |
-| **Nether** | Launches a Fireball instead of an arrow |
-| **End** | Launches a Dragon Fireball instead of an arrow |
-| **Wither** | Launches a Wither Skull instead of an arrow |
-| **Sky** | Strikes Lightning where the arrow lands + Levitation on hit |
-| **Ocean** | Applies Poison on hit |
-| **Overworld** | Applies Instant Damage & Slowness on hit |
 
 
 ## Permissions
