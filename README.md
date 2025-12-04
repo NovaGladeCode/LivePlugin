@@ -45,7 +45,7 @@ Effects change as you level up - debuffs are removed and buffs are added.
 - **Level Item**:
     - Material: Nether Star
     - Name: `§6Level Item`
-    - Usage: Created via `/life withdraw` command (costs 1 level). Used in crafting the Unban Token.
+    - Usage: Created via `/life withdraw` command (costs 1 level). Right-click to gain 1 level (consumes item). Can also be used in crafting the Unban Token.
 
 - **Unban Token**:
     - Material: Nether Star

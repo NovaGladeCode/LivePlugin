@@ -98,6 +98,26 @@ public class GameListener implements Listener {
         if (item == null)
             return;
 
+        // Check if right-clicking with Level Item
+        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+                && itemManager.isLevelItem(item)) {
+            e.setCancelled(true);
+
+            UUID uuid = p.getUniqueId();
+            int currentLevel = dataManager.getLevel(uuid);
+            dataManager.setLevel(uuid, currentLevel + 1);
+            dataManager.saveData();
+
+            p.sendMessage("§aYou used a Level Item! Your level is now: " + (currentLevel + 1));
+
+            // Consume the item
+            item.setAmount(item.getAmount() - 1);
+
+            // Apply effects with new level
+            boolean invis = dataManager.isInvisibilityEnabled(uuid);
+            effectManager.applyEffects(p, currentLevel + 1, invis);
+        }
+
         // Check if right-clicking with Unban Token
         if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
                 && itemManager.isUnbanItem(item)) {
