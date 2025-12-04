@@ -23,20 +23,14 @@ LivesPlugin is a Minecraft Paper plugin (1.21.4) that implements a lives and lev
 - **Losing Levels**: Death: -1 Level (if level > 0)
 - **Converting Levels to Lives**: Use `/life withdraw` to convert 1 level into 1 life
 
-### Effects (Cumulative)
-Levels grant permanent potion effects. Some are negative (low levels) and some are positive (high levels).
+### Effects (Stacking)
+All effects in a tier apply simultaneously.
 
-| Level | Effect | Notes |
+| Level | Effects Applied | Notes |
 | :--- | :--- | :--- |
-| 1+ | Mining Fatigue | |
-| 2+ | Slowness | |
-| 3+ | Hunger | |
-| 4+ | Glowing | |
-| 6+ | Hero of the Village | |
-| 7+ | Luck | |
-| 8+ | Speed | |
-| 9+ | Invisibility | Toggleable via `/invis` |
-| 10+ | Strength | Level 10 = I, 11 = II, 12 = III, 13 = IV, 14+ = V |
+| 1-9 | Mining Fatigue I, Slowness I, Hunger I, Glowing I | All debuffs stack |
+| 10+ | Hero of the Village I, Luck I, Speed I, Invisibility, Strength I | All buffs stack, Invisibility toggleable via `/invis` |
+
 
 ### Items
 - **Unban Item**:

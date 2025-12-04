@@ -18,47 +18,27 @@ public class EffectManager {
         p.removePotionEffect(PotionEffectType.INVISIBILITY);
         p.removePotionEffect(PotionEffectType.STRENGTH);
 
-        // Apply effects based on level (good effects stack, bad ones don't)
+        // Apply all debuffs at level 1+
         if (level >= 1) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, Integer.MAX_VALUE, 0, true, false));
-        }
-        if (level >= 2) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 0, true, false));
-        }
-        if (level >= 3) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 0, true, false));
-        }
-        if (level >= 4) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 0, true, false));
         }
-        // Level 5 = nothing
 
-        // Good effects that stack
-        int goodLevels = Math.max(0, level - 5);
+        // Apply all buffs at level 10+
+        if (level >= 10) {
+            p.addPotionEffect(
+                    new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, Integer.MAX_VALUE, 0, true, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
 
-        if (level >= 6) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE,
-                    Math.min(goodLevels - 1, 4), true, false));
-        }
-        if (level >= 7) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.LUCK, Integer.MAX_VALUE,
-                    Math.min(goodLevels - 1, 4) + 1, true, false));
-        }
-        if (level >= 8) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, Math.min(goodLevels - 1, 4),
-                    true, false));
-        }
-        if (level >= 9) {
             if (invisEnabled) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, true, false));
             }
-        }
-        if (level >= 10) {
-            // Strength scales: level 10 = Strength I (0), level 11 = Strength II (1), ...,
-            // level 14+ = Strength V (4)
-            int strengthLevel = Math.min(level - 10, 4);
-            p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE,
-                    strengthLevel, true, false));
+
+            // Strength I only, no scaling
+            p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 0, true, false));
         }
     }
 
