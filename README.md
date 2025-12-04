@@ -19,11 +19,9 @@ LivesPlugin is a Minecraft Paper plugin (1.21.4) that implements a lives and lev
 
 ### Leveling System
 - **Starting Level**: 0
-- **Gaining Levels**:
-    - Killing a player: Killer gains +1 Level and receives a "Level Item".
-    - Using a "Level Item": Right-click to gain +1 Level.
-- **Losing Levels**:
-    - Death: -1 Level (if level > 0). A "Level Item" is dropped at the death location.
+- **Gaining Levels**: Killing a player: Killer gains +1 Level directly (no item)
+- **Losing Levels**: Death: -1 Level (if level > 0)
+- **Converting Levels to Lives**: Use `/life withdraw` to convert 1 level into 1 life
 
 ### Effects (Cumulative)
 Levels grant permanent potion effects. Some are negative (low levels) and some are positive (high levels).
@@ -34,18 +32,13 @@ Levels grant permanent potion effects. Some are negative (low levels) and some a
 | 2+ | Slowness | |
 | 3+ | Hunger | |
 | 4+ | Glowing | |
-| 6+ | Hero of the Village | Strength scales with level |
-| 7+ | Luck | Strength scales with level |
-| 8+ | Speed | Strength scales with level |
+| 6+ | Hero of the Village | |
+| 7+ | Luck | |
+| 8+ | Speed | |
 | 9+ | Invisibility | Toggleable via `/invis` |
-| 10+ | Strength | Strength scales with level |
+| 10+ | Strength | Level 10 = I, 11 = II, 12 = III, 13 = IV, 14+ = V |
 
 ### Items
-- **Level Item**:
-    - Material: Nether Star
-    - Name: `§6Level Item`
-    - Lore: `§7Right-click to gain a level!`
-    - Source: Obtained by killing players or picking up dropped items from deaths.
 - **Unban Item**:
     - Material: Nether Star
     - Name: `§5Unban Item`
@@ -62,6 +55,7 @@ Levels grant permanent potion effects. Some are negative (low levels) and some a
 ## Commands
 - `/level`: Displays current level and remaining lives.
 - `/invis`: Toggles invisibility effect (Requires Level 9+).
+- `/life withdraw`: Converts 1 level into 1 life.
 - `/unban <player>`: Unbans a player. Requires holding an "Unban Item".
 
 ## Permissions
