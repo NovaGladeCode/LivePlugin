@@ -43,7 +43,7 @@ public class PlayerDataManager {
     public void initializePlayer(UUID uuid) {
         if (!dataConfig.contains(uuid.toString())) {
             dataConfig.set(uuid + ".lives", 5);
-            dataConfig.set(uuid + ".level", 0);
+            dataConfig.set(uuid + ".level", 1);
             dataConfig.set(uuid + ".banned", false);
             saveData();
         }
