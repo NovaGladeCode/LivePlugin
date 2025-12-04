@@ -37,13 +37,13 @@ Effects change as you level up - debuffs are removed and buffs are added.
 | 6 | - | Hero of the Village I | 10 hearts |
 | 7 | - | Hero of the Village I, Luck I | 10 hearts |
 | 8 | - | Hero, Luck, Speed I | 10 hearts |
-| 9 | - | Hero, Luck, Speed + Invisibility (toggle) | 10 hearts |
-| 10 | - | Hero, Luck, Speed, Invisibility + Strength I | 10 hearts |
-| 11 | - | Hero, Luck, Speed, Invisibility, Strength | **11 hearts** |
-| 12 | - | Hero, Luck, Speed, Invisibility, Strength | **12 hearts** |
-| 13 | - | Hero, Luck, Speed, Invisibility, Strength | **13 hearts** |
-| 14 | - | Hero, Luck, Speed, Invisibility, Strength | **14 hearts** |
-| 15 | - | Hero, Luck, Speed, Invisibility, Strength | **15 hearts** |
+| 9 | - | Hero, Luck, Speed + Invisibility (active ability) | 10 hearts |
+| 10 | - | Hero, Luck, Speed, Invisibility (active) + Strength I | 10 hearts |
+| 11 | - | Hero, Luck, Speed, Invisibility (active), Strength | **11 hearts** |
+| 12 | - | Hero, Luck, Speed, Invisibility (active), Strength | **12 hearts** |
+| 13 | - | Hero, Luck, Speed, Invisibility (active), Strength | **13 hearts** |
+| 14 | - | Hero, Luck, Speed, Invisibility (active), Strength | **14 hearts** |
+| 15 | - | Hero, Luck, Speed, Invisibility (active), Strength | **15 hearts** |
 
 
 
@@ -71,7 +71,7 @@ Effects change as you level up - debuffs are removed and buffs are added.
 - `/life withdraw`: Convert 1 level into a Level Item
 - `/life reset`: Reset your level to 5 (OP only)
 - `/life help`: Show all available commands
-- `/invis`: Toggle invisibility effect (Requires Level 9+)
+- `/invis`: Activate invisibility for 30 seconds (3 minute cooldown) (Requires Level 9+)
 
 
 ## Permissions

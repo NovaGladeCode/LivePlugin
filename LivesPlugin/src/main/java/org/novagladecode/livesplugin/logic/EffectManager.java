@@ -7,7 +7,7 @@ import org.bukkit.potion.PotionEffectType;
 
 public class EffectManager {
 
-    public void applyEffects(Player p, int level, boolean invisEnabled) {
+    public void applyEffects(Player p, int level) {
         // Clear all effects first
         p.removePotionEffect(PotionEffectType.MINING_FATIGUE);
         p.removePotionEffect(PotionEffectType.SLOWNESS);
@@ -16,7 +16,7 @@ public class EffectManager {
         p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
         p.removePotionEffect(PotionEffectType.LUCK);
         p.removePotionEffect(PotionEffectType.SPEED);
-        p.removePotionEffect(PotionEffectType.INVISIBILITY);
+        // Do NOT remove invisibility here, as it's managed by command duration
         p.removePotionEffect(PotionEffectType.STRENGTH);
 
         // Apply health based on level
@@ -47,11 +47,8 @@ public class EffectManager {
         if (level >= 8) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, 0, true, false));
         }
-        if (level >= 9) {
-            if (invisEnabled) {
-                p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, true, false));
-            }
-        }
+        // Level 9 invisibility is now handled by /invis command
+
         if (level >= 10) {
             // Strength I only, no scaling
             p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 0, true, false));

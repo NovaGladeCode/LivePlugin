@@ -44,8 +44,7 @@ public class GameListener implements Listener {
             p.kickPlayer("§cYou are banned! Someone must craft an Unban Token to revive you.");
         } else {
             int level = dataManager.getLevel(p.getUniqueId());
-            boolean invis = dataManager.isInvisibilityEnabled(p.getUniqueId());
-            effectManager.applyEffects(p, level, invis);
+            effectManager.applyEffects(p, level);
         }
     }
 
@@ -87,8 +86,7 @@ public class GameListener implements Listener {
 
             dataManager.saveData();
 
-            boolean invis = dataManager.isInvisibilityEnabled(killerUUID);
-            effectManager.applyEffects(killer, killerLevel, invis);
+            effectManager.applyEffects(killer, killerLevel);
         }
     }
 
@@ -123,8 +121,7 @@ public class GameListener implements Listener {
             item.setAmount(item.getAmount() - 1);
 
             // Apply effects with new level
-            boolean invis = dataManager.isInvisibilityEnabled(uuid);
-            effectManager.applyEffects(p, currentLevel + 1, invis);
+            effectManager.applyEffects(p, currentLevel + 1);
         }
 
         // Check if right-clicking with Unban Token

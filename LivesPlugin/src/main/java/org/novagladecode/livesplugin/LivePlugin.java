@@ -35,7 +35,7 @@ public class LivePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(unbanGUI, this);
 
         // Register Commands
-        getCommand("invis").setExecutor(new InvisCommand(dataManager, effectManager));
+        getCommand("invis").setExecutor(new InvisCommand(this, dataManager, effectManager));
         getCommand("life").setExecutor(new LiveCommand(dataManager, itemManager));
 
         getLogger().info("Lives Plugin has been enabled!");
@@ -44,8 +44,7 @@ public class LivePlugin extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 int level = dataManager.getLevel(p.getUniqueId());
-                boolean invis = dataManager.isInvisibilityEnabled(p.getUniqueId());
-                effectManager.applyEffects(p, level, invis);
+                effectManager.applyEffects(p, level);
             }
         }, 0L, 100L);
     }

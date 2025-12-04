@@ -16,7 +16,7 @@ public class PlayerDataManager {
     private final JavaPlugin plugin;
     private File dataFile;
     private FileConfiguration dataConfig;
-    private final Map<UUID, Boolean> invisibilityToggle = new HashMap<>();
+    private final Map<UUID, Long> invisCooldowns = new HashMap<>();
 
     public PlayerDataManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -73,12 +73,12 @@ public class PlayerDataManager {
         dataConfig.set(uuid + ".banned", banned);
     }
 
-    public boolean isInvisibilityEnabled(UUID uuid) {
-        return invisibilityToggle.getOrDefault(uuid, true);
+    public long getInvisCooldown(UUID uuid) {
+        return invisCooldowns.getOrDefault(uuid, 0L);
     }
 
-    public void setInvisibilityEnabled(UUID uuid, boolean enabled) {
-        invisibilityToggle.put(uuid, enabled);
+    public void setInvisCooldown(UUID uuid, long timestamp) {
+        invisCooldowns.put(uuid, timestamp);
     }
 
     public UUID getPlayerUUIDByName(String name) {
