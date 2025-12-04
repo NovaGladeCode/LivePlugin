@@ -78,7 +78,9 @@ public class GameListener implements Listener {
         if (killer != null) {
             UUID killerUUID = killer.getUniqueId();
             int killerLevel = dataManager.getLevel(killerUUID);
-            killerLevel++;
+            if (killerLevel < 15) {
+                killerLevel++;
+            }
             dataManager.setLevel(killerUUID, killerLevel);
 
             killer.sendMessage("§aYou killed " + victim.getName() + "! Your level is now: " + killerLevel);
@@ -105,6 +107,13 @@ public class GameListener implements Listener {
 
             UUID uuid = p.getUniqueId();
             int currentLevel = dataManager.getLevel(uuid);
+
+            if (currentLevel >= 15) {
+                p.sendMessage("§cYou are already at max level (15)!");
+                e.setCancelled(true);
+                return;
+            }
+
             dataManager.setLevel(uuid, currentLevel + 1);
             dataManager.saveData();
 

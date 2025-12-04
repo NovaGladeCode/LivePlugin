@@ -1,5 +1,6 @@
 package org.novagladecode.livesplugin.logic;
 
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -17,6 +18,9 @@ public class EffectManager {
         p.removePotionEffect(PotionEffectType.SPEED);
         p.removePotionEffect(PotionEffectType.INVISIBILITY);
         p.removePotionEffect(PotionEffectType.STRENGTH);
+
+        // Apply health based on level
+        applyHealth(p, level);
 
         // Debuffs - start with all at level 1, lose them as you level up
         if (level >= 1 && level < 2) {
@@ -52,6 +56,23 @@ public class EffectManager {
             // Strength I only, no scaling
             p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 0, true, false));
         }
+    }
+
+    private void applyHealth(Player p, int level) {
+        // Level 10 and below: 10 hearts (20 HP - default)
+        // Level 11-15: +1 heart per level above 10
+        double maxHealth;
+        if (level <= 10) {
+            maxHealth = 20.0; // 10 hearts
+        } else {
+            // Level 11 = 22 HP (11 hearts), Level 15 = 30 HP (15 hearts)
+            maxHealth = 20.0 + ((level - 10) * 2.0);
+        }
+
+        p.getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHealth);
+
+        // Heal player to full health when health changes
+        p.setHealth(maxHealth);
     }
 
     public void removeInvisibility(Player p) {

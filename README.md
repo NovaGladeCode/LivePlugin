@@ -19,25 +19,31 @@ LivesPlugin is a Minecraft Paper plugin (1.21.4) that implements a lives and lev
 
 ### Leveling System
 - **Starting Level**: 5
-- **Gaining Levels**: Killing a player: Killer gains +1 Level directly (no item)
+- **Max Level**: 15
+- **Gaining Levels**: Killing a player: Killer gains +1 Level (max 15)
 - **Losing Levels**: Death: -1 Level (if level > 0)
 - **Converting Levels to Items**: Use `/life withdraw` to convert 1 level into 1 Level Item (Nether Star)
 
 ### Effects
 Effects change as you level up - debuffs are removed and buffs are added.
 
-| Level | Debuffs Active | Buffs Active |
-| :--- | :--- | :--- |
-| 1 | Mining Fatigue I, Slowness I, Hunger I, Glowing I | - |
-| 2 | Slowness I, Hunger I, Glowing I | - |
-| 3 | Hunger I, Glowing I | - |
-| 4 | Glowing I | - |
-| 5 | - | - |
-| 6 | - | Hero of the Village I |
-| 7 | - | Hero of the Village I, Luck I |
-| 8 | - | Hero, Luck, Speed I |
-| 9 | - | Hero, Luck, Speed + Invisibility (toggle) |
-| 10 | - | Hero, Luck, Speed, Invisibility + Strength I |
+| Level | Debuffs Active | Buffs Active | Health |
+| :--- | :--- | :--- | :--- |
+| 1 | Mining Fatigue I, Slowness I, Hunger I, Glowing I | - | 10 hearts |
+| 2 | Slowness I, Hunger I, Glowing I | - | 10 hearts |
+| 3 | Hunger I, Glowing I | - | 10 hearts |
+| 4 | Glowing I | - | 10 hearts |
+| 5 | - | - | 10 hearts |
+| 6 | - | Hero of the Village I | 10 hearts |
+| 7 | - | Hero of the Village I, Luck I | 10 hearts |
+| 8 | - | Hero, Luck, Speed I | 10 hearts |
+| 9 | - | Hero, Luck, Speed + Invisibility (toggle) | 10 hearts |
+| 10 | - | Hero, Luck, Speed, Invisibility + Strength I | 10 hearts |
+| 11 | - | Hero, Luck, Speed, Invisibility, Strength | **11 hearts** |
+| 12 | - | Hero, Luck, Speed, Invisibility, Strength | **12 hearts** |
+| 13 | - | Hero, Luck, Speed, Invisibility, Strength | **13 hearts** |
+| 14 | - | Hero, Luck, Speed, Invisibility, Strength | **14 hearts** |
+| 15 | - | Hero, Luck, Speed, Invisibility, Strength | **15 hearts** |
 
 
 
