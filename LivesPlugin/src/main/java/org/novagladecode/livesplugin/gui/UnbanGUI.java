@@ -18,10 +18,12 @@ import java.util.UUID;
 public class UnbanGUI implements Listener {
 
     private final PlayerDataManager dataManager;
+    private final org.novagladecode.livesplugin.logic.ItemManager itemManager;
     private static final String GUI_TITLE = "§5Select Player to Unban";
 
-    public UnbanGUI(PlayerDataManager dataManager) {
+    public UnbanGUI(PlayerDataManager dataManager, org.novagladecode.livesplugin.logic.ItemManager itemManager) {
         this.dataManager = dataManager;
+        this.itemManager = itemManager;
     }
 
     public void openUnbanMenu(Player player) {
@@ -74,6 +76,22 @@ public class UnbanGUI implements Listener {
 
         UUID targetUUID = meta.getOwningPlayer().getUniqueId();
         String targetName = meta.getOwningPlayer().getName();
+
+        // Consume one Unban Token from player's inventory
+        boolean itemConsumed = false;
+        for (ItemStack item : p.getInventory().getContents()) {
+            if (item != null && itemManager.isUnbanItem(item)) {
+                item.setAmount(item.getAmount() - 1);
+                itemConsumed = true;
+                break;
+            }
+        }
+
+        if (!itemConsumed) {
+            p.sendMessage("§cYou need an Unban Token to do this!");
+            p.closeInventory();
+            return;
+        }
 
         dataManager.setBanned(targetUUID, false);
         dataManager.setLevel(targetUUID, 1); // Revived players start at level 1

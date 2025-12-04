@@ -129,9 +129,6 @@ public class GameListener implements Listener {
                 && itemManager.isUnbanItem(item)) {
             e.setCancelled(true);
             unbanGUI.openUnbanMenu(p);
-
-            // Consume the item
-            item.setAmount(item.getAmount() - 1);
         }
     }
 

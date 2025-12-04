@@ -23,7 +23,7 @@ public class LivePlugin extends JavaPlugin {
         this.dataManager = new PlayerDataManager(this);
         this.effectManager = new EffectManager();
         this.itemManager = new ItemManager(this);
-        UnbanGUI unbanGUI = new UnbanGUI(dataManager);
+        UnbanGUI unbanGUI = new UnbanGUI(dataManager, itemManager);
 
         // Register Recipes
         itemManager.registerUnbanRecipe();
