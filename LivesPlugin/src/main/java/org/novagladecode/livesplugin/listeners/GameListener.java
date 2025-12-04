@@ -5,9 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.logic.EffectManager;
@@ -51,7 +49,6 @@ public class GameListener implements Listener {
         Player killer = victim.getKiller();
 
         UUID victimUUID = victim.getUniqueId();
-        int lives = dataManager.getLives(victimUUID);
         int level = dataManager.getLevel(victimUUID);
 
         // Victim loses one level on death (if they have any)
@@ -60,21 +57,18 @@ public class GameListener implements Listener {
             dataManager.setLevel(victimUUID, level);
         }
 
-        // Decrease lives
-        lives--;
-        dataManager.setLives(victimUUID, lives);
-
-        if (lives <= 0) {
+        if (level <= 0) {
             dataManager.setBanned(victimUUID, true);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                victim.kickPlayer("§cYou have lost all your lives! You are banned until someone crafts an Unban Item.");
+                victim.kickPlayer(
+                        "§cYou have lost all your levels! You are banned until someone crafts an Unban Item.");
             }, 5L);
         }
 
         dataManager.saveData();
-        victim.sendMessage("§cYou died! Lives remaining: " + lives);
+        victim.sendMessage("§cYou died! Levels remaining: " + level);
 
-        // Give killer a level item and increase their level
+        // Give killer a level
         if (killer != null) {
             UUID killerUUID = killer.getUniqueId();
             int killerLevel = dataManager.getLevel(killerUUID);

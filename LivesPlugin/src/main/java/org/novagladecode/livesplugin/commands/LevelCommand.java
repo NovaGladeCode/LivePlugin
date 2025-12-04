@@ -27,11 +27,9 @@ public class LevelCommand implements CommandExecutor {
         UUID uuid = p.getUniqueId();
 
         int level = dataManager.getLevel(uuid);
-        int lives = dataManager.getLives(uuid);
 
         p.sendMessage("§6=== Your Stats ===");
         p.sendMessage("§aLevel: " + level);
-        p.sendMessage("§cLives: " + lives);
 
         return true;
     }

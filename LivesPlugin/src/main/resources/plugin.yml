@@ -7,14 +7,11 @@ description: A lives system with levels and effects
 
 commands:
   level:
-    description: Check your current level and lives
+    description: Check your current level
     usage: /level
   invis:
     description: Toggle invisibility (requires level 9+)
     usage: /invis
-  life:
-    description: Convert levels to lives
-    usage: /life withdraw
   unban:
     description: Unban a player using an Unban Item
     usage: /unban <player>
