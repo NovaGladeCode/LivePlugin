@@ -18,21 +18,21 @@ public class EffectManager {
         p.removePotionEffect(PotionEffectType.INVISIBILITY);
         p.removePotionEffect(PotionEffectType.STRENGTH);
 
-        // Apply effects progressively based on level
-        if (level >= 1) {
+        // Debuffs - start with all at level 1, lose them as you level up
+        if (level >= 1 && level < 2) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, Integer.MAX_VALUE, 0, true, false));
         }
-        if (level >= 2) {
+        if (level >= 1 && level < 3) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Integer.MAX_VALUE, 0, true, false));
         }
-        if (level >= 3) {
+        if (level >= 1 && level < 4) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 0, true, false));
         }
-        if (level >= 4) {
+        if (level >= 1 && level < 5) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 0, true, false));
         }
-        // Level 5 = nothing new
 
+        // Buffs - add progressively starting at level 6
         if (level >= 6) {
             p.addPotionEffect(
                     new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, Integer.MAX_VALUE, 0, true, false));
