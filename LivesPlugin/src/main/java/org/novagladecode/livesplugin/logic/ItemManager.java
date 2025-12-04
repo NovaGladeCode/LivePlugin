@@ -23,7 +23,8 @@ public class ItemManager {
 
         NamespacedKey key = new NamespacedKey(plugin, "unban_item");
         ShapedRecipe recipe = new ShapedRecipe(key, unbanItem);
-        recipe.shape(" N ", "NLN", " N ");
+        recipe.shape("DND", "NLN", "DND");
+        recipe.setIngredient('D', Material.DIAMOND_BLOCK);
         recipe.setIngredient('N', Material.NETHERITE_SCRAP);
         recipe.setIngredient('L', Material.NETHER_STAR); // Level Item (uses nether star as base)
 

@@ -57,14 +57,14 @@ Effects change as you level up - debuffs are removed and buffs are added.
     - Material: Nether Star
     - Name: `§5Unban Token`
     - Usage: Right-click to open a GUI to select and revive a banned player. Revived players start at level 1.
-    - Recipe: Crafted with 4 Netherite Scrap and 1 Level Item.
+    - Recipe: Crafted with 4 Netherite Scrap, 4 Diamond Blocks, and 1 Level Item.
       - Shape:
         ```
-          N
+        D N D
         N L N
-          N
+        D N D
         ```
-        (N = Netherite Scrap, L = Level Item)
+        (N = Netherite Scrap, D = Diamond Block, L = Level Item)
 
 ## Commands
 - `/life level`: Check your current level
