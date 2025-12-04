@@ -17,6 +17,7 @@ public class PlayerDataManager {
     private File dataFile;
     private FileConfiguration dataConfig;
     private final Map<UUID, Long> invisCooldowns = new HashMap<>();
+    private final Map<UUID, String> playerPowers = new HashMap<>();
 
     public PlayerDataManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -92,6 +93,18 @@ public class PlayerDataManager {
             }
         }
         return null;
+    }
+
+    public String getPower(UUID uuid) {
+        if (playerPowers.containsKey(uuid)) {
+            return playerPowers.get(uuid);
+        }
+        return dataConfig.getString(uuid + ".power", "NONE");
+    }
+
+    public void setPower(UUID uuid, String power) {
+        playerPowers.put(uuid, power);
+        dataConfig.set(uuid + ".power", power);
     }
 
     public java.util.List<UUID> getBannedPlayers() {

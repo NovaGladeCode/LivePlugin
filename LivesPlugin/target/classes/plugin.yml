@@ -6,10 +6,12 @@ author: YourName
 description: A lives system with levels and effects
 
 commands:
-
   invis:
     description: Toggle invisibility (requires level 9+)
     usage: /invis
   life:
     description: Manage your levels and lives
     usage: /life <level|withdraw|reset|help>
+  power:
+    description: Roll for a random elemental power (OP only)
+    usage: /power roll [player]
