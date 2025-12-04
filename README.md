@@ -18,7 +18,7 @@ LivesPlugin is a Minecraft Paper plugin (1.21.4) that implements a lives and lev
 - **Unbanning**: Requires another player to use the `/unban` command while holding an "Unban Item".
 
 ### Leveling System
-- **Starting Level**: 1
+- **Starting Level**: 5
 - **Gaining Levels**: Killing a player: Killer gains +1 Level directly (no item)
 - **Losing Levels**: Death: -1 Level (if level > 0)
 - **Converting Levels to Lives**: Use `/life withdraw` to convert 1 level into 1 life
