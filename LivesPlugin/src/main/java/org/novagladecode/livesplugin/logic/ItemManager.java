@@ -23,9 +23,9 @@ public class ItemManager {
 
         NamespacedKey key = new NamespacedKey(plugin, "unban_item");
         ShapedRecipe recipe = new ShapedRecipe(key, unbanItem);
-        recipe.shape(" D ", "DSD", " D ");
-        recipe.setIngredient('D', Material.DIAMOND);
-        recipe.setIngredient('S', Material.NETHER_STAR);
+        recipe.shape(" D ", "DLD", " D ");
+        recipe.setIngredient('D', Material.DIAMOND_BLOCK);
+        recipe.setIngredient('L', Material.NETHER_STAR); // Level Item (uses nether star as base)
 
         Bukkit.addRecipe(recipe);
     }

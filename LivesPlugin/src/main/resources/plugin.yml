@@ -12,6 +12,6 @@ commands:
   invis:
     description: Toggle invisibility (requires level 9+)
     usage: /invis
-  live:
-    description: Reset your level to 5 (OP only)
-    usage: /live reset
+  life:
+    description: Manage your levels
+    usage: /life <reset|withdraw>

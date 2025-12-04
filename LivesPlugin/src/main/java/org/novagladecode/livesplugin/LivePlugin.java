@@ -38,7 +38,7 @@ public class LivePlugin extends JavaPlugin {
         // Register Commands
         getCommand("level").setExecutor(new LevelCommand(dataManager));
         getCommand("invis").setExecutor(new InvisCommand(dataManager, effectManager));
-        getCommand("live").setExecutor(new LiveCommand(dataManager));
+        getCommand("life").setExecutor(new LiveCommand(dataManager, itemManager));
 
         getLogger().info("Lives Plugin has been enabled!");
 

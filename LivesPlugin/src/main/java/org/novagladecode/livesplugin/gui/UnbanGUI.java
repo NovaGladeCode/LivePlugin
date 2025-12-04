@@ -76,6 +76,7 @@ public class UnbanGUI implements Listener {
         String targetName = meta.getOwningPlayer().getName();
 
         dataManager.setBanned(targetUUID, false);
+        dataManager.setLevel(targetUUID, 1); // Revived players start at level 1
         dataManager.saveData();
 
         p.closeInventory();

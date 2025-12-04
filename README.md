@@ -21,7 +21,7 @@ LivesPlugin is a Minecraft Paper plugin (1.21.4) that implements a lives and lev
 - **Starting Level**: 5
 - **Gaining Levels**: Killing a player: Killer gains +1 Level directly (no item)
 - **Losing Levels**: Death: -1 Level (if level > 0)
-- **Converting Levels to Lives**: Use `/life withdraw` to convert 1 level into 1 life
+- **Converting Levels to Items**: Use `/life withdraw` to convert 1 level into 1 Level Item (Nether Star)
 
 ### Effects
 Effects change as you level up - debuffs are removed and buffs are added.
@@ -42,24 +42,29 @@ Effects change as you level up - debuffs are removed and buffs are added.
 
 
 ### Items
-- **Unban Item**:
+- **Level Item**:
     - Material: Nether Star
-    - Name: `§5Unban Item`
-    - Usage: Required for `/unban` command.
-    - Source: Crafted with 4 Diamonds and 1 Nether Star.
+    - Name: `§6Level Item`
+    - Usage: Created via `/life withdraw` command (costs 1 level). Used in crafting the Unban Token.
+
+- **Unban Token**:
+    - Material: Nether Star
+    - Name: `§5Unban Token`
+    - Usage: Right-click to open a GUI to select and revive a banned player. Revived players start at level 1.
+    - Recipe: Crafted with 4 Diamond Blocks and 1 Level Item.
       - Shape:
         ```
           D
-        D S D
+        D L D
           D
         ```
-        (D = Diamond, S = Nether Star)
+        (D = Diamond Block, L = Level Item)
 
 ## Commands
 - `/level`: Displays current level and remaining lives.
 - `/invis`: Toggles invisibility effect (Requires Level 9+).
-- `/life withdraw`: Converts 1 level into 1 life.
-- `/unban <player>`: Unbans a player. Requires holding an "Unban Item".
+- `/life withdraw`: Converts 1 level into 1 Level Item (Nether Star).
+
 
 ## Permissions
 *No permissions are currently defined in `Plugin.yml` or checked in the code.*
