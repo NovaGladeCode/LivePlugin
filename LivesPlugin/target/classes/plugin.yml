@@ -30,3 +30,9 @@ commands:
   wardenmace:
     description: Use Warden Mace abilities
     usage: /wardenmace <1|2>
+  trust:
+    description: Trust a player to be immune to abilities
+    usage: /trust <player>
+  untrust:
+    description: Untrust a player
+    usage: /untrust <player>
