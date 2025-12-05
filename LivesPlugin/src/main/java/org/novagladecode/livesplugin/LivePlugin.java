@@ -34,6 +34,8 @@ public class LivePlugin extends JavaPlugin {
         // Register Recipes
         itemManager.registerUnbanRecipe();
         itemManager.registerWardenMaceRecipe();
+        itemManager.registerChickenMaceRecipe();
+        itemManager.registerNetherMaceRecipe();
 
         // Register Listeners
         getServer().getPluginManager().registerEvents(

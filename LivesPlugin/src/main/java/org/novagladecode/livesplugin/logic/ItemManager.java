@@ -68,8 +68,8 @@ public class ItemManager {
         java.util.List<String> lore = new java.util.ArrayList<>();
         lore.add("§7Forged from the heart of the deep dark...");
         lore.add("§7Abilities:");
-        lore.add("§b/wardenmace 1 §7- Sonic Shockwave");
-        lore.add("§b/wardenmace 2 §7- Sonic Beam");
+        lore.add("§b/wardenmace 1 §7- Sculk Resonance");
+        lore.add("§b/wardenmace 2 §7- Warden's Grasp");
         meta.setLore(lore);
         mace.setItemMeta(meta);
         return mace;
@@ -112,5 +112,60 @@ public class ItemManager {
             return false;
         ItemMeta meta = item.getItemMeta();
         return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§3Warden Heart");
+    }
+
+    public void registerChickenMaceRecipe() {
+        ItemStack item = createChickenMace();
+        NamespacedKey key = new NamespacedKey(plugin, "chicken_mace");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("DFD", "FMF", "DFD");
+        recipe.setIngredient('D', Material.DIAMOND);
+        recipe.setIngredient('F', Material.FEATHER);
+        recipe.setIngredient('M', Material.MACE);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerNetherMaceRecipe() {
+        ItemStack item = createNetherMace();
+        NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        // I=Ingot, S=Scrap, R=Rod, M=Mace
+        // Top: I S I (2 ingots, 1 scrap)
+        // Mid: R M R
+        // Bot: S S S (3 scraps) -> Total 4 scraps, 2 ingots
+        recipe.shape("ISI", "RMR", "SSS");
+        recipe.setIngredient('I', Material.NETHERITE_INGOT);
+        recipe.setIngredient('S', Material.NETHERITE_SCRAP);
+        recipe.setIngredient('R', Material.BLAZE_ROD);
+        recipe.setIngredient('M', Material.MACE);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public ItemStack createChickenMace() {
+        ItemStack mace = new ItemStack(Material.MACE);
+        ItemMeta meta = mace.getItemMeta();
+        meta.setDisplayName("§eChicken Mace");
+        java.util.List<String> lore = new java.util.ArrayList<>();
+        lore.add("§7The power of poultry...");
+        lore.add("§7Passive: §6No Fall Damage");
+        lore.add("§7Abilities:");
+        lore.add("§e/chickenmace 1 §7- Chicken Army");
+        meta.setLore(lore);
+        mace.setItemMeta(meta);
+        return mace;
+    }
+
+    public ItemStack createNetherMace() {
+        ItemStack mace = new ItemStack(Material.MACE);
+        ItemMeta meta = mace.getItemMeta();
+        meta.setDisplayName("§cNether Mace");
+        java.util.List<String> lore = new java.util.ArrayList<>();
+        lore.add("§7Forged in the depths of the Nether...");
+        lore.add("§7Abilities:");
+        lore.add("§6/nethermace 1 §7- Infernal Wrath");
+        lore.add("§6/nethermace 2 §7- Fire Tornado");
+        meta.setLore(lore);
+        mace.setItemMeta(meta);
+        return mace;
     }
 }

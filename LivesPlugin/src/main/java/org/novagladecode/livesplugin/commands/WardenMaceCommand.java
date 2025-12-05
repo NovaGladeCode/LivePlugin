@@ -70,18 +70,18 @@ public class WardenMaceCommand implements CommandExecutor {
             p.sendMessage("§3Sculk Resonance activated!");
 
         } else if (args[0].equals("2")) {
-            // Ability 2: Sonic Beam (Shockwave)
+            // Ability 2: Warden's Grasp
             if (cooldown2.containsKey(p.getUniqueId())) {
                 long cooldown = cooldown2.get(p.getUniqueId());
                 if (currentTime < cooldown) {
-                    p.sendMessage("§cSonic Beam is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                    p.sendMessage("§cWarden's Grasp is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
                     return true;
                 }
             }
 
-            activateBeam(p);
+            activateGrasp(p);
             cooldown2.put(p.getUniqueId(), currentTime + 240000); // 4 minutes
-            p.sendMessage("§bSonic Shockwave activated!");
+            p.sendMessage("§3Warden's Grasp activated!");
         }
 
         return true;
@@ -122,60 +122,66 @@ public class WardenMaceCommand implements CommandExecutor {
         }
     }
 
-    private void activateBeam(Player p) {
-        // Play freeze sounds
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 0.5f);
-        p.getWorld().playSound(p.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0f, 0.7f);
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1.5f, 1.0f);
+    private void activateGrasp(Player p) {
+        // "Warden's Grasp" - Raycast and trap
+        Location start = p.getEyeLocation();
+        Vector direction = start.getDirection();
+        Location target = start.clone();
 
-        Location playerLoc = p.getLocation();
-
-        // Create freeze effect particles
-        for (int i = 0; i < 10; i++) {
-            final int radius = i;
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (int degree = 0; degree < 360; degree += 15) {
-                    double radians = Math.toRadians(degree);
-                    double x = Math.cos(radians) * radius;
-                    double z = Math.sin(radians) * radius;
-                    Location particleLoc = playerLoc.clone().add(x, 0.2, z);
-                    p.getWorld().spawnParticle(Particle.SNOWFLAKE, particleLoc, 3, 0.1, 0.3, 0.1, 0);
-                    p.getWorld().spawnParticle(Particle.SCULK_CHARGE, particleLoc, 2, 0.1, 0.1, 0.1, 0);
-                }
-            }, i * 1L);
+        // Raycast up to 20 blocks
+        for (int i = 0; i < 20; i++) {
+            target.add(direction);
+            if (target.getBlock().getType().isSolid()) {
+                break;
+            }
+            // Particle trail
+            target.getWorld().spawnParticle(Particle.SCULK_SOUL, target, 1, 0, 0, 0, 0);
         }
 
-        // Freeze nearby players within 10 blocks for 3 seconds
-        for (Entity e : p.getNearbyEntities(10, 10, 10)) {
-            if (e instanceof Player && e != p) {
-                Player target = (Player) e;
+        // Trap Location
+        Location trapLoc = target; // Center of trap
 
-                // Trust check
-                if (dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
-                    continue;
+        // Visuals: Erupting Sculk Tendrils
+        trapLoc.getWorld().playSound(trapLoc, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
+        trapLoc.getWorld().spawnParticle(Particle.SONIC_BOOM, trapLoc.clone().add(0, 1, 0), 1);
 
-                // Apply extreme slowness and jump boost debuff to freeze them
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 3, false, true)); // 3 seconds
-                target.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 60, 128, false, true)); // Negative
-                                                                                                             // jump
-                target.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 60, 10, false, true));
+        for (int i = 0; i < 20; i++) {
+            double angle = Math.random() * Math.PI * 2;
+            double radius = Math.random() * 4;
+            double x = Math.cos(angle) * radius;
+            double z = Math.sin(angle) * radius;
+            Location tendril = trapLoc.clone().add(x, 0, z);
 
-                // Stop their velocity
-                target.setVelocity(new Vector(0, 0, 0));
-
-                target.sendMessage("§3You've been frozen by the Warden Mace!");
-
-                // Spawn freeze particles around the frozen player
-                for (int i = 0; i < 10; i++) {
-                    target.getWorld().spawnParticle(Particle.SNOWFLAKE, target.getLocation().add(0, 1, 0), 5, 0.3, 0.5,
-                            0.3, 0);
-                }
+            // Pillar of particles
+            for (double y = 0; y < 3; y += 0.5) {
+                tendril.getWorld().spawnParticle(Particle.SCULK_CHARGE, tendril.clone().add(0, y, 0), 1, 0, 0, 0, 0);
             }
         }
 
-        // Launch the user into the air
-        Vector launchVelocity = new Vector(0, 1.5, 0); // Launch upward
-        p.setVelocity(launchVelocity);
-        p.sendMessage("§bYou've been launched into the air!");
+        // Logical Effect: Pull and Damage
+        for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 5, 5, 5)) {
+            if (e instanceof LivingEntity && e != p) {
+                // Trust check
+                if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                    continue;
+
+                LivingEntity le = (LivingEntity) e;
+
+                // Pull towards center
+                Vector pull = trapLoc.toVector().subtract(le.getLocation().toVector()).normalize().multiply(0.8);
+                le.setVelocity(pull);
+
+                // Heavy debuffs (Grasp)
+                le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 4)); // 5s Immobilized
+                le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 100, 0));
+                le.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither damage
+
+                le.damage(6.0, p); // Direct damage
+
+                if (le instanceof Player) {
+                    ((Player) le).sendMessage("§3You are in the Warden's Grasp!");
+                }
+            }
+        }
     }
 }
