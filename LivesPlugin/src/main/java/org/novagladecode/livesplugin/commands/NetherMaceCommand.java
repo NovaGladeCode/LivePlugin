@@ -114,7 +114,7 @@ public class NetherMaceCommand implements CommandExecutor {
     }
 
     private void createMeteor(Location start, Location end, Player p) {
-        // Create falling meteor effect
+        // Create falling meteor effect - MUCH MORE VISIBLE
         for (int i = 0; i < 20; i++) {
             final int step = i;
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -124,14 +124,31 @@ public class NetherMaceCommand implements CommandExecutor {
                         (end.getY() - start.getY()) * progress,
                         (end.getZ() - start.getZ()) * progress);
 
-                // Meteor particles
-                current.getWorld().spawnParticle(Particle.FLAME, current, 20, 0.3, 0.3, 0.3, 0.1);
-                current.getWorld().spawnParticle(Particle.LAVA, current, 5, 0.2, 0.2, 0.2, 0);
-                current.getWorld().spawnParticle(Particle.SMOKE, current, 10, 0.3, 0.3, 0.3, 0.05);
+                // MASSIVE meteor particles - make it clearly visible
+                current.getWorld().spawnParticle(Particle.FLAME, current, 50, 0.5, 0.5, 0.5, 0.15);
+                current.getWorld().spawnParticle(Particle.LAVA, current, 20, 0.4, 0.4, 0.4, 0.1);
+                current.getWorld().spawnParticle(Particle.SMOKE, current, 30, 0.5, 0.5, 0.5, 0.08);
+                current.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, current, 25, 0.5, 0.5, 0.5, 0.1);
+                current.getWorld().spawnParticle(Particle.FALLING_LAVA, current, 15, 0.3, 0.3, 0.3, 0);
+                current.getWorld().spawnParticle(Particle.EXPLOSION, current, 2);
+
+                // Add a fireball entity for extra visibility
+                if (step % 4 == 0) {
+                    org.bukkit.entity.Fireball fireball = current.getWorld().spawn(current,
+                            org.bukkit.entity.SmallFireball.class);
+                    fireball.setVelocity(new Vector(0, -1, 0));
+                    fireball.setYield(0); // No explosion damage from the fireball itself
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (fireball.isValid()) {
+                            fireball.remove();
+                        }
+                    }, 5L);
+                }
 
                 // Impact on last step
                 if (step == 19) {
-                    current.getWorld().spawnParticle(Particle.EXPLOSION, end, 3);
+                    current.getWorld().spawnParticle(Particle.EXPLOSION, end, 10);
+                    current.getWorld().spawnParticle(Particle.LAVA, end, 30, 2, 0.5, 2, 0.2);
                     current.getWorld().playSound(end, Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 1.2f);
 
                     // Damage nearby entities
