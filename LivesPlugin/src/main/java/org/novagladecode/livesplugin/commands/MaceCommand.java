@@ -35,7 +35,7 @@ public class MaceCommand implements CommandExecutor {
             lore.add("§7The power of the deep dark...");
             lore.add("§7Abilities:");
             lore.add("§b/wardenmace 1 §7- Sculk Resonance");
-            lore.add("§b/wardenmace 2 §7- Sonic Beam");
+            lore.add("§b/wardenmace 2 §7- Sonic Shockwave");
             meta.setLore(lore);
             mace.setItemMeta(meta);
 

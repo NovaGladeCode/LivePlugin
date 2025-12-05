@@ -79,7 +79,7 @@ public class WardenMaceCommand implements CommandExecutor {
 
             activateBeam(p);
             cooldown2.put(p.getUniqueId(), currentTime + 240000); // 4 minutes
-            p.sendMessage("§bSonic Beam fired!");
+            p.sendMessage("§bSonic Shockwave activated!");
         }
 
         return true;
@@ -117,28 +117,42 @@ public class WardenMaceCommand implements CommandExecutor {
     }
 
     private void activateBeam(Player p) {
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.5f);
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_ROAR, 1.0f, 1.0f);
+        // Play shockwave sounds
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 0.5f);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.0f);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 0.8f);
 
-        Location origin = p.getEyeLocation();
-        Vector direction = origin.getDirection();
+        Location playerLoc = p.getLocation();
 
-        // Raytrace visuals
-        for (double i = 0; i < 30; i += 0.5) {
-            Location point = origin.clone().add(direction.clone().multiply(i));
-            p.getWorld().spawnParticle(Particle.SCULK_SOUL, point, 2, 0.1, 0.1, 0.1, 0);
-            p.getWorld().spawnParticle(Particle.SONIC_BOOM, point, 1);
+        // Create expanding shockwave effect
+        for (int i = 0; i < 10; i++) {
+            final int radius = i;
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                for (int degree = 0; degree < 360; degree += 15) {
+                    double radians = Math.toRadians(degree);
+                    double x = Math.cos(radians) * radius;
+                    double z = Math.sin(radians) * radius;
+                    Location particleLoc = playerLoc.clone().add(x, 0.2, z);
+                    p.getWorld().spawnParticle(Particle.SONIC_BOOM, particleLoc, 1);
+                    p.getWorld().spawnParticle(Particle.SCULK_CHARGE, particleLoc, 3, 0.1, 0.1, 0.1, 0);
+                }
+            }, i * 1L);
         }
 
-        // Hit detection
-        org.bukkit.util.RayTraceResult result = p.getWorld().rayTraceEntities(origin, direction, 30,
-                entity -> entity instanceof LivingEntity && entity != p);
-
-        if (result != null && result.getHitEntity() != null) {
-            LivingEntity target = (LivingEntity) result.getHitEntity();
-            target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 120, 2));
-            target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 120, 1));
-            target.damage(10, p); // Optional damage
+        // Pull nearby players within 10 blocks closer
+        for (Entity e : p.getNearbyEntities(10, 10, 10)) {
+            if (e instanceof Player && e != p) {
+                Player target = (Player) e;
+                Vector direction = p.getLocation().toVector().subtract(target.getLocation().toVector()).normalize();
+                direction.setY(0.3); // Add slight upward pull
+                target.setVelocity(direction.multiply(1.5)); // Pull strength
+                target.sendMessage("§3You've been pulled by the Warden Mace shockwave!");
+            }
         }
+
+        // Launch the user into the air
+        Vector launchVelocity = new Vector(0, 1.5, 0); // Launch upward
+        p.setVelocity(launchVelocity);
+        p.sendMessage("§bYou've been launched into the air!");
     }
 }

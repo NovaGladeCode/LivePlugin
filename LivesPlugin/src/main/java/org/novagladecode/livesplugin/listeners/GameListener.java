@@ -134,6 +134,50 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+        // Check if attacker is a player with Warden Mace
+        if (e.getDamager() instanceof Player) {
+            Player attacker = (Player) e.getDamager();
+            ItemStack weapon = attacker.getInventory().getItemInMainHand();
+
+            // Check if holding Warden Mace
+            if (weapon.getType() == org.bukkit.Material.MACE && weapon.hasItemMeta()
+                    && weapon.getItemMeta().getDisplayName().equals("§3Warden Mace")) {
+
+                // Trigger sonic boom on hit
+                org.bukkit.Location hitLoc = e.getEntity().getLocation();
+
+                // Play sonic boom sound
+                hitLoc.getWorld().playSound(hitLoc, org.bukkit.Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 1.0f);
+                hitLoc.getWorld().playSound(hitLoc, org.bukkit.Sound.ENTITY_WARDEN_SONIC_CHARGE, 1.5f, 1.2f);
+
+                // Create sonic boom particles in a sphere
+                for (int i = 0; i < 20; i++) {
+                    double angle1 = Math.random() * Math.PI * 2;
+                    double angle2 = Math.random() * Math.PI;
+                    double x = Math.sin(angle2) * Math.cos(angle1) * 2;
+                    double y = Math.sin(angle2) * Math.sin(angle1) * 2;
+                    double z = Math.cos(angle2) * 2;
+                    org.bukkit.Location particleLoc = hitLoc.clone().add(x, y + 1, z);
+                    hitLoc.getWorld().spawnParticle(org.bukkit.Particle.SONIC_BOOM, particleLoc, 1);
+                    hitLoc.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, particleLoc, 3, 0.1, 0.1, 0.1, 0);
+                }
+
+                // Damage and knock back nearby entities (within 5 blocks)
+                for (org.bukkit.entity.Entity nearby : e.getEntity().getNearbyEntities(5, 5, 5)) {
+                    if (nearby instanceof org.bukkit.entity.LivingEntity && nearby != attacker) {
+                        org.bukkit.entity.LivingEntity livingEntity = (org.bukkit.entity.LivingEntity) nearby;
+                        livingEntity.damage(6.0, attacker);
+
+                        // Knockback effect
+                        org.bukkit.util.Vector knockback = nearby.getLocation().toVector()
+                                .subtract(hitLoc.toVector()).normalize().multiply(1.5);
+                        knockback.setY(0.5);
+                        nearby.setVelocity(knockback);
+                    }
+                }
+            }
+        }
+
         if (!(e.getEntity() instanceof Player))
             return;
 
