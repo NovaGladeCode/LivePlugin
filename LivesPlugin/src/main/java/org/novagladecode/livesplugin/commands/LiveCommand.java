@@ -88,8 +88,11 @@ public class LiveCommand implements CommandExecutor {
         p.sendMessage("§e/life reset §7- Reset your level to 5 (OP only)");
         p.sendMessage("§e/invis §7- Toggle invisibility (Level 9+)");
         p.sendMessage("§e/mace give warden §7- Get a Warden Mace (OP only)");
+        p.sendMessage("§e/mace give nether §7- Get a Nether Mace (OP only)");
         p.sendMessage("§e/wardenmace 1 §7- Sculk Resonance (5min cooldown)");
         p.sendMessage("§e/wardenmace 2 §7- Sonic Shockwave (4min cooldown)");
+        p.sendMessage("§e/nethermace 1 §7- Infernal Wrath (4min cooldown)");
+        p.sendMessage("§e/nethermace 2 §7- Fire Tornado (6min cooldown)");
         p.sendMessage("§e/life help §7- Show this help message");
     }
 }

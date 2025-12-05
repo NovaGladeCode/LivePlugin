@@ -20,6 +20,7 @@ import org.novagladecode.livesplugin.gui.UnbanGUI;
 import org.novagladecode.livesplugin.logic.EffectManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public class GameListener implements Listener {
@@ -29,6 +30,10 @@ public class GameListener implements Listener {
     private final ItemManager itemManager;
     private final EffectManager effectManager;
     private final UnbanGUI unbanGUI;
+
+    // Warden Mace sonic boom cooldown tracking
+    private final HashMap<UUID, Long> sonicBoomCooldown = new HashMap<>();
+    private final HashMap<UUID, Double> playerFallStart = new HashMap<>();
 
     public GameListener(JavaPlugin plugin, PlayerDataManager dataManager, ItemManager itemManager,
             EffectManager effectManager, UnbanGUI unbanGUI) {
@@ -197,6 +202,28 @@ public class GameListener implements Listener {
             // Check if holding Warden Mace
             if (weapon.getType() == org.bukkit.Material.MACE && weapon.hasItemMeta()
                     && weapon.getItemMeta().getDisplayName().equals("§3Warden Mace")) {
+
+                // Check if player has fallen at least 2 blocks
+                double fallDistance = attacker.getFallDistance();
+                if (fallDistance < 2.0) {
+                    return; // No sonic boom if fall distance is less than 2 blocks
+                }
+
+                // Check cooldown
+                UUID attackerUUID = attacker.getUniqueId();
+                long currentTime = System.currentTimeMillis();
+
+                if (sonicBoomCooldown.containsKey(attackerUUID)) {
+                    long cooldownEnd = sonicBoomCooldown.get(attackerUUID);
+                    if (currentTime < cooldownEnd) {
+                        long secondsLeft = (cooldownEnd - currentTime) / 1000;
+                        attacker.sendMessage("§cSonic boom is on cooldown! " + secondsLeft + "s left.");
+                        return;
+                    }
+                }
+
+                // Set cooldown (5 seconds)
+                sonicBoomCooldown.put(attackerUUID, currentTime + 5000);
 
                 // Trigger sonic boom on hit
                 org.bukkit.Location hitLoc = e.getEntity().getLocation();

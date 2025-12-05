@@ -44,7 +44,24 @@ public class MaceCommand implements CommandExecutor {
             return true;
         }
 
-        p.sendMessage("§cUsage: /mace give warden");
+        if (args.length >= 2 && args[0].equalsIgnoreCase("give") && args[1].equalsIgnoreCase("nether")) {
+            ItemStack mace = new ItemStack(Material.MACE);
+            ItemMeta meta = mace.getItemMeta();
+            meta.setDisplayName("§cNether Mace");
+            List<String> lore = new ArrayList<>();
+            lore.add("§7Forged in the depths of the Nether...");
+            lore.add("§7Abilities:");
+            lore.add("§6/nethermace 1 §7- Infernal Wrath");
+            lore.add("§6/nethermace 2 §7- Fire Tornado");
+            meta.setLore(lore);
+            mace.setItemMeta(meta);
+
+            p.getInventory().addItem(mace);
+            p.sendMessage("§aGiven Nether Mace!");
+            return true;
+        }
+
+        p.sendMessage("§cUsage: /mace give <warden|nether>");
         return true;
     }
 }

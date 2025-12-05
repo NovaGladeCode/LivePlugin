@@ -25,7 +25,10 @@ commands:
     usage: /dragonbreath
   mace:
     description: Give custom maces (OP only)
-    usage: /mace give warden
+    usage: /mace give <warden|nether>
+  nethermace:
+    description: Use Nether Mace abilities
+    usage: /nethermace <1|2>
   wardenmace:
     description: Use Warden Mace abilities
     usage: /wardenmace <1|2>

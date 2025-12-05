@@ -3,6 +3,11 @@ version: 2.0
 main: org.novagladecode.livesplugin.LivePlugin
 api-version: 1.21
 author: YourName
+name: LivesPlugin
+version: 2.0
+main: org.novagladecode.livesplugin.LivePlugin
+api-version: 1.21
+author: YourName
 description: A lives system with levels and effects
 
 commands:
@@ -12,6 +17,18 @@ commands:
   life:
     description: Manage your levels and lives
     usage: /life <level|withdraw|reset|help>
-  power:
-    description: Roll for a random elemental power (OP only)
-    usage: /power roll [player]
+  airboost:
+    description: Boost yourself into the air (requires level 15+)
+    usage: /airboost
+  dragonbreath:
+    description: Spawn dragon breath (requires Dragon Egg)
+    usage: /dragonbreath
+  mace:
+    description: Give custom maces (OP only)
+    usage: /mace give <warden|nether>
+  nethermace:
+    description: Use Nether Mace abilities
+    usage: /nethermace <1|2>
+  wardenmace:
+    description: Use Warden Mace abilities
+    usage: /wardenmace <1|2>

@@ -8,6 +8,7 @@ import org.novagladecode.livesplugin.commands.LiveCommand;
 import org.novagladecode.livesplugin.commands.AirBoostCommand;
 import org.novagladecode.livesplugin.commands.DragonBreathCommand;
 import org.novagladecode.livesplugin.commands.MaceCommand;
+import org.novagladecode.livesplugin.commands.NetherMaceCommand;
 import org.novagladecode.livesplugin.commands.WardenMaceCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.UnbanGUI;
@@ -44,6 +45,7 @@ public class LivePlugin extends JavaPlugin {
         getCommand("airboost").setExecutor(new AirBoostCommand(dataManager));
         getCommand("dragonbreath").setExecutor(new DragonBreathCommand());
         getCommand("mace").setExecutor(new MaceCommand());
+        getCommand("nethermace").setExecutor(new NetherMaceCommand(this));
         getCommand("wardenmace").setExecutor(new WardenMaceCommand(this));
 
         getLogger().info("Lives Plugin has been enabled!");
