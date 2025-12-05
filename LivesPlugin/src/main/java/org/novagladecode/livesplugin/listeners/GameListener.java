@@ -389,6 +389,16 @@ public class GameListener implements Listener {
                 return;
             }
         }
+
+        // Cancel persistent Wither damage if it's the cosmetic effect (Level < 10)
+        if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER
+                && e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
+            // If the player is low level, the Wither effect is cosmetic
+            if (dataManager.getLevel(p.getUniqueId()) < 10) {
+                e.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler
@@ -545,14 +555,20 @@ public class GameListener implements Listener {
             return true;
         }
 
-        // Ban fire resistance potions
+        // Ban fire resistance potions and Strength II
         if (type == Material.POTION || type == Material.SPLASH_POTION || type == Material.LINGERING_POTION) {
             if (item.hasItemMeta()) {
                 org.bukkit.inventory.meta.PotionMeta potionMeta = (org.bukkit.inventory.meta.PotionMeta) item
                         .getItemMeta();
-                if (potionMeta.getBasePotionType() != null &&
-                        potionMeta.getBasePotionType().toString().contains("FIRE_RESISTANCE")) {
-                    return true;
+                if (potionMeta.getBasePotionType() != null) {
+                    String typeName = potionMeta.getBasePotionType().toString();
+                    if (typeName.contains("FIRE_RESISTANCE")) {
+                        return true;
+                    }
+                    if (typeName.contains("STRONG_STRENGTH")
+                            || (typeName.contains("STRENGTH") && typeName.contains("STRONG"))) {
+                        return true;
+                    }
                 }
             }
         }

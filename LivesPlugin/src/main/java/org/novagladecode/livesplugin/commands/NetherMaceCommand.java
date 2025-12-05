@@ -235,20 +235,22 @@ public class NetherMaceCommand implements CommandExecutor {
 
             Location center = p.getLocation();
 
-            // INSANELY DENSE RED TORNADO - Make it consistent and solid
-            double height = 10;
+            // INSANELY DENSE RED TORNADO - Funnel Shape
+            double height = 12;
+
             // Red dust option for coloring
             org.bukkit.Particle.DustOptions redDust = new org.bukkit.Particle.DustOptions(
                     org.bukkit.Color.fromRGB(220, 20, 20), 1.5f);
-            org.bukkit.Particle.DustOptions darkRedDust = new org.bukkit.Particle.DustOptions(
-                    org.bukkit.Color.fromRGB(150, 10, 10), 2.0f);
+            org.bukkit.Particle.DustOptions orangeDust = new org.bukkit.Particle.DustOptions(
+                    org.bukkit.Color.fromRGB(255, 140, 0), 1.5f);
 
-            for (double y = 0; y < height; y += 0.08) { // Small step for high vertical density
-                double radius = 8 - (y / height * 3); // Narrows at top
+            for (double y = 0; y < height; y += 0.2) {
+                // Funnel shape: Starts thin, gets wide at top
+                double radius = 1.0 + (y * 0.6);
 
-                // 10 spirals for continuous solid look
-                for (int spiral = 0; spiral < 10; spiral++) {
-                    double angle = (tick[0] * 15 + y * 20 + spiral * 36) % 360;
+                // 5 spirals for coverage
+                for (int spiral = 0; spiral < 5; spiral++) {
+                    double angle = (tick[0] * 20 + y * 30 + spiral * 72) % 360;
                     double rad = Math.toRadians(angle);
 
                     double x = Math.cos(rad) * radius;
@@ -256,20 +258,31 @@ public class NetherMaceCommand implements CommandExecutor {
 
                     Location particleLoc = center.clone().add(x, y, z);
 
-                    // Solid RED dust definition
+                    // Visualize the tornado
+                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0.01);
                     particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, redDust);
 
-                    // Core flame definition
-                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0.05, 0.05, 0.05, 0.02);
-
-                    // Occasional darker accents and smoke for depth
-                    if (spiral % 3 == 0) {
-                        particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, darkRedDust);
-                    }
-                    if (y % 0.5 < 0.1) {
-                        particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 1, 0.05, 0.05, 0.05, 0);
+                    if (y > 8) {
+                        particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 1, 0, 0, 0, 0);
                     }
                 }
+            }
+
+            // Fire Lightning logic
+            if (tick[0] % 15 == 0) { // Every 15 ticks
+                double angle = Math.random() * Math.PI * 2;
+                double dist = Math.random() * 8;
+                double lx = Math.cos(angle) * dist;
+                double lz = Math.sin(angle) * dist;
+                Location strikeLoc = center.clone().add(lx, 0, lz);
+
+                // Cosmetic lightning effect (vertical beam)
+                for (int h = 0; h < 15; h++) {
+                    Location beam = strikeLoc.clone().add(0, h, 0);
+                    strikeLoc.getWorld().spawnParticle(Particle.DUST, beam, 1, 0.1, 0.1, 0.1, orangeDust);
+                    strikeLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, beam, 1, 0.1, 0.1, 0.1, 0);
+                }
+                strikeLoc.getWorld().playSound(strikeLoc, Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 2.0f);
             }
 
             // Launch fire charges every 10 ticks

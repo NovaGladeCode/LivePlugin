@@ -13,6 +13,7 @@ public class EffectManager {
         p.removePotionEffect(PotionEffectType.SLOWNESS);
         p.removePotionEffect(PotionEffectType.HUNGER);
         p.removePotionEffect(PotionEffectType.GLOWING);
+        p.removePotionEffect(PotionEffectType.WITHER);
         p.removePotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE);
         p.removePotionEffect(PotionEffectType.LUCK);
         p.removePotionEffect(PotionEffectType.SPEED);
@@ -33,7 +34,8 @@ public class EffectManager {
             p.addPotionEffect(new PotionEffect(PotionEffectType.HUNGER, Integer.MAX_VALUE, 0, true, false));
         }
         if (level >= 1 && level < 5) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 0, true, false));
+            // Visual Wither effect (damage cancelled in GameListener)
+            p.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, Integer.MAX_VALUE, 0, true, false));
         }
 
         // Buffs - add progressively starting at level 6
@@ -50,6 +52,8 @@ public class EffectManager {
         // Level 9 invisibility is now handled by /invis command
 
         if (level >= 10) {
+            // Glowing effect for high levels
+            p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 0, true, false));
             // Strength I only, no scaling
             p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 0, true, false));
         }
