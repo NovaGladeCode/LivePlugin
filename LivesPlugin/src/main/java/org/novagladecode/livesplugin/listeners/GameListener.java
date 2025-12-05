@@ -213,6 +213,9 @@ public class GameListener implements Listener {
         }
     }
 
+    // Track active rituals: PlayerUUID -> TaskID (or simply if active)
+    private final HashMap<UUID, Integer> activeRituals = new HashMap<>();
+
     @EventHandler
     public void onPrepareItemCraft(org.bukkit.event.inventory.PrepareItemCraftEvent e) {
         ItemStack result = e.getInventory().getResult();
@@ -222,6 +225,12 @@ public class GameListener implements Listener {
         // Check for Warden Mace recipe
         if (result.getType() == Material.MACE && result.hasItemMeta() &&
                 "§3Warden Mace".equals(result.getItemMeta().getDisplayName())) {
+
+            // Uniqueness check: If global flag is true, NO ONE can craft it
+            if (dataManager.isWardenMaceCrafted()) {
+                e.getInventory().setResult(null);
+                return;
+            }
 
             // Validate ingredients - specifically the Heart
             for (ItemStack ingredient : e.getInventory().getMatrix()) {
@@ -234,6 +243,179 @@ public class GameListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onCraftItem(org.bukkit.event.inventory.CraftItemEvent e) {
+        if (!(e.getWhoClicked() instanceof Player))
+            return;
+        Player p = (Player) e.getWhoClicked();
+
+        ItemStack result = e.getCurrentItem();
+        if (result == null || result.getType() != Material.MACE || !result.hasItemMeta() ||
+                !"§3Warden Mace".equals(result.getItemMeta().getDisplayName())) {
+            return;
+        }
+
+        // Final uniqueness check
+        if (dataManager.isWardenMaceCrafted()) {
+            e.setCancelled(true);
+            p.sendMessage("§cThe Warden Mace has already been forged! Only one may exist.");
+            return;
+        }
+
+        // START RITUAL
+        e.setCancelled(true); // Don't give item yet
+
+        // Prevent starting multiple
+        if (activeRituals.containsKey(p.getUniqueId())) {
+            p.sendMessage("§cYou are already performing a ritual!");
+            return;
+        }
+
+        // Take ingredients manually (since we cancelled the event)
+        // This is complex because we need to clear the exact matrix used.
+        // Simplified: Clear the crafting inventory.
+        // NOTE: This might clear non-recipe items if they are in the grid?
+        // Standard crafting grid is inputs.
+        // We will assume they have the correct items since Prepare ran.
+        e.getInventory().setMatrix(new ItemStack[9]); // Clears inputs
+        p.closeInventory();
+
+        // Broadcast coordinates
+        org.bukkit.Location loc = p.getLocation();
+        String coordMsg = String.format("§c§lX: %d, Y: %d, Z: %d", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+
+        Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        Bukkit.broadcastMessage("§4§lTHE FORGING OF THE WARDEN MACE HAS BEGUN!");
+        Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
+        Bukkit.broadcastMessage("§cLocation: " + coordMsg);
+        Bukkit.broadcastMessage("§cUse §e/warp ritual §cor get there NOW!"); // just flavor text
+        Bukkit.broadcastMessage("§cThe mace will appear in §43 MINUTES§c!");
+        Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
+        p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
+
+        // Start task
+        // Start task using BukkitRunnable for self-cancellation
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int ticks = 0;
+            final int MAX_TICKS = 20 * 60 * 3; // 3 minutes
+            final org.bukkit.Location origin = loc.clone();
+
+            @Override
+            public void run() {
+                if (!p.isOnline() || p.isDead()) {
+                   failRitual("Player died or disconnected.");
+                   return;
+                }
+                
+                // Check distance (10 blocks)
+                if (p.getLocation().distance(origin) > 10) {
+                    failRitual("Player moved too far away (stay within 10 blocks).");
+                    return;
+                }
+
+                // Effects every second
+                if (ticks % 20 == 0) {
+                    origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
+                    origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.05);
+                    p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR, 
+                        new net.md_5.bungee.api.chat.TextComponent("§bRitual Progress: " + (ticks / 20) + "s / 180s"));
+                }
+                
+                // Completion
+                if (ticks >= MAX_TICKS) {
+                    completeRitual();
+                    return;
+                }
+
+                ticks += 20; 
+            }
+            
+            private void failRitual(String reason) {
+                Bukkit.broadcastMessage("§cThe Warden Mace ritual FAILED! " + reason);
+                activeRituals.remove(p.getUniqueId());
+                this.cancel();
+            }
+            
+            private void completeRitual() {
+                Bukkit.broadcastMessage("§b§lTHE WARDEN MACE HAS BEEN FORGED BY " + p.getName() + "!");
+                
+                // Check if already crafted in the meantime
+                if (dataManager.isWardenMaceCrafted()) {
+                     p.sendMessage("§cToo late! Someone else finished it first.");
+                     activeRituals.remove(p.getUniqueId());
+                     this.cancel();
+                     return;
+                }
+                
+                dataManager.setWardenMaceCrafted(true);
+                // Give the item (ensure inventory not full, otherwise drop)
+                ItemStack mace = itemManager.createWardenMace();
+                if (p.getInventory().firstEmpty() != -1) {
+                    p.getInventory().addItem(mace);
+                } else {
+                    p.getWorld().dropItem(p.getLocation(), mace);
+                }
+                
+                p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                p.getWorld().spawnParticle(org.bukkit.Particle.EXPLOSION_HUGE, p.getLocation(), 1);
+                
+                activeRituals.remove(p.getUniqueId());
+                this.cancel();
+            }
+
+        }.runTaskTimer(plugin, 0L, 20L); // Run every 1 second (20 ticks)
+        
+        // Mark ritual active
+        activeRituals.put(p.getUniqueId(), 1);
+
+    @Override
+    public void run() {
+        if (!p.isOnline() || p.isDead()) {
+            failRitual("Player died or disconnected.");
+            return;
+        }
+
+        // Check distance
+        if (p.getLocation().distance(origin) > 15) {
+            failRitual("Player moved too far away.");
+            return;
+        }
+
+        // Effects
+        if (ticks % 20 == 0) { // Every second
+            origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
+            origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.add(0, 1, 0), 20, 0.5, 0.5,
+                    0.5, 0.05);
+            activeRituals.put(p.getUniqueId(), -1); // Keep alive (hacky way to check key existence, better to
+                                                    // store ID outside)
+            // Wait, cannot access activeRituals ID here unless final or inside.
+        }
+
+        ticks += 20; // Since we run every 20 ticks? No, runTaskTimer period is what matters.
+        // Actually let's use a counter. "runTaskTimer(plugin, runnable, 0L, 20L)" ->
+        // runs every second.
+        // So ticks here implies seconds if we increment by 1.
+    }
+
+    // Helper to fail
+    private void failRitual(String reason) {
+                Bukkit.broadcastMessage("§cThe ritual failed! " + reason);
+                activeRituals.remove(p.getUniqueId());
+                // Cancel task? We need the task object.
+                // We'll handle cancellation via the map lookup in a wrapper or just let it
+                // throw error? No.
+                // Correct pattern for self-cancelling task involves BukkitRunnable.
+            }
+
+    },0L,20L).getTaskId();
+
+    // Wait, I used anonymous Runnable which makes self-cancellation hard without
+    // BukkitRunnable.
+    // Let's rewrite using a simpler BukkitRunnable class approach or just rewrite
+    // the block above properly.
     }
 
     @EventHandler

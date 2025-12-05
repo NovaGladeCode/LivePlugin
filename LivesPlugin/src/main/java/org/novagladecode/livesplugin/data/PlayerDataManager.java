@@ -109,4 +109,13 @@ public class PlayerDataManager {
         }
         return bannedPlayers;
     }
+
+    public boolean isWardenMaceCrafted() {
+        return dataConfig.getBoolean("global.wardenMaceCrafted", false);
+    }
+
+    public void setWardenMaceCrafted(boolean crafted) {
+        dataConfig.set("global.wardenMaceCrafted", crafted);
+        saveData();
+    }
 }
