@@ -338,12 +338,30 @@ public class GameListener implements Listener {
             return false;
 
         Material type = item.getType();
-        return type == Material.NETHERITE_HELMET
+
+        // Ban netherite gear and fire resistance potions
+        if (type == Material.NETHERITE_HELMET
                 || type == Material.NETHERITE_CHESTPLATE
                 || type == Material.NETHERITE_LEGGINGS
                 || type == Material.NETHERITE_BOOTS
                 || type == Material.NETHERITE_SWORD
-                || type == Material.NETHERITE_AXE;
+                || type == Material.NETHERITE_AXE) {
+            return true;
+        }
+
+        // Ban fire resistance potions
+        if (type == Material.POTION || type == Material.SPLASH_POTION || type == Material.LINGERING_POTION) {
+            if (item.hasItemMeta()) {
+                org.bukkit.inventory.meta.PotionMeta potionMeta = (org.bukkit.inventory.meta.PotionMeta) item
+                        .getItemMeta();
+                if (potionMeta.getBasePotionType() != null &&
+                        potionMeta.getBasePotionType().toString().contains("FIRE_RESISTANCE")) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void processItem(ItemStack item) {
