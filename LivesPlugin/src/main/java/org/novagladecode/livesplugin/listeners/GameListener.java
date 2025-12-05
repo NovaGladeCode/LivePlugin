@@ -65,9 +65,11 @@ public class GameListener implements Listener {
         if (level <= 0) {
             dataManager.setBanned(victimUUID, true);
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                victim.kickPlayer(
-                        "§cYou have lost all your levels! You are banned until someone crafts an Unban Token.");
-            }, 5L);
+                if (victim.isOnline()) {
+                    victim.kickPlayer(
+                            "§cYou have lost all your levels! You are banned until someone crafts an Unban Token.");
+                }
+            }, 40L); // Wait 2 seconds for death animation to complete
         }
 
         dataManager.saveData();
@@ -166,7 +168,7 @@ public class GameListener implements Listener {
                 for (org.bukkit.entity.Entity nearby : e.getEntity().getNearbyEntities(5, 5, 5)) {
                     if (nearby instanceof org.bukkit.entity.LivingEntity && nearby != attacker) {
                         org.bukkit.entity.LivingEntity livingEntity = (org.bukkit.entity.LivingEntity) nearby;
-                        livingEntity.damage(6.0, attacker);
+                        livingEntity.damage(3.0, attacker);
 
                         // Knockback effect
                         org.bukkit.util.Vector knockback = nearby.getLocation().toVector()
