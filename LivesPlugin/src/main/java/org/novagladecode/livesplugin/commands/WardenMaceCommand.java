@@ -144,7 +144,7 @@ public class WardenMaceCommand implements CommandExecutor {
             if (e instanceof Player && e != p) {
                 Player target = (Player) e;
                 // Apply extreme slowness and jump boost debuff to freeze them
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 255, false, true)); // 3 seconds
+                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 3, false, true)); // 3 seconds
                 target.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 60, 128, false, true)); // Negative
                                                                                                              // jump
                 target.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 60, 10, false, true));
