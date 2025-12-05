@@ -151,11 +151,11 @@ public class NetherMaceCommand implements CommandExecutor {
                     current.getWorld().spawnParticle(Particle.LAVA, end, 30, 2, 0.5, 2, 0.2);
                     current.getWorld().playSound(end, Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 1.2f);
 
-                    // Launch blocks up
-                    for (int x = -2; x <= 2; x++) {
-                        for (int z = -2; z <= 2; z++) {
-                            if (Math.random() > 0.3)
-                                continue; // Randomize slightly
+                    // Launch blocks up (Reduced count)
+                    for (int x = -1; x <= 1; x++) {
+                        for (int z = -1; z <= 1; z++) {
+                            if (Math.random() > 0.2)
+                                continue; // 20% chance per block (reduced from 30%)
                             Location blockLoc = end.clone().add(x, -1, z);
                             Material type = blockLoc.getBlock().getType();
 
@@ -163,7 +163,7 @@ public class NetherMaceCommand implements CommandExecutor {
                                     && type != Material.LAVA && type != Material.WATER) {
                                 org.bukkit.entity.FallingBlock fb = end.getWorld()
                                         .spawnFallingBlock(end.clone().add(x, 0.5, z), type.createBlockData());
-                                Vector velocity = new Vector(x * 0.3, 0.8 + Math.random() * 0.5, z * 0.3);
+                                Vector velocity = new Vector(x * 0.3, 0.6 + Math.random() * 0.4, z * 0.3);
                                 fb.setVelocity(velocity);
                                 fb.setDropItem(false); // Don't drop items when they break
                             }
