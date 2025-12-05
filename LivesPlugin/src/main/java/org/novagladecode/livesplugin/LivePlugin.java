@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.commands.InvisCommand;
 import org.novagladecode.livesplugin.commands.LiveCommand;
 import org.novagladecode.livesplugin.commands.AirBoostCommand;
+import org.novagladecode.livesplugin.commands.ChickenMaceCommand;
 import org.novagladecode.livesplugin.commands.DragonBreathCommand;
 import org.novagladecode.livesplugin.commands.MaceCommand;
 import org.novagladecode.livesplugin.commands.NetherMaceCommand;
@@ -45,6 +46,7 @@ public class LivePlugin extends JavaPlugin {
         getCommand("airboost").setExecutor(new AirBoostCommand(dataManager));
         getCommand("dragonbreath").setExecutor(new DragonBreathCommand());
         getCommand("mace").setExecutor(new MaceCommand());
+        getCommand("chickenmace").setExecutor(new ChickenMaceCommand(this));
         getCommand("nethermace").setExecutor(new NetherMaceCommand(this));
         getCommand("wardenmace").setExecutor(new WardenMaceCommand(this));
 

@@ -50,6 +50,14 @@ public class AirBoostCommand implements CommandExecutor {
         p.setVelocity(p.getVelocity().add(new Vector(0, 2.0, 0)));
         p.sendMessage("§bWhoosh! You've been boosted!");
 
+        // Apply slowness 5 for 10 seconds
+        p.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                org.bukkit.potion.PotionEffectType.SLOWNESS,
+                200, // 10 seconds
+                4, // Level 5 (amplifier 4)
+                false,
+                true));
+
         // Set cooldown (15 seconds = 15000 ms)
         cooldowns.put(uuid, currentTime + 15000);
 
