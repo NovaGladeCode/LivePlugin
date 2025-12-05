@@ -33,6 +33,7 @@ public class LivePlugin extends JavaPlugin {
 
         // Register Recipes
         itemManager.registerUnbanRecipe();
+        itemManager.registerWardenMaceRecipe();
 
         // Register Listeners
         getServer().getPluginManager().registerEvents(

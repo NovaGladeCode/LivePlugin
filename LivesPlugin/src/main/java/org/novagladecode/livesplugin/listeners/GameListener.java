@@ -207,6 +207,36 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
+    public void onEntityDeath(org.bukkit.event.entity.EntityDeathEvent e) {
+        if (e.getEntityType() == org.bukkit.entity.EntityType.WARDEN) {
+            e.getDrops().add(itemManager.createWardenHeart());
+        }
+    }
+
+    @EventHandler
+    public void onPrepareItemCraft(org.bukkit.event.inventory.PrepareItemCraftEvent e) {
+        ItemStack result = e.getInventory().getResult();
+        if (result == null)
+            return;
+
+        // Check for Warden Mace recipe
+        if (result.getType() == Material.MACE && result.hasItemMeta() &&
+                "§3Warden Mace".equals(result.getItemMeta().getDisplayName())) {
+
+            // Validate ingredients - specifically the Heart
+            for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                if (ingredient != null && ingredient.getType() == Material.ECHO_SHARD) {
+                    // This must be the actual Warden Heart item
+                    if (!itemManager.isWardenHeart(ingredient)) {
+                        e.getInventory().setResult(null);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onEntityDamage(org.bukkit.event.entity.EntityDamageEvent e) {
         if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FALL
                 && e.getEntity() instanceof Player) {
