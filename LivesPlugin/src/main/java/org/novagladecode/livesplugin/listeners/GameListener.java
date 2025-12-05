@@ -1,14 +1,19 @@
 package org.novagladecode.livesplugin.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.UnbanGUI;
@@ -45,6 +50,37 @@ public class GameListener implements Listener {
         } else {
             int level = dataManager.getLevel(p.getUniqueId());
             effectManager.applyEffects(p, level);
+
+            // Scan inventory for banned items and process valid items
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                boolean foundBanned = false;
+                for (ItemStack item : p.getInventory().getContents()) {
+                    if (item != null && item.getType() != Material.AIR) {
+                        if (isBannedItem(item)) {
+                            item.setAmount(0);
+                            foundBanned = true;
+                        } else {
+                            processItem(item);
+                        }
+                    }
+                }
+
+                // Check armor slots
+                for (ItemStack armor : p.getInventory().getArmorContents()) {
+                    if (armor != null && armor.getType() != Material.AIR) {
+                        if (isBannedItem(armor)) {
+                            armor.setAmount(0);
+                            foundBanned = true;
+                        } else {
+                            processItem(armor);
+                        }
+                    }
+                }
+
+                if (foundBanned) {
+                    p.sendMessage("§cNetherite armor and weapons have been removed from your inventory!");
+                }
+            }, 20L); // Wait 1 second for player to fully load
         }
     }
 
@@ -195,6 +231,104 @@ public class GameListener implements Listener {
                     e.setCancelled(true);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onItemPickup(EntityPickupItemEvent e) {
+        if (!(e.getEntity() instanceof Player))
+            return;
+
+        Player p = (Player) e.getEntity();
+        ItemStack item = e.getItem().getItemStack();
+
+        // Check if item is banned
+        if (isBannedItem(item)) {
+            e.setCancelled(true);
+            e.getItem().remove();
+            p.sendMessage("§cYou cannot pick up netherite armor or weapons!");
+            return;
+        }
+
+        // Process the item (fix mace, downgrade protection)
+        processItem(item);
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (!(e.getWhoClicked() instanceof Player))
+            return;
+
+        ItemStack item = e.getCurrentItem();
+        if (item == null || item.getType() == Material.AIR)
+            return;
+
+        // Check if item is banned
+        if (isBannedItem(item)) {
+            e.setCancelled(true);
+            ((Player) e.getWhoClicked()).sendMessage("§cYou cannot use netherite armor or weapons!");
+            item.setAmount(0);
+            return;
+        }
+
+        // Process the item
+        processItem(item);
+    }
+
+    private boolean isBannedItem(ItemStack item) {
+        if (item == null)
+            return false;
+
+        Material type = item.getType();
+        return type == Material.NETHERITE_HELMET
+                || type == Material.NETHERITE_CHESTPLATE
+                || type == Material.NETHERITE_LEGGINGS
+                || type == Material.NETHERITE_BOOTS
+                || type == Material.NETHERITE_SWORD
+                || type == Material.NETHERITE_AXE;
+    }
+
+    private void processItem(ItemStack item) {
+        if (item == null || !item.hasItemMeta())
+            return;
+
+        ItemMeta meta = item.getItemMeta();
+        boolean changed = false;
+
+        // Make maces unbreakable and remove forbidden enchants
+        if (item.getType() == Material.MACE) {
+            if (!meta.isUnbreakable()) {
+                meta.setUnbreakable(true);
+                changed = true;
+            }
+
+            // Remove density, breach, fire aspect
+            if (meta.hasEnchant(Enchantment.DENSITY)) {
+                meta.removeEnchant(Enchantment.DENSITY);
+                changed = true;
+            }
+            if (meta.hasEnchant(Enchantment.BREACH)) {
+                meta.removeEnchant(Enchantment.BREACH);
+                changed = true;
+            }
+            if (meta.hasEnchant(Enchantment.FIRE_ASPECT)) {
+                meta.removeEnchant(Enchantment.FIRE_ASPECT);
+                changed = true;
+            }
+        }
+
+        // Downgrade Protection 4 to Protection 3
+        if (meta.hasEnchant(Enchantment.PROTECTION)) {
+            int level = meta.getEnchantLevel(Enchantment.PROTECTION);
+            if (level >= 4) {
+                meta.removeEnchant(Enchantment.PROTECTION);
+                meta.addEnchant(Enchantment.PROTECTION, 3, true);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            item.setItemMeta(meta);
         }
     }
 
