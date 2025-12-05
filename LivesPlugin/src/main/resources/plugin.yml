@@ -16,7 +16,7 @@ commands:
     usage: /invis
   life:
     description: Manage your levels and lives
-    usage: /life <level|withdraw|reset|help>
+    usage: /life <level|withdraw|set|reset|help>
   airboost:
     description: Boost yourself into the air (requires level 15+)
     usage: /airboost

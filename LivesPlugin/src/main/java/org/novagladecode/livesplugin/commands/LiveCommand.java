@@ -45,6 +45,44 @@ public class LiveCommand implements CommandExecutor {
             p.sendMessage("§aLevel: " + level);
             return true;
 
+        } else if (args[0].equalsIgnoreCase("set")) {
+            // Check if player is OP
+            if (!p.isOp()) {
+                p.sendMessage("§cYou must be an operator to use this command!");
+                return true;
+            }
+
+            if (args.length < 3) {
+                p.sendMessage("§cUsage: /life set <player> <level>");
+                return true;
+            }
+
+            Player target = org.bukkit.Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                p.sendMessage("§cPlayer not found!");
+                return true;
+            }
+
+            int newLevel;
+            try {
+                newLevel = Integer.parseInt(args[2]);
+            } catch (NumberFormatException e) {
+                p.sendMessage("§cInvalid level! Must be a number.");
+                return true;
+            }
+
+            if (newLevel < 0 || newLevel > 15) {
+                p.sendMessage("§cLevel must be between 0 and 15!");
+                return true;
+            }
+
+            dataManager.setLevel(target.getUniqueId(), newLevel);
+            dataManager.saveData();
+
+            p.sendMessage("§aSet " + target.getName() + "'s level to " + newLevel + "!");
+            target.sendMessage("§eYour level has been set to " + newLevel + " by " + p.getName());
+            return true;
+
         } else if (args[0].equalsIgnoreCase("reset")) {
             // Check if player is OP
             if (!p.isOp()) {
@@ -85,6 +123,7 @@ public class LiveCommand implements CommandExecutor {
         p.sendMessage("§6=== Lives Plugin Commands ===");
         p.sendMessage("§e/life level §7- Check your current level");
         p.sendMessage("§e/life withdraw §7- Convert 1 level into a Level Item");
+        p.sendMessage("§e/life set <player> <level> §7- Set a player's level (OP only)");
         p.sendMessage("§e/life reset §7- Reset your level to 5 (OP only)");
         p.sendMessage("§e/invis §7- Toggle invisibility (Level 9+)");
         p.sendMessage("§e/mace give warden §7- Get a Warden Mace (OP only)");
