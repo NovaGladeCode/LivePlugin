@@ -3,11 +3,6 @@ version: ${project.version}
 main: org.novagladecode.livesplugin.LivePlugin
 api-version: 1.21
 author: YourName
-name: LivesPlugin
-version: ${project.version}
-main: org.novagladecode.livesplugin.LivePlugin
-api-version: 1.21
-author: YourName
 description: A lives system with levels and effects
 
 commands:

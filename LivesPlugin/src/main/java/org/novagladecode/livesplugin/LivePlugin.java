@@ -42,14 +42,17 @@ public class LivePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(unbanGUI, this);
 
         // Register Commands
+        // Register Commands
         getCommand("invis").setExecutor(new InvisCommand(this, dataManager, effectManager));
         getCommand("life").setExecutor(new LiveCommand(dataManager, itemManager));
         getCommand("airboost").setExecutor(new AirBoostCommand(dataManager));
         getCommand("dragonbreath").setExecutor(new DragonBreathCommand());
         getCommand("mace").setExecutor(new MaceCommand());
-        getCommand("chickenmace").setExecutor(new ChickenMaceCommand(this));
-        getCommand("nethermace").setExecutor(new NetherMaceCommand(this));
-        getCommand("wardenmace").setExecutor(new WardenMaceCommand(this));
+        getCommand("chickenmace").setExecutor(new ChickenMaceCommand(this, dataManager));
+        getCommand("nethermace").setExecutor(new NetherMaceCommand(this, dataManager));
+        getCommand("wardenmace").setExecutor(new WardenMaceCommand(this, dataManager));
+        getCommand("trust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
+        getCommand("untrust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
 
         getLogger().info("Lives Plugin has been enabled!");
 

@@ -23,11 +23,13 @@ import java.util.UUID;
 public class WardenMaceCommand implements CommandExecutor {
 
     private final JavaPlugin plugin;
+    private final org.novagladecode.livesplugin.data.PlayerDataManager dataManager;
     private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
     private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
 
-    public WardenMaceCommand(JavaPlugin plugin) {
+    public WardenMaceCommand(JavaPlugin plugin, org.novagladecode.livesplugin.data.PlayerDataManager dataManager) {
         this.plugin = plugin;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -68,7 +70,7 @@ public class WardenMaceCommand implements CommandExecutor {
             p.sendMessage("§3Sculk Resonance activated!");
 
         } else if (args[0].equals("2")) {
-            // Ability 2: Sonic Beam
+            // Ability 2: Sonic Beam (Shockwave)
             if (cooldown2.containsKey(p.getUniqueId())) {
                 long cooldown = cooldown2.get(p.getUniqueId());
                 if (currentTime < cooldown) {
@@ -107,6 +109,10 @@ public class WardenMaceCommand implements CommandExecutor {
         // Effects
         for (Entity e : p.getNearbyEntities(15, 15, 15)) {
             if (e instanceof LivingEntity && e != p) {
+                // Trust check
+                if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                    continue;
+
                 LivingEntity le = (LivingEntity) e;
                 le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 2));
                 le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 160, 0));
@@ -143,6 +149,11 @@ public class WardenMaceCommand implements CommandExecutor {
         for (Entity e : p.getNearbyEntities(10, 10, 10)) {
             if (e instanceof Player && e != p) {
                 Player target = (Player) e;
+
+                // Trust check
+                if (dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
+                    continue;
+
                 // Apply extreme slowness and jump boost debuff to freeze them
                 target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 3, false, true)); // 3 seconds
                 target.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 60, 128, false, true)); // Negative

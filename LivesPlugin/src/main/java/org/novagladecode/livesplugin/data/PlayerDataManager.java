@@ -118,4 +118,29 @@ public class PlayerDataManager {
         dataConfig.set("global.wardenMaceCrafted", crafted);
         saveData();
     }
+
+    public void addTrusted(UUID owner, UUID target) {
+        java.util.List<String> trusted = dataConfig.getStringList(owner + ".trusted");
+        if (!trusted.contains(target.toString())) {
+            trusted.add(target.toString());
+            dataConfig.set(owner + ".trusted", trusted);
+            saveData();
+        }
+    }
+
+    public void removeTrusted(UUID owner, UUID target) {
+        java.util.List<String> trusted = dataConfig.getStringList(owner + ".trusted");
+        if (trusted.contains(target.toString())) {
+            trusted.remove(target.toString());
+            dataConfig.set(owner + ".trusted", trusted);
+            saveData();
+        }
+    }
+
+    public boolean isTrusted(UUID owner, UUID target) {
+        if (owner.equals(target))
+            return true; // Always trust self
+        java.util.List<String> trusted = dataConfig.getStringList(owner + ".trusted");
+        return trusted.contains(target.toString());
+    }
 }

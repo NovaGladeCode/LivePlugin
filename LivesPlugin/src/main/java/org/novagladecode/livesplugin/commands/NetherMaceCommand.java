@@ -21,11 +21,13 @@ import java.util.UUID;
 public class NetherMaceCommand implements CommandExecutor {
 
     private final JavaPlugin plugin;
+    private final org.novagladecode.livesplugin.data.PlayerDataManager dataManager;
     private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
     private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
 
-    public NetherMaceCommand(JavaPlugin plugin) {
+    public NetherMaceCommand(JavaPlugin plugin, org.novagladecode.livesplugin.data.PlayerDataManager dataManager) {
         this.plugin = plugin;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -173,6 +175,9 @@ public class NetherMaceCommand implements CommandExecutor {
                     // Damage nearby entities
                     for (Entity e : end.getWorld().getNearbyEntities(end, 3, 3, 3)) {
                         if (e instanceof LivingEntity && e != p) {
+                            if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                                continue;
+
                             LivingEntity le = (LivingEntity) e;
                             le.damage(8.0, p);
                             le.setFireTicks(60); // 3 seconds of fire
@@ -286,6 +291,9 @@ public class NetherMaceCommand implements CommandExecutor {
             // Keep entities at 3 blocks distance with gentle push/pull
             for (Entity e : center.getWorld().getNearbyEntities(center, 8, 10, 8)) {
                 if (e instanceof LivingEntity && e != p) {
+                    if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                        continue;
+
                     LivingEntity le = (LivingEntity) e;
 
                     double distance = e.getLocation().distance(center);
