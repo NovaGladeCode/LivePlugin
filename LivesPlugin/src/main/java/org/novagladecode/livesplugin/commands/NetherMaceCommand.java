@@ -18,9 +18,6 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.UUID;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 public class NetherMaceCommand implements CommandExecutor {
 
     private final JavaPlugin plugin;
@@ -96,7 +93,6 @@ public class NetherMaceCommand implements CommandExecutor {
 
         // Meteor shower over 6 seconds
         for (int wave = 0; wave < 12; wave++) {
-            final int w = wave;
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 // Spawn 5 meteors per wave
                 for (int i = 0; i < 5; i++) {
@@ -175,62 +171,93 @@ public class NetherMaceCommand implements CommandExecutor {
         p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GHAST_SCREAM, 1.5f, 1.5f);
         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_FIRE_AMBIENT, 2.0f, 1.0f);
 
-        // Fire tornado follows player for 10 seconds (200 ticks) - reduced from 15s
+        // Prevent flying kick
+        p.setAllowFlight(true);
+        p.setFlying(true);
+
+        // Fire tornado follows player for 10 seconds (200 ticks)
         final int[] tick = { 0 };
 
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
             tick[0]++;
 
-            if (tick[0] > 200 || !p.isOnline()) { // Changed from 300 to 200 ticks
+            if (tick[0] > 200 || !p.isOnline()) {
                 task.cancel();
                 p.sendMessage("§6Fire Tornado dissipated!");
+                // Reset flying if they weren't flying before
+                if (!p.getGameMode().toString().equals("CREATIVE") && !p.getGameMode().toString().equals("SPECTATOR")) {
+                    p.setFlying(false);
+                    p.setAllowFlight(false);
+                }
                 return;
             }
 
             Location center = p.getLocation();
 
-            // Create spinning tornado effect with MORE particles
+            // WAY MORE PARTICLES - Create DENSE spinning tornado effect
             double height = 10;
-            for (double y = 0; y < height; y += 0.3) { // Changed from 0.5 to 0.3 for more layers
+            for (double y = 0; y < height; y += 0.15) { // Much smaller step for WAY more layers
                 double radius = 8 - (y / height * 3); // Narrows at top
-                double angle = (tick[0] * 15 + y * 20) % 360;
-                double rad = Math.toRadians(angle);
 
-                double x = Math.cos(rad) * radius;
-                double z = Math.sin(rad) * radius;
+                // Multiple spirals for density
+                for (int spiral = 0; spiral < 4; spiral++) {
+                    double angle = (tick[0] * 15 + y * 20 + spiral * 90) % 360;
+                    double rad = Math.toRadians(angle);
 
-                Location particleLoc = center.clone().add(x, y, z);
-                // Increased particle counts significantly
-                particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 8, 0.15, 0.15, 0.15, 0.03);
-                particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 5, 0.15, 0.15, 0.15, 0.02);
-                particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 2, 0.1, 0.1, 0.1, 0);
+                    double x = Math.cos(rad) * radius;
+                    double z = Math.sin(rad) * radius;
 
-                // Add lava drips more frequently
-                if (Math.random() < 0.3) { // Changed from 0.1 to 0.3
-                    particleLoc.getWorld().spawnParticle(Particle.DRIPPING_LAVA, particleLoc, 2);
-                }
+                    Location particleLoc = center.clone().add(x, y, z);
 
-                // Add additional fire particles for density
-                if (Math.random() < 0.4) {
-                    particleLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, particleLoc, 3, 0.1, 0.1, 0.1, 0.01);
+                    // MASSIVE particle counts
+                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 20, 0.2, 0.2, 0.2, 0.05);
+                    particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 15, 0.2, 0.2, 0.2, 0.03);
+                    particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 5, 0.15, 0.15, 0.15, 0);
+                    particleLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, particleLoc, 10, 0.15, 0.15, 0.15,
+                            0.02);
+                    particleLoc.getWorld().spawnParticle(Particle.DRIPPING_LAVA, particleLoc, 4);
+                    particleLoc.getWorld().spawnParticle(Particle.FALLING_LAVA, particleLoc, 3);
                 }
             }
 
-            // Damage entities within tornado radius - REDUCED damage
+            // Launch fire charges every 10 ticks
+            if (tick[0] % 10 == 0) {
+                for (int i = 0; i < 3; i++) {
+                    double angle = Math.random() * Math.PI * 2;
+                    double fireX = Math.cos(angle) * 5;
+                    double fireZ = Math.sin(angle) * 5;
+
+                    Location fireLoc = center.clone().add(fireX, 2, fireZ);
+                    org.bukkit.entity.Fireball fireball = center.getWorld().spawn(fireLoc,
+                            org.bukkit.entity.SmallFireball.class);
+                    Vector direction = center.toVector().subtract(fireLoc.toVector()).normalize();
+                    fireball.setDirection(direction);
+                    fireball.setShooter(p);
+                }
+            }
+
+            // Keep entities at 3 blocks distance with gentle push/pull
             for (Entity e : center.getWorld().getNearbyEntities(center, 8, 10, 8)) {
                 if (e instanceof LivingEntity && e != p) {
                     LivingEntity le = (LivingEntity) e;
 
-                    // Check if within tornado radius
                     double distance = e.getLocation().distance(center);
                     if (distance <= 8) {
-                        le.damage(1.0, p); // Reduced from 2.0 to 1.0
-                        le.setFireTicks(40); // 2 seconds of fire
+                        le.damage(1.0, p);
+                        le.setFireTicks(40);
 
-                        // Pull toward center slightly
-                        Vector pull = center.toVector().subtract(e.getLocation().toVector()).normalize();
-                        pull.setY(0.2);
-                        e.setVelocity(pull.multiply(0.3));
+                        // Maintain 3 block distance gently
+                        if (distance < 3) {
+                            // Push away gently if too close
+                            Vector push = e.getLocation().toVector().subtract(center.toVector()).normalize();
+                            push.setY(0.1);
+                            e.setVelocity(push.multiply(0.15));
+                        } else if (distance > 3 && distance < 8) {
+                            // Pull gently if too far
+                            Vector pull = center.toVector().subtract(e.getLocation().toVector()).normalize();
+                            pull.setY(0.05);
+                            e.setVelocity(pull.multiply(0.1));
+                        }
                     }
                 }
             }
