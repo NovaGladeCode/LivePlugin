@@ -117,14 +117,14 @@ public class WardenMaceCommand implements CommandExecutor {
     }
 
     private void activateBeam(Player p) {
-        // Play shockwave sounds
+        // Play freeze sounds
         p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 0.5f);
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1.0f, 1.0f);
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 0.8f);
+        p.getWorld().playSound(p.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0f, 0.7f);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT_FREEZE, 1.5f, 1.0f);
 
         Location playerLoc = p.getLocation();
 
-        // Create expanding shockwave effect
+        // Create freeze effect particles
         for (int i = 0; i < 10; i++) {
             final int radius = i;
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -133,20 +133,32 @@ public class WardenMaceCommand implements CommandExecutor {
                     double x = Math.cos(radians) * radius;
                     double z = Math.sin(radians) * radius;
                     Location particleLoc = playerLoc.clone().add(x, 0.2, z);
-                    p.getWorld().spawnParticle(Particle.SONIC_BOOM, particleLoc, 1);
-                    p.getWorld().spawnParticle(Particle.SCULK_CHARGE, particleLoc, 3, 0.1, 0.1, 0.1, 0);
+                    p.getWorld().spawnParticle(Particle.SNOWFLAKE, particleLoc, 3, 0.1, 0.3, 0.1, 0);
+                    p.getWorld().spawnParticle(Particle.SCULK_CHARGE, particleLoc, 2, 0.1, 0.1, 0.1, 0);
                 }
             }, i * 1L);
         }
 
-        // Pull nearby players within 10 blocks closer
+        // Freeze nearby players within 10 blocks for 3 seconds
         for (Entity e : p.getNearbyEntities(10, 10, 10)) {
             if (e instanceof Player && e != p) {
                 Player target = (Player) e;
-                Vector direction = p.getLocation().toVector().subtract(target.getLocation().toVector()).normalize();
-                direction.setY(0.3); // Add slight upward pull
-                target.setVelocity(direction.multiply(1.5)); // Pull strength
-                target.sendMessage("§3You've been pulled by the Warden Mace shockwave!");
+                // Apply extreme slowness and jump boost debuff to freeze them
+                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 255, false, true)); // 3 seconds
+                target.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 60, 128, false, true)); // Negative
+                                                                                                             // jump
+                target.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 60, 10, false, true));
+
+                // Stop their velocity
+                target.setVelocity(new Vector(0, 0, 0));
+
+                target.sendMessage("§3You've been frozen by the Warden Mace!");
+
+                // Spawn freeze particles around the frozen player
+                for (int i = 0; i < 10; i++) {
+                    target.getWorld().spawnParticle(Particle.SNOWFLAKE, target.getLocation().add(0, 1, 0), 5, 0.3, 0.5,
+                            0.3, 0);
+                }
             }
         }
 
