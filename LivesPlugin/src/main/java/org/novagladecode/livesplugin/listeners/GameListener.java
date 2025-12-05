@@ -56,16 +56,6 @@ public class GameListener implements Listener {
             int level = dataManager.getLevel(p.getUniqueId());
             effectManager.applyEffects(p, level);
 
-            // Teleport to spawn point
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                org.bukkit.Location spawnLoc = p.getBedSpawnLocation();
-                if (spawnLoc == null) {
-                    // No bed spawn, use world spawn
-                    spawnLoc = p.getWorld().getSpawnLocation();
-                }
-                p.teleport(spawnLoc);
-            }, 5L); // Small delay to ensure player is fully loaded
-
             // Scan inventory for banned items and process valid items
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 boolean foundBanned = false;
@@ -115,21 +105,45 @@ public class GameListener implements Listener {
 
         final int finalLevel = level;
 
-        // Kick player after death animation
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (victim.isOnline()) {
-                if (finalLevel <= 0) {
-                    dataManager.setBanned(victimUUID, true);
-                    dataManager.saveData();
+        // Check if player should be banned
+        if (finalLevel <= 0) {
+            dataManager.setBanned(victimUUID, true);
+            dataManager.saveData();
+
+            // Kick banned players
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (victim.isOnline()) {
                     victim.kickPlayer(
                             "§cYou died! -1 Life\n§cYou're at §40 lives§c.\n§cYou are banned until someone crafts an Unban Token.");
-                } else {
-                    victim.kickPlayer(
-                            "§cYou died! -1 Life\n§eYou're at §6" + finalLevel + " "
-                                    + (finalLevel == 1 ? "life" : "lives") + "§e.");
                 }
-            }
-        }, 40L); // Wait 2 seconds for death animation to complete
+            }, 40L);
+        } else {
+            // Respawn alive players immediately
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (victim.isOnline() && victim.isDead()) {
+                    victim.spigot().respawn();
+
+                    // Teleport to spawn after a brief delay
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (victim.isOnline()) {
+                            org.bukkit.Location spawnLoc = victim.getBedSpawnLocation();
+                            if (spawnLoc == null) {
+                                spawnLoc = victim.getWorld().getSpawnLocation();
+                            }
+                            victim.teleport(spawnLoc);
+
+                            // Send death message
+                            victim.sendMessage("§c§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                            victim.sendMessage("§c§lYOU DIED!");
+                            victim.sendMessage("§e-1 Life");
+                            victim.sendMessage("§eYou're at §6" + finalLevel + " "
+                                    + (finalLevel == 1 ? "life" : "lives") + "§e.");
+                            victim.sendMessage("§c§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                        }
+                    }, 5L);
+                }
+            }, 1L); // Respawn almost immediately
+        }
 
         dataManager.saveData();
 
