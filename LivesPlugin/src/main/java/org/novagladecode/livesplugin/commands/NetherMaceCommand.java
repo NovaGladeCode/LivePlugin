@@ -151,6 +151,25 @@ public class NetherMaceCommand implements CommandExecutor {
                     current.getWorld().spawnParticle(Particle.LAVA, end, 30, 2, 0.5, 2, 0.2);
                     current.getWorld().playSound(end, Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 1.2f);
 
+                    // Launch blocks up
+                    for (int x = -2; x <= 2; x++) {
+                        for (int z = -2; z <= 2; z++) {
+                            if (Math.random() > 0.3)
+                                continue; // Randomize slightly
+                            Location blockLoc = end.clone().add(x, -1, z);
+                            Material type = blockLoc.getBlock().getType();
+
+                            if (type != Material.AIR && type != Material.BEDROCK && type != Material.BARRIER
+                                    && type != Material.LAVA && type != Material.WATER) {
+                                org.bukkit.entity.FallingBlock fb = end.getWorld()
+                                        .spawnFallingBlock(end.clone().add(x, 0.5, z), type.createBlockData());
+                                Vector velocity = new Vector(x * 0.3, 0.8 + Math.random() * 0.5, z * 0.3);
+                                fb.setVelocity(velocity);
+                                fb.setDropItem(false); // Don't drop items when they break
+                            }
+                        }
+                    }
+
                     // Damage nearby entities
                     for (Entity e : end.getWorld().getNearbyEntities(end, 3, 3, 3)) {
                         if (e instanceof LivingEntity && e != p) {
@@ -211,14 +230,20 @@ public class NetherMaceCommand implements CommandExecutor {
 
             Location center = p.getLocation();
 
-            // WAY MORE PARTICLES - Create DENSE spinning tornado effect
+            // INSANELY DENSE RED TORNADO - Make it consistent and solid
             double height = 10;
-            for (double y = 0; y < height; y += 0.15) { // Much smaller step for WAY more layers
+            // Red dust option for coloring
+            org.bukkit.Particle.DustOptions redDust = new org.bukkit.Particle.DustOptions(
+                    org.bukkit.Color.fromRGB(220, 20, 20), 1.5f);
+            org.bukkit.Particle.DustOptions darkRedDust = new org.bukkit.Particle.DustOptions(
+                    org.bukkit.Color.fromRGB(150, 10, 10), 2.0f);
+
+            for (double y = 0; y < height; y += 0.08) { // Small step for high vertical density
                 double radius = 8 - (y / height * 3); // Narrows at top
 
-                // Multiple spirals for density
-                for (int spiral = 0; spiral < 4; spiral++) {
-                    double angle = (tick[0] * 15 + y * 20 + spiral * 90) % 360;
+                // 10 spirals for continuous solid look
+                for (int spiral = 0; spiral < 10; spiral++) {
+                    double angle = (tick[0] * 15 + y * 20 + spiral * 36) % 360;
                     double rad = Math.toRadians(angle);
 
                     double x = Math.cos(rad) * radius;
@@ -226,14 +251,19 @@ public class NetherMaceCommand implements CommandExecutor {
 
                     Location particleLoc = center.clone().add(x, y, z);
 
-                    // MASSIVE particle counts
-                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 20, 0.2, 0.2, 0.2, 0.05);
-                    particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 15, 0.2, 0.2, 0.2, 0.03);
-                    particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 5, 0.15, 0.15, 0.15, 0);
-                    particleLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, particleLoc, 10, 0.15, 0.15, 0.15,
-                            0.02);
-                    particleLoc.getWorld().spawnParticle(Particle.DRIPPING_LAVA, particleLoc, 4);
-                    particleLoc.getWorld().spawnParticle(Particle.FALLING_LAVA, particleLoc, 3);
+                    // Solid RED dust definition
+                    particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, redDust);
+
+                    // Core flame definition
+                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0.05, 0.05, 0.05, 0.02);
+
+                    // Occasional darker accents and smoke for depth
+                    if (spiral % 3 == 0) {
+                        particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, darkRedDust);
+                    }
+                    if (y % 0.5 < 0.1) {
+                        particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 1, 0.05, 0.05, 0.05, 0);
+                    }
                 }
             }
 
