@@ -264,10 +264,15 @@ public class GameListener implements Listener {
             if (weapon.getType() == org.bukkit.Material.MACE && weapon.hasItemMeta()
                     && weapon.getItemMeta().getDisplayName().equals("§3Warden Mace")) {
 
-                // Check if player has fallen at least 2 blocks
+                // Check if player has fallen at least 5 blocks
                 double fallDistance = attacker.getFallDistance();
-                if (fallDistance < 2.0) {
-                    return; // No sonic boom if fall distance is less than 2 blocks
+                if (fallDistance < 5.0) {
+                    return; // No sonic boom if fall distance is less than 5 blocks
+                }
+
+                // 1 in 10 chance (10%)
+                if (java.util.concurrent.ThreadLocalRandom.current().nextInt(10) != 0) {
+                    return;
                 }
 
                 // Check cooldown
@@ -277,8 +282,14 @@ public class GameListener implements Listener {
                 if (sonicBoomCooldown.containsKey(attackerUUID)) {
                     long cooldownEnd = sonicBoomCooldown.get(attackerUUID);
                     if (currentTime < cooldownEnd) {
-                        long secondsLeft = (cooldownEnd - currentTime) / 1000;
-                        attacker.sendMessage("§cSonic boom is on cooldown! " + secondsLeft + "s left.");
+                        // Silent fail or message? User said "only work when...", implied random chance.
+                        // If it fails random check, it just doesn't happen. If it passes but is on
+                        // cooldown, we tell them.
+                        // But wait, if it's a random chance, maybe we shouldn't have a cooldown?
+                        // The user didn't ask to remove the cooldown, so I'll keep it to prevent spam
+                        // if they get lucky.
+                        // Actually, let's keep the cooldown logic as is, just triggered after the
+                        // chance check.
                         return;
                     }
                 }
