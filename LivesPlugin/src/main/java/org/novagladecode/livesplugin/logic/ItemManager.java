@@ -130,6 +130,31 @@ public class ItemManager {
         Bukkit.addRecipe(recipe);
     }
 
+    public void registerChickenBowRecipe() {
+        ItemStack item = createChickenBow();
+        NamespacedKey key = new NamespacedKey(plugin, "chicken_bow");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("DFD", "FBF", "DFD");
+        recipe.setIngredient('D', Material.DIAMOND);
+        recipe.setIngredient('F', Material.FEATHER);
+        recipe.setIngredient('B', Material.BOW);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public ItemStack createChickenBow() {
+        ItemStack bow = new ItemStack(Material.BOW);
+        ItemMeta meta = bow.getItemMeta();
+        meta.setDisplayName("§eChicken Bow");
+        java.util.List<String> lore = new java.util.ArrayList<>();
+        lore.add("§7Cluck cluck... boom.");
+        lore.add("§7Abilities:");
+        lore.add("§e50% Chance: §7Slow Falling (15s)");
+        lore.add("§c10% Chance: §7Summon Deadly Chicken");
+        meta.setLore(lore);
+        bow.setItemMeta(meta);
+        return bow;
+    }
+
     public ItemStack createNetherMace() {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();

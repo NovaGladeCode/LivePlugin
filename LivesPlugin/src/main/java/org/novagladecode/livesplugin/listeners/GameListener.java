@@ -19,6 +19,13 @@ import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.UnbanGUI;
 import org.novagladecode.livesplugin.logic.EffectManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
+import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Zombie;
+import org.bukkit.entity.EntityType;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -197,11 +204,20 @@ public class GameListener implements Listener {
             effectManager.applyEffects(p, currentLevel + 1);
         }
 
-        // Check if right-clicking with Unban Token
         if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
                 && itemManager.isUnbanItem(item)) {
             e.setCancelled(true);
             unbanGUI.openUnbanMenu(p);
+        }
+    }
+
+    @EventHandler
+    public void onEntityShootBow(EntityShootBowEvent e) {
+        if (e.getEntity() instanceof Player && e.getBow() != null) {
+            ItemStack bow = e.getBow();
+            if (bow.hasItemMeta() && "§eChicken Bow".equals(bow.getItemMeta().getDisplayName())) {
+                e.getProjectile().setMetadata("chicken_arrow", new FixedMetadataValue(plugin, true));
+            }
         }
     }
 
@@ -251,56 +267,68 @@ public class GameListener implements Listener {
         Player p = (Player) e.getWhoClicked();
 
         ItemStack result = e.getCurrentItem();
-        if (result == null || result.getType() != Material.MACE || !result.hasItemMeta() ||
-                !"§3Warden Mace".equals(result.getItemMeta().getDisplayName())) {
+        if (result == null || result.getType() != Material.MACE || !result.hasItemMeta()) {
             return;
         }
 
-        // Final uniqueness check
-        if (dataManager.isWardenMaceCrafted()) {
+        String displayName = result.getItemMeta().getDisplayName();
+        boolean isWarden = "§3Warden Mace".equals(displayName);
+        boolean isNether = "§cNether Mace".equals(displayName);
+
+        if (!isWarden && !isNether)
+            return;
+
+        // Warden Uniqueness Check
+        if (isWarden && dataManager.isWardenMaceCrafted()) {
             e.setCancelled(true);
             p.sendMessage("§cThe Warden Mace has already been forged! Only one may exist.");
             return;
         }
 
-        // START RITUAL
-        e.setCancelled(true); // Don't give item yet
-
-        // Prevent starting multiple
+        // Prevent starting multiple rituals
         if (activeRituals.containsKey(p.getUniqueId())) {
             p.sendMessage("§cYou are already performing a ritual!");
+            e.setCancelled(true);
             return;
         }
 
-        // Take ingredients manually (since we cancelled the event)
-        // This is complex because we need to clear the exact matrix used.
-        // Simplified: Clear the crafting inventory.
-        // NOTE: This might clear non-recipe items if they are in the grid?
-        // Standard crafting grid is inputs.
-        // We will assume they have the correct items since Prepare ran.
-        e.getInventory().setMatrix(new ItemStack[9]); // Clears inputs
+        // START RITUAL
+        e.setCancelled(true);
+        e.getInventory().setMatrix(new ItemStack[9]); // Clear inputs
         p.closeInventory();
 
-        // Broadcast coordinates
         org.bukkit.Location loc = p.getLocation();
         String coordMsg = String.format("§c§lX: %d, Y: %d, Z: %d", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 
-        Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        Bukkit.broadcastMessage("§4§lTHE FORGING OF THE WARDEN MACE HAS BEGUN!");
-        Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
-        Bukkit.broadcastMessage("§cLocation: " + coordMsg);
-        Bukkit.broadcastMessage("§cUse §e/warp ritual §cor get there NOW!"); // just flavor text
-        Bukkit.broadcastMessage("§cThe mace will appear in §43 MINUTES§c!");
-        Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        if (isWarden) {
+            Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            Bukkit.broadcastMessage("§4§lTHE FORGING OF THE WARDEN MACE HAS BEGUN!");
+            Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
+            Bukkit.broadcastMessage("§cLocation: " + coordMsg);
+            Bukkit.broadcastMessage("§cThe mace will appear in §43 MINUTES§c!");
+            Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
 
-        p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
+            startRitualTask(p, loc, 180, true);
+        } else {
+            Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            Bukkit.broadcastMessage("§6§lTHE NETHER MACE RITUAL HAS BEGUN!");
+            Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
+            Bukkit.broadcastMessage("§cLocation: " + coordMsg);
+            Bukkit.broadcastMessage("§cThe mace will appear in §61 MINUTE§c!");
+            Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 1 minute.");
 
-        // Start task
-        // Start task using BukkitRunnable for self-cancellation
+            startRitualTask(p, loc, 60, false);
+        }
+    }
+
+    private void startRitualTask(Player p, org.bukkit.Location origin, int durationSeconds, boolean isWarden) {
+        activeRituals.put(p.getUniqueId(), 1);
+
         new org.bukkit.scheduler.BukkitRunnable() {
             int ticks = 0;
-            final int MAX_TICKS = 20 * 60 * 3; // 3 minutes
-            final org.bukkit.Location origin = loc.clone();
+            final int MAX_TICKS = 20 * durationSeconds;
 
             @Override
             public void run() {
@@ -309,68 +337,70 @@ public class GameListener implements Listener {
                     return;
                 }
 
-                // Check distance (10 blocks)
                 if (p.getLocation().distance(origin) > 10) {
-                    failRitual("Player moved too far away (stay within 10 blocks).");
+                    failRitual("Player moved too far away.");
                     return;
                 }
 
-                // Effects every second
+                // Effects
                 if (ticks % 20 == 0) {
-                    origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
-                    origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0, 1, 0), 20,
-                            0.5, 0.5, 0.5, 0.05);
+                    if (isWarden) {
+                        origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0, 1, 0), 20,
+                                0.5, 0.5, 0.5, 0.05);
+                    } else {
+                        origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_LAVA_POP, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(org.bukkit.Particle.FLAME, origin.clone().add(0, 1, 0), 20, 0.5,
+                                0.5, 0.5, 0.05);
+                    }
                     p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
                             new net.md_5.bungee.api.chat.TextComponent(
-                                    "§bRitual Progress: " + (ticks / 20) + "s / 180s"));
+                                    "§bRitual Progress: " + (ticks / 20) + "s / " + durationSeconds + "s"));
                 }
 
-                // Completion
                 if (ticks >= MAX_TICKS) {
                     completeRitual();
                     return;
                 }
-
                 ticks += 20;
             }
 
             private void failRitual(String reason) {
-                Bukkit.broadcastMessage("§cThe Warden Mace ritual FAILED! " + reason);
+                Bukkit.broadcastMessage(isWarden ? "§cThe Warden Mace ritual FAILED! " + reason
+                        : "§cThe Nether Mace ritual FAILED! " + reason);
                 activeRituals.remove(p.getUniqueId());
                 this.cancel();
             }
 
             private void completeRitual() {
-                Bukkit.broadcastMessage("§b§lTHE WARDEN MACE HAS BEEN FORGED BY " + p.getName() + "!");
-
-                // Check if already crafted in the meantime
-                if (dataManager.isWardenMaceCrafted()) {
-                    p.sendMessage("§cToo late! Someone else finished it first.");
-                    activeRituals.remove(p.getUniqueId());
-                    this.cancel();
-                    return;
-                }
-
-                dataManager.setWardenMaceCrafted(true);
-                // Give the item (ensure inventory not full, otherwise drop)
-                ItemStack mace = itemManager.createWardenMace();
-                if (p.getInventory().firstEmpty() != -1) {
-                    p.getInventory().addItem(mace);
+                if (isWarden) {
+                    if (dataManager.isWardenMaceCrafted()) {
+                        p.sendMessage("§cToo late!");
+                        activeRituals.remove(p.getUniqueId());
+                        this.cancel();
+                        return;
+                    }
+                    dataManager.setWardenMaceCrafted(true);
+                    giveItem(itemManager.createWardenMace());
+                    Bukkit.broadcastMessage("§b§lTHE WARDEN MACE HAS BEEN FORGED BY " + p.getName() + "!");
                 } else {
-                    p.getWorld().dropItem(p.getLocation(), mace);
+                    giveItem(itemManager.createNetherMace());
+                    Bukkit.broadcastMessage("§6§lTHE NETHER MACE HAS BEEN FORGED BY " + p.getName() + "!");
                 }
 
                 p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                p.getWorld().spawnParticle(org.bukkit.Particle.EXPLOSION_EMITTER, p.getLocation(), 1);
-
                 activeRituals.remove(p.getUniqueId());
                 this.cancel();
             }
 
-        }.runTaskTimer(plugin, 0L, 20L); // Run every 1 second (20 ticks)
-
-        // Mark ritual active
-        activeRituals.put(p.getUniqueId(), 1);
+            private void giveItem(ItemStack item) {
+                if (p.getInventory().firstEmpty() != -1) {
+                    p.getInventory().addItem(item);
+                } else {
+                    p.getWorld().dropItem(p.getLocation(), item);
+                }
+            }
+        }.runTaskTimer(plugin, 0L, 20L);
     }
 
     @EventHandler
@@ -389,6 +419,32 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+
+        // Chicken Bow Logic
+        if (e.getDamager() instanceof Arrow) {
+            Arrow arrow = (Arrow) e.getDamager();
+            if (arrow.hasMetadata("chicken_arrow")) {
+                if (e.getEntity() instanceof org.bukkit.entity.LivingEntity) {
+                    org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e.getEntity();
+                    // 50% Slow Falling
+                    if (java.util.concurrent.ThreadLocalRandom.current().nextBoolean()) {
+                        target.addPotionEffect(
+                                new org.bukkit.potion.PotionEffect(PotionEffectType.SLOW_FALLING, 300, 0));
+                    }
+                    // 10% Chance Deadly Chicken
+                    if (java.util.concurrent.ThreadLocalRandom.current().nextInt(10) == 0) {
+                        org.bukkit.Location loc = target.getLocation();
+                        Chicken chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
+                        Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+                        zombie.setBaby(true);
+                        chicken.addPassenger(zombie);
+                        if (target instanceof Player)
+                            ((Player) target).sendMessage("§cThe Chicken Army attacks!");
+                    }
+                }
+            }
+        }
+
         // Check if attacker is a player with Warden Mace
         if (e.getDamager() instanceof Player) {
             Player attacker = (Player) e.getDamager();
