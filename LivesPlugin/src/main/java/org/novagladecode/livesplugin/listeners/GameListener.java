@@ -30,6 +30,16 @@ import org.bukkit.entity.EntityType;
 import java.util.HashMap;
 import java.util.UUID;
 
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.entity.Item;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.Location;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+
 public class GameListener implements Listener {
 
     private final JavaPlugin plugin;
@@ -228,8 +238,27 @@ public class GameListener implements Listener {
         }
     }
 
-    // Track active rituals: PlayerUUID -> TaskID (or simply if active)
-    private final HashMap<UUID, Integer> activeRituals = new HashMap<>();
+    // Track active rituals
+    private final Map<UUID, Integer> activeRituals = new HashMap<>(); // Player -> TaskID (unused, just existence check)
+    private final Map<Location, UUID> ritualLocations = new HashMap<>(); // Table Loc -> Player
+    private final Map<UUID, List<Item>> ritualVisuals = new HashMap<>(); // Player -> Floating Items
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent e) {
+        if (ritualLocations.containsKey(e.getBlock().getLocation())) {
+            e.setCancelled(true);
+            e.getPlayer().sendMessage("§cThis table is protected by a dark ritual...");
+        }
+    }
+
+    @EventHandler
+    public void onBlockDamage(BlockDamageEvent e) {
+        if (ritualLocations.containsKey(e.getBlock().getLocation())) {
+            // Apply Mining Fatigue 3 to simulate Obsidian hardness/slow mining
+            e.getPlayer().addPotionEffect(
+                    new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.MINING_FATIGUE, 40, 2));
+        }
+    }
 
     @EventHandler
     public void onPrepareItemCraft(org.bukkit.event.inventory.PrepareItemCraftEvent e) {
@@ -292,13 +321,40 @@ public class GameListener implements Listener {
             return;
         }
 
+        // Check if Workbench
+        if (e.getInventory().getType() != InventoryType.WORKBENCH) {
+            e.setCancelled(true);
+            p.sendMessage("§cYou must forge this in a Crafting Table!");
+            return;
+        }
+        Location tableLoc = e.getInventory().getLocation();
+        if (tableLoc == null) {
+            tableLoc = p.getLocation().getBlock().getLocation();
+        }
+
         // START RITUAL
         e.setCancelled(true);
+
+        // Spawn Visual Items
+        List<Item> visualItems = new ArrayList<>();
+        Location spawnLoc = tableLoc.clone().add(0.5, 1.1, 0.5);
+        for (ItemStack ingredient : e.getInventory().getMatrix()) {
+            if (ingredient != null && ingredient.getType() != Material.AIR) {
+                Item itemEntity = tableLoc.getWorld().dropItem(spawnLoc, ingredient.clone());
+                itemEntity.setPickupDelay(32767); // Infinite pickup delay
+                itemEntity.setInvulnerable(true);
+                itemEntity.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+                itemEntity.setGravity(false);
+                itemEntity.setGlowing(true);
+                visualItems.add(itemEntity);
+            }
+        }
+
         e.getInventory().setMatrix(new ItemStack[9]); // Clear inputs
         p.closeInventory();
 
-        org.bukkit.Location loc = p.getLocation();
-        String coordMsg = String.format("§c§lX: %d, Y: %d, Z: %d", loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        String coordMsg = String.format("§c§lX: %d, Y: %d, Z: %d", tableLoc.getBlockX(), tableLoc.getBlockY(),
+                tableLoc.getBlockZ());
 
         if (isWarden) {
             Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
@@ -309,7 +365,7 @@ public class GameListener implements Listener {
             Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
 
-            startRitualTask(p, loc, 180, true);
+            startRitualTask(p, tableLoc, 180, true, visualItems);
         } else {
             Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             Bukkit.broadcastMessage("§6§lTHE NETHER MACE RITUAL HAS BEGUN!");
@@ -319,12 +375,15 @@ public class GameListener implements Listener {
             Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 1 minute.");
 
-            startRitualTask(p, loc, 60, false);
+            startRitualTask(p, tableLoc, 60, false, visualItems);
         }
     }
 
-    private void startRitualTask(Player p, org.bukkit.Location origin, int durationSeconds, boolean isWarden) {
+    private void startRitualTask(Player p, Location origin, int durationSeconds, boolean isWarden,
+            List<Item> visualItems) {
         activeRituals.put(p.getUniqueId(), 1);
+        ritualLocations.put(origin, p.getUniqueId());
+        ritualVisuals.put(p.getUniqueId(), visualItems);
 
         new org.bukkit.scheduler.BukkitRunnable() {
             int ticks = 0;
@@ -346,12 +405,12 @@ public class GameListener implements Listener {
                 if (ticks % 20 == 0) {
                     if (isWarden) {
                         origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0, 1, 0), 20,
-                                0.5, 0.5, 0.5, 0.05);
+                        origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0.5, 1, 0.5),
+                                20, 0.5, 0.5, 0.5, 0.05);
                     } else {
                         origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_LAVA_POP, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.FLAME, origin.clone().add(0, 1, 0), 20, 0.5,
-                                0.5, 0.5, 0.05);
+                        origin.getWorld().spawnParticle(org.bukkit.Particle.FLAME, origin.clone().add(0.5, 1, 0.5), 20,
+                                0.5, 0.5, 0.5, 0.05);
                     }
                     p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
                             new net.md_5.bungee.api.chat.TextComponent(
@@ -368,7 +427,7 @@ public class GameListener implements Listener {
             private void failRitual(String reason) {
                 Bukkit.broadcastMessage(isWarden ? "§cThe Warden Mace ritual FAILED! " + reason
                         : "§cThe Nether Mace ritual FAILED! " + reason);
-                activeRituals.remove(p.getUniqueId());
+                cleanup();
                 this.cancel();
             }
 
@@ -376,7 +435,7 @@ public class GameListener implements Listener {
                 if (isWarden) {
                     if (dataManager.isWardenMaceCrafted()) {
                         p.sendMessage("§cToo late!");
-                        activeRituals.remove(p.getUniqueId());
+                        cleanup();
                         this.cancel();
                         return;
                     }
@@ -389,8 +448,19 @@ public class GameListener implements Listener {
                 }
 
                 p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
-                activeRituals.remove(p.getUniqueId());
+                cleanup();
                 this.cancel();
+            }
+
+            private void cleanup() {
+                activeRituals.remove(p.getUniqueId());
+                ritualLocations.remove(origin);
+                List<Item> visuals = ritualVisuals.remove(p.getUniqueId());
+                if (visuals != null) {
+                    for (Item i : visuals) {
+                        i.remove();
+                    }
+                }
             }
 
             private void giveItem(ItemStack item) {

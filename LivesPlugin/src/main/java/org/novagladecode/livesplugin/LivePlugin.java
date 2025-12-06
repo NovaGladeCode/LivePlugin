@@ -48,7 +48,7 @@ public class LivePlugin extends JavaPlugin {
         getCommand("life").setExecutor(new LiveCommand(dataManager, itemManager));
         getCommand("airboost").setExecutor(new AirBoostCommand(dataManager));
         getCommand("dragonbreath").setExecutor(new DragonBreathCommand());
-        getCommand("mace").setExecutor(new MaceCommand());
+        getCommand("weapon").setExecutor(new org.novagladecode.livesplugin.commands.WeaponCommand(itemManager));
         getCommand("nethermace").setExecutor(new NetherMaceCommand(this, dataManager));
         getCommand("wardenmace").setExecutor(new WardenMaceCommand(this, dataManager));
         getCommand("trust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));

@@ -42,7 +42,7 @@ public class ItemManager {
         recipe.shape("DHD", "DMD", "DDD");
 
         recipe.setIngredient('D', Material.DIAMOND_BLOCK);
-        recipe.setIngredient('M', Material.MACE);
+        recipe.setIngredient('M', Material.HEAVY_CORE);
 
         // Use Echo Shard as the base ingredient, but we'll need to enforce the custom
         // meta in a PrepareItemCraftEvent
@@ -126,7 +126,7 @@ public class ItemManager {
         recipe.setIngredient('I', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.NETHERITE_SCRAP);
         recipe.setIngredient('R', Material.BLAZE_ROD);
-        recipe.setIngredient('M', Material.MACE);
+        recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
     }
 

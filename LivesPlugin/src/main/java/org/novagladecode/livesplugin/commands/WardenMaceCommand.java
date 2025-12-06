@@ -134,32 +134,50 @@ public class WardenMaceCommand implements CommandExecutor {
             if (target.getBlock().getType().isSolid()) {
                 break;
             }
-            // Particle trail
-            target.getWorld().spawnParticle(Particle.SCULK_SOUL, target, 1, 0, 0, 0, 0);
+            // Dense particle trail
+            if (i % 2 == 0) {
+                target.getWorld().spawnParticle(Particle.SCULK_SOUL, target, 1, 0.1, 0.1, 0.1, 0.01);
+            }
+            if (i % 5 == 0) {
+                target.getWorld().playSound(target, Sound.ENTITY_WARDEN_HEARTBEAT, 0.5f, 1.5f);
+            }
         }
 
         // Trap Location
         Location trapLoc = target; // Center of trap
+        trapLoc.getWorld().playSound(trapLoc, Sound.ENTITY_WARDEN_EMERGE, 1.5f, 0.5f);
+        trapLoc.getWorld().playSound(trapLoc, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.5f, 0.6f);
 
-        // Visuals: Erupting Sculk Tendrils
-        trapLoc.getWorld().playSound(trapLoc, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
-        trapLoc.getWorld().spawnParticle(Particle.SONIC_BOOM, trapLoc.clone().add(0, 1, 0), 1);
+        // Massive Deep Dark Expansion
+        // Ground spread (Circle)
+        for (int degree = 0; degree < 360; degree += 15) {
+            double rad = Math.toRadians(degree);
+            double x = Math.cos(rad) * 4.5;
+            double z = Math.sin(rad) * 4.5;
+            Location floorInfo = trapLoc.clone().add(x, 0, z);
+            trapLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, floorInfo, 1, 0.1, 0, 0.1, 0.05);
+            trapLoc.getWorld().spawnParticle(Particle.SCULK_SOUL, floorInfo.add(0, 0.5, 0), 1, 0.1, 0.1, 0.1, 0.02);
+        }
 
+        // Erupting Tendrils/Pillars
         for (int i = 0; i < 20; i++) {
             double angle = Math.random() * Math.PI * 2;
-            double radius = Math.random() * 4;
+            double radius = Math.random() * 4.0;
             double x = Math.cos(angle) * radius;
             double z = Math.sin(angle) * radius;
             Location tendril = trapLoc.clone().add(x, 0, z);
 
-            // Pillar of particles
-            for (double y = 0; y < 3; y += 0.5) {
-                tendril.getWorld().spawnParticle(Particle.SCULK_CHARGE, tendril.clone().add(0, y, 0), 1, 0, 0, 0, 0);
+            for (double y = 0; y < 4; y += 0.4) {
+                tendril.getWorld().spawnParticle(Particle.SCULK_CHARGE, tendril.clone().add(0, y, 0), 1, 0.1, 0.1, 0.1,
+                        0);
             }
         }
 
+        // Sonic Boom burst at center
+        trapLoc.getWorld().spawnParticle(Particle.SONIC_BOOM, trapLoc.clone().add(0, 1.5, 0), 3);
+
         // Logical Effect: Pull and Damage
-        for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 5, 5, 5)) {
+        for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 6, 6, 6)) {
             if (e instanceof LivingEntity && e != p) {
                 // Trust check
                 if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
@@ -168,19 +186,24 @@ public class WardenMaceCommand implements CommandExecutor {
                 LivingEntity le = (LivingEntity) e;
 
                 // Pull towards center
-                Vector pull = trapLoc.toVector().subtract(le.getLocation().toVector()).normalize().multiply(0.8);
+                Vector pull = trapLoc.toVector().subtract(le.getLocation().toVector()).normalize().multiply(1.2); // Stronger
+                                                                                                                  // pull
                 le.setVelocity(pull);
 
                 // Heavy debuffs (Grasp)
                 le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 4)); // 5s Immobilized
                 le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 100, 0));
                 le.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither damage
+                le.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0)); // Extra disorientation
 
-                le.damage(6.0, p); // Direct damage
+                le.damage(8.0, p); // 4 hearts direct damage
 
                 if (le instanceof Player) {
-                    ((Player) le).sendMessage("§3You are in the Warden's Grasp!");
+                    ((Player) le).sendMessage("§3§lTHE ABYSS CONSUMES YOU!");
                 }
+
+                // Play individual sound for victim
+                le.getWorld().playSound(le.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1.0f, 1.0f);
             }
         }
     }
