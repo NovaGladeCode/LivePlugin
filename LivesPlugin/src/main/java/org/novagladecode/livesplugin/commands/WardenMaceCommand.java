@@ -169,7 +169,7 @@ public class WardenMaceCommand implements CommandExecutor {
 
             for (double y = 0; y < 4; y += 0.4) {
                 tendril.getWorld().spawnParticle(Particle.SCULK_CHARGE, tendril.clone().add(0, y, 0), 1, 0.1, 0.1, 0.1,
-                        0);
+                        0, 0.0f);
             }
         }
 

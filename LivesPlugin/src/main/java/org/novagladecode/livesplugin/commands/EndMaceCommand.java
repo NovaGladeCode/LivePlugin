@@ -11,25 +11,32 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public class EndMaceCommand implements CommandExecutor {
+public class EndMaceCommand implements CommandExecutor, Listener {
 
     private final JavaPlugin plugin;
     private final org.novagladecode.livesplugin.data.PlayerDataManager dataManager;
-    private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
-    private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
+    private final Map<UUID, Long> cooldown1 = new HashMap<>();
+    private final Map<UUID, Long> cooldown2 = new HashMap<>();
+
+    // Invis tracking
+    private final Map<UUID, BukkitTask> invisTasks = new HashMap<>();
 
     public EndMaceCommand(JavaPlugin plugin, org.novagladecode.livesplugin.data.PlayerDataManager dataManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @Override
@@ -56,21 +63,21 @@ public class EndMaceCommand implements CommandExecutor {
         long currentTime = System.currentTimeMillis();
 
         if (args[0].equals("1")) {
-            // Ability 1: Void Step
+            // Ability 1: Void Cloak (Invis)
             if (cooldown1.containsKey(p.getUniqueId())) {
                 long cooldown = cooldown1.get(p.getUniqueId());
                 if (currentTime < cooldown) {
-                    p.sendMessage("§cVoid Step is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                    p.sendMessage("§cVoid Cloak is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
                     return true;
                 }
             }
 
-            activateVoidStep(p);
-            cooldown1.put(p.getUniqueId(), currentTime + 20000); // 20 seconds
-            p.sendMessage("§5Void Step activated!");
+            activateVoidCloak(p);
+            cooldown1.put(p.getUniqueId(), currentTime + 60000); // 1 minute
+            p.sendMessage("§5Void Cloak activated!");
 
         } else if (args[0].equals("2")) {
-            // Ability 2: Singularity
+            // Ability 2: Singularity (Modified)
             if (cooldown2.containsKey(p.getUniqueId())) {
                 long cooldown = cooldown2.get(p.getUniqueId());
                 if (currentTime < cooldown) {
@@ -87,104 +94,119 @@ public class EndMaceCommand implements CommandExecutor {
         return true;
     }
 
-    private void activateVoidStep(Player p) {
-        Location start = p.getLocation();
-        Vector dir = start.getDirection().normalize().multiply(15);
-        Location dest = start.clone().add(dir);
-
-        // Find safe landing
-        if (dest.getBlock().getType().isSolid()) {
-            dest.add(0, 1, 0);
+    private void activateVoidCloak(Player p) {
+        // Vanish player from everyone
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            online.hidePlayer(plugin, p);
         }
 
-        // Effects at start
-        p.getWorld().playSound(start, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
-        p.getWorld().spawnParticle(Particle.PORTAL, start, 50, 0.5, 1, 0.5, 0.1);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 2.0f);
+        p.getWorld().spawnParticle(Particle.ASH, p.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.1);
 
-        // Teleport
-        p.teleport(dest);
+        // Schedule un-vanish
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            removeInvis(p);
+            p.sendMessage("§5Void Cloak expired.");
+        }, 200L); // 10 seconds
 
-        // Effects at dest
-        p.getWorld().playSound(dest, Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
-        p.getWorld().spawnParticle(Particle.DRAGON_BREATH, dest, 50, 0.5, 1, 0.5, 0.1);
+        invisTasks.put(p.getUniqueId(), task);
+    }
 
-        // Damage enemies in between (Line check)
-        Location check = start.clone();
-        Vector step = dir.clone().normalize().multiply(1);
-        for (int i = 0; i < 15; i++) {
-            check.add(step);
-            check.getWorld().spawnParticle(Particle.PORTAL, check, 5, 0.2, 0.2, 0.2, 0);
-            for (Entity e : check.getWorld().getNearbyEntities(check, 2, 2, 2)) {
-                if (e instanceof LivingEntity && e != p) {
-                    if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
-                        continue;
+    private void removeInvis(Player p) {
+        if (invisTasks.containsKey(p.getUniqueId())) {
+            invisTasks.remove(p.getUniqueId());
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                online.showPlayer(plugin, p);
+            }
+            p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
+            p.getWorld().spawnParticle(Particle.ASH, p.getLocation().add(0, 1, 0), 20, 0.5, 0.5, 0.5, 0.1);
+        }
+    }
 
-                    LivingEntity le = (LivingEntity) e;
-                    le.damage(10, p); // 5 hearts
-                    le.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 60, 1));
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
+        if (e.getDamager() instanceof Player) {
+            Player p = (Player) e.getDamager();
+            if (invisTasks.containsKey(p.getUniqueId())) {
+                // Cancel task and un-invis
+                BukkitTask task = invisTasks.get(p.getUniqueId());
+                if (!task.isCancelled()) {
+                    task.cancel();
                 }
+                removeInvis(p);
+                p.sendMessage("§cAvailable revealed!");
+                p.playSound(p.getLocation(), Sound.BLOCK_GLASS_BREAK, 1.0f, 0.5f);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent e) {
+        Player newPlayer = e.getPlayer();
+        for (UUID uuid : invisTasks.keySet()) {
+            Player invisiblePlayer = Bukkit.getPlayer(uuid);
+            if (invisiblePlayer != null) {
+                newPlayer.hidePlayer(plugin, invisiblePlayer);
             }
         }
     }
 
     private void activateSingularity(Player p) {
         Location center = p.getLocation().add(0, 5, 0); // Above player
-        p.setFlying(true);
-        p.setAllowFlight(true);
+        p.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 0.5f);
 
-        p.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_SPAWN, 2.0f, 0.5f);
-        p.getWorld().playSound(center, Sound.ENTITY_ENDER_DRAGON_GROWL, 2.0f, 0.5f);
+        // Single tick effect? Or duration?
+        // User said "inted pull them in ... launch up and away".
+        // Sounds like a one-time burst or short duration.
+        // I'll make it a 3-second duration ability that pulls, damages, then launches
+        // at the end.
 
         new org.bukkit.scheduler.BukkitRunnable() {
             int ticks = 0;
 
             @Override
             public void run() {
-                if (!p.isOnline() || ticks >= 200) { // 10 seconds
-                    this.cancel();
-                    p.getWorld().playSound(center, Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
-                    p.getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, center, 5);
-                    // Huge explosion finish
-                    center.getWorld().createExplosion(center, 0F, false); // Visual only
+                if (!p.isOnline() || ticks >= 60) { // 3 seconds
+                    // Launch at end
+                    for (Entity e : center.getWorld().getNearbyEntities(center, 15, 15, 15)) {
+                        if (e instanceof LivingEntity && e != p) {
+                            if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                                continue;
 
-                    // Reset flight if survival
-                    if (!p.getGameMode().toString().equals("CREATIVE")
-                            && !p.getGameMode().toString().equals("SPECTATOR")) {
-                        p.setFlying(false);
-                        p.setAllowFlight(false);
+                            // Launch Up and Away
+                            Vector dir = e.getLocation().toVector().subtract(center.toVector()).normalize();
+                            dir.setY(1.0); // Up
+                            dir.multiply(1.5); // 6 blocks approx strength? (1.5 velocity is high)
+                            e.setVelocity(dir);
+                        }
                     }
+                    this.cancel();
                     return;
                 }
 
-                ticks += 5;
+                // Visuals
+                center.getWorld().spawnParticle(Particle.SQUID_INK, center, 5, 0.5, 0.5, 0.5, 0);
+                center.getWorld().spawnParticle(Particle.PORTAL, center, 10, 1, 1, 1, 0);
 
-                // Black Hole Visuals
-                center.getWorld().spawnParticle(Particle.ASH, center, 100, 1, 1, 1, 0.1);
-                center.getWorld().spawnParticle(Particle.PORTAL, center, 50, 2, 2, 2, 0.5);
-                center.getWorld().spawnParticle(Particle.SQUID_INK, center, 20, 0.5, 0.5, 0.5, 0.1);
-
-                // Pull Logic
-                for (Entity e : center.getWorld().getNearbyEntities(center, 25, 25, 25)) {
+                // Pull and Damage
+                for (Entity e : center.getWorld().getNearbyEntities(center, 15, 15, 15)) {
                     if (e instanceof LivingEntity && e != p) {
                         if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
                             continue;
 
                         LivingEntity le = (LivingEntity) e;
 
-                        // Violent Pull
-                        Vector pull = center.toVector().subtract(le.getLocation().toVector()).normalize().multiply(1.5);
+                        // Mild Pull
+                        Vector pull = center.toVector().subtract(le.getLocation().toVector()).normalize().multiply(0.4);
                         le.setVelocity(pull);
 
-                        double dist = le.getLocation().distance(center);
-                        if (dist < 5) {
-                            // Crushing damage at center
-                            le.damage(4.0, p);
-                            le.getWorld().spawnParticle(Particle.CRIT, le.getLocation(), 10);
-                            le.getWorld().playSound(le.getLocation(), Sound.ENTITY_ZOMBIE_BREAK_WOODEN_DOOR, 0.5f,
-                                    0.5f); // Crunch sound
+                        // Damage every second (20 ticks)
+                        if (ticks % 20 == 0) {
+                            le.damage(4.0, p); // 2 hearts (User said "do some damage")
                         }
                     }
                 }
+                ticks += 5;
             }
         }.runTaskTimer(plugin, 0L, 5L);
     }

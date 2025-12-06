@@ -142,7 +142,7 @@ public class ItemManager {
         lore.add("§5Ability: Singularity");
         meta.setLore(lore);
         meta.setUnbreakable(true);
-        meta.addEnchant(org.bukkit.enchantments.Enchantment.SHARPNESS, 10, true);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.BREACH, 3, true);
         item.setItemMeta(meta);
         customEndMace = item;
         return item;
