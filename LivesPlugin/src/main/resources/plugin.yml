@@ -12,6 +12,22 @@ commands:
   life:
     description: Manage your levels and lives
     usage: /life <level|withdraw|set|reset|help>
+  airboost:
+    description: Boost yourself into the air (requires level 15+)
+    usage: /airboost
+  dragonbreath:
+    description: Spawn dragon breath (requires Dragon Egg)
+    usage: /dragonbreath
+  weapon:
+    description: Give custom weapons (OP only)
+    usage: /weapon give <warden|nether|chickenbow>
+    permission: livesplugin.op
+  nethermace:
+    description: Use Nether Mace abilities
+    usage: /nethermace <1|2>
+  wardenmace:
+    description: Use Warden Mace abilities
+    usage: /wardenmace <1|2>
   trust:
     description: Trust a player to be immune to abilities
     usage: /trust <player>
