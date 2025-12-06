@@ -65,9 +65,9 @@ public class WardenMaceCommand implements CommandExecutor {
                 }
             }
 
-            activateResonance(p);
-            cooldown1.put(p.getUniqueId(), currentTime + 300000); // 5 minutes
-            p.sendMessage("§3Sculk Resonance activated!");
+            activateSonicBoom(p);
+            cooldown1.put(p.getUniqueId(), currentTime + 10000); // 10 seconds cooldown (shorter for an attack)
+            p.sendMessage("§3Sonic Boom unleashed!");
 
         } else if (args[0].equals("2")) {
             // Ability 2: Warden's Grasp
@@ -87,37 +87,44 @@ public class WardenMaceCommand implements CommandExecutor {
         return true;
     }
 
-    private void activateResonance(Player p) {
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 0.5f);
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 0.5f);
-        p.getWorld().playSound(p.getLocation(), Sound.AMBIENT_CAVE, 1.0f, 1.0f);
+    private void activateSonicBoom(Player p) {
+        Location start = p.getEyeLocation();
+        Vector direction = start.getDirection().normalize();
 
-        // Visuals: Expanding circle
-        for (int i = 0; i < 20; i++) {
-            final int r = i;
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                for (int degree = 0; degree < 360; degree += 10) {
-                    double radians = Math.toRadians(degree);
-                    double x = Math.cos(radians) * r;
-                    double z = Math.sin(radians) * r;
-                    p.getWorld().spawnParticle(Particle.SCULK_SOUL, p.getLocation().add(x, 0.5, z), 1);
-                    p.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, p.getLocation().add(x, 0.5, z), 1);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_CHARGE, 1.0f, 1.5f);
+
+        // Raycast
+        for (double d = 0; d < 20; d += 0.5) {
+            Location loc = start.clone().add(direction.clone().multiply(d));
+
+            // Visuals
+            if (d % 1.0 == 0) { // Every block
+                p.getWorld().spawnParticle(Particle.SONIC_BOOM, loc, 1);
+            }
+            p.getWorld().spawnParticle(Particle.SCULK_SOUL, loc, 1, 0.1, 0.1, 0.1, 0.0);
+
+            // Collision
+            if (loc.getBlock().getType().isSolid()) {
+                p.getWorld().spawnParticle(Particle.EXPLOSION, loc, 1);
+                break;
+            }
+
+            // Entity Hit
+            for (Entity e : loc.getWorld().getNearbyEntities(loc, 1.0, 1.0, 1.0)) {
+                if (e instanceof LivingEntity && e != p) {
+                    // Trust check
+                    if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                        continue;
+
+                    LivingEntity target = (LivingEntity) e;
+                    target.damage(16.0, p); // 8 Hearts (Magic/Sonic damage)
+                    target.setVelocity(direction.clone().multiply(2.5).setY(0.5)); // Heavy knockback
+
+                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1.0f, 1.0f);
+                    // Single hit per entity per beam? Or piercing?
+                    // Raycast continues (Piercing)
                 }
-            }, i * 2L);
-        }
-
-        // Effects
-        for (Entity e : p.getNearbyEntities(15, 15, 15)) {
-            if (e instanceof LivingEntity && e != p) {
-                // Trust check
-                if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
-                    continue;
-
-                LivingEntity le = (LivingEntity) e;
-                le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 160, 2));
-                le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 160, 0));
-                le.addPotionEffect(new PotionEffect(PotionEffectType.MINING_FATIGUE, 160, 2));
-                le.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 160, 0));
             }
         }
     }
