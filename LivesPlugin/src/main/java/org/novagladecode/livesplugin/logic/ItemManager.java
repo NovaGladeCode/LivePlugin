@@ -114,17 +114,6 @@ public class ItemManager {
         return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§3Warden Heart");
     }
 
-    public void registerChickenMaceRecipe() {
-        ItemStack item = createChickenMace();
-        NamespacedKey key = new NamespacedKey(plugin, "chicken_mace");
-        ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("DFD", "FMF", "DFD");
-        recipe.setIngredient('D', Material.DIAMOND);
-        recipe.setIngredient('F', Material.FEATHER);
-        recipe.setIngredient('M', Material.MACE);
-        Bukkit.addRecipe(recipe);
-    }
-
     public void registerNetherMaceRecipe() {
         ItemStack item = createNetherMace();
         NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
@@ -139,20 +128,6 @@ public class ItemManager {
         recipe.setIngredient('R', Material.BLAZE_ROD);
         recipe.setIngredient('M', Material.MACE);
         Bukkit.addRecipe(recipe);
-    }
-
-    public ItemStack createChickenMace() {
-        ItemStack mace = new ItemStack(Material.MACE);
-        ItemMeta meta = mace.getItemMeta();
-        meta.setDisplayName("§eChicken Mace");
-        java.util.List<String> lore = new java.util.ArrayList<>();
-        lore.add("§7The power of poultry...");
-        lore.add("§7Passive: §6No Fall Damage");
-        lore.add("§7Abilities:");
-        lore.add("§e/chickenmace 1 §7- Chicken Army");
-        meta.setLore(lore);
-        mace.setItemMeta(meta);
-        return mace;
     }
 
     public ItemStack createNetherMace() {

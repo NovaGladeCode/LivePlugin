@@ -61,24 +61,7 @@ public class MaceCommand implements CommandExecutor {
             return true;
         }
 
-        if (args.length >= 2 && args[0].equalsIgnoreCase("give") && args[1].equalsIgnoreCase("chicken")) {
-            ItemStack mace = new ItemStack(Material.MACE);
-            ItemMeta meta = mace.getItemMeta();
-            meta.setDisplayName("§eChicken Mace");
-            List<String> lore = new ArrayList<>();
-            lore.add("§7The power of poultry...");
-            lore.add("§7Passive: §6No Fall Damage");
-            lore.add("§7Abilities:");
-            lore.add("§e/chickenmace 1 §7- Chicken Army");
-            meta.setLore(lore);
-            mace.setItemMeta(meta);
-
-            p.getInventory().addItem(mace);
-            p.sendMessage("§aGiven Chicken Mace!");
-            return true;
-        }
-
-        p.sendMessage("§cUsage: /mace give <warden|nether|chicken>");
+        p.sendMessage("§cUsage: /mace give <warden|nether>");
         return true;
     }
 }

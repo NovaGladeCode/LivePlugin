@@ -33,7 +33,6 @@ public class GameListener implements Listener {
 
     // Warden Mace sonic boom cooldown tracking
     private final HashMap<UUID, Long> sonicBoomCooldown = new HashMap<>();
-    private final HashMap<UUID, Double> playerFallStart = new HashMap<>();
 
     public GameListener(JavaPlugin plugin, PlayerDataManager dataManager, ItemManager itemManager,
             EffectManager effectManager, UnbanGUI unbanGUI) {
@@ -376,19 +375,6 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityDamage(org.bukkit.event.entity.EntityDamageEvent e) {
-        if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FALL
-                && e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
-            ItemStack item = p.getInventory().getItemInMainHand();
-            if (item != null && item.getType() == Material.MACE && item.hasItemMeta()
-                    && "§eChicken Mace".equals(item.getItemMeta().getDisplayName())) {
-                e.setCancelled(true);
-                p.getWorld().spawnParticle(org.bukkit.Particle.CLOUD, p.getLocation(), 5, 0.5, 0.5, 0.5, 0.1);
-                // Play a soft chicken flap sound
-                p.playSound(p.getLocation(), org.bukkit.Sound.ENTITY_PARROT_FLY, 0.5f, 1.5f);
-                return;
-            }
-        }
 
         // Cancel persistent Wither damage if it's the cosmetic effect (Level < 10)
         if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER

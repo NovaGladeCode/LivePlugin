@@ -20,10 +20,7 @@ commands:
     usage: /dragonbreath
   mace:
     description: Give custom maces (OP only)
-    usage: /mace give <warden|nether|chicken>
-  chickenmace:
-    description: Use Chicken Mace abilities
-    usage: /chickenmace <1>
+    usage: /mace give <warden|nether>
   nethermace:
     description: Use Nether Mace abilities
     usage: /nethermace <1|2>
