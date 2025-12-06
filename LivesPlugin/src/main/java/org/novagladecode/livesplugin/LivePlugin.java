@@ -7,7 +7,7 @@ import org.novagladecode.livesplugin.commands.InvisCommand;
 import org.novagladecode.livesplugin.commands.LiveCommand;
 import org.novagladecode.livesplugin.commands.AirBoostCommand;
 import org.novagladecode.livesplugin.commands.DragonBreathCommand;
-import org.novagladecode.livesplugin.commands.MaceCommand;
+
 import org.novagladecode.livesplugin.commands.NetherMaceCommand;
 import org.novagladecode.livesplugin.commands.WardenMaceCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
