@@ -20,7 +20,7 @@ commands:
     usage: /dragonbreath
   weapon:
     description: Give custom weapons (OP only)
-    usage: /weapon give <warden|nether|chickenbow>
+    usage: /weapon give <warden|nether|end|chickenbow>
     permission: livesplugin.op
   nethermace:
     description: Use Nether Mace abilities
@@ -28,6 +28,9 @@ commands:
   wardenmace:
     description: Use Warden Mace abilities
     usage: /wardenmace <1|2>
+  endmace:
+    description: Use End Mace abilities
+    usage: /endmace <1|2>
   trust:
     description: Trust a player to be immune to abilities
     usage: /trust <player>

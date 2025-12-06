@@ -219,14 +219,41 @@ public class GameListener implements Listener {
             e.setCancelled(true);
             unbanGUI.openUnbanMenu(p);
         }
+
+        // Chicken Bow "No Arrow" firing logic
+        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+                && item != null && item.getType() == Material.BOW && item.hasItemMeta()
+                && "§eChicken Bow".equals(item.getItemMeta().getDisplayName())) {
+
+            // Check if player already charging? Vanilla handles charging if arrow present.
+            // If no arrow, vanilla does nothing. We manually fire.
+            if (!p.getInventory().contains(Material.ARROW) && !p.getInventory().contains(Material.SPECTRAL_ARROW)
+                    && !p.getInventory().contains(Material.TIPPED_ARROW)) {
+                // Instant fire logic
+                Arrow arrow = p.launchProjectile(Arrow.class);
+                arrow.setMetadata("chicken_arrow", new FixedMetadataValue(plugin, true));
+                arrow.setVelocity(p.getLocation().getDirection().multiply(3.0)); // Fast shot
+                p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.ENTITY_ARROW_SHOOT, 1.0f, 1.0f);
+            }
+        }
     }
 
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent e) {
-        if (e.getEntity() instanceof Player && e.getBow() != null) {
+        if (e.getEntity() instanceof Player) {
             ItemStack bow = e.getBow();
-            if (bow.hasItemMeta() && "§eChicken Bow".equals(bow.getItemMeta().getDisplayName())) {
+
+            // Ban Tipped Arrows
+            ItemStack arrowItem = e.getConsumable();
+            if (arrowItem != null && arrowItem.getType() == Material.TIPPED_ARROW) {
+                e.setCancelled(true);
+                ((Player) e.getEntity()).sendMessage("§cTipped Arrows are disabled on this server!");
+                return;
+            }
+
+            if (bow != null && bow.hasItemMeta() && "§eChicken Bow".equals(bow.getItemMeta().getDisplayName())) {
                 e.getProjectile().setMetadata("chicken_arrow", new FixedMetadataValue(plugin, true));
+                e.setConsumeItem(false); // Do not consume arrows
             }
         }
     }
@@ -303,8 +330,9 @@ public class GameListener implements Listener {
         String displayName = result.getItemMeta().getDisplayName();
         boolean isWarden = "§3Warden Mace".equals(displayName);
         boolean isNether = "§cNether Mace".equals(displayName);
+        boolean isEnd = "§5End Mace".equals(displayName);
 
-        if (!isWarden && !isNether)
+        if (!isWarden && !isNether && !isEnd)
             return;
 
         // Warden Uniqueness Check
@@ -365,8 +393,8 @@ public class GameListener implements Listener {
             Bukkit.broadcastMessage("§4§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
 
-            startRitualTask(p, tableLoc, 180, true, visualItems);
-        } else {
+            startRitualTask(p, tableLoc, 180, 1, visualItems);
+        } else if (isNether) {
             Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             Bukkit.broadcastMessage("§6§lTHE NETHER MACE RITUAL HAS BEGUN!");
             Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
@@ -375,11 +403,21 @@ public class GameListener implements Listener {
             Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 1 minute.");
 
-            startRitualTask(p, tableLoc, 60, false, visualItems);
+            startRitualTask(p, tableLoc, 60, 2, visualItems);
+        } else if (isEnd) {
+            Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            Bukkit.broadcastMessage("§5§lTHE END MACE RITUAL HAS BEGUN!");
+            Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
+            Bukkit.broadcastMessage("§cLocation: " + coordMsg);
+            Bukkit.broadcastMessage("§cThe mace will appear in §52 MINUTES§c!");
+            Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 2 minutes.");
+
+            startRitualTask(p, tableLoc, 120, 3, visualItems);
         }
     }
 
-    private void startRitualTask(Player p, Location origin, int durationSeconds, boolean isWarden,
+    private void startRitualTask(Player p, Location origin, int durationSeconds, int maceType,
             List<Item> visualItems) {
         activeRituals.put(p.getUniqueId(), 1);
         ritualLocations.put(origin, p.getUniqueId());
@@ -403,14 +441,20 @@ public class GameListener implements Listener {
 
                 // Effects
                 if (ticks % 20 == 0) {
-                    if (isWarden) {
+                    if (maceType == 1) { // Warden
                         origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
                         origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0.5, 1, 0.5),
                                 20, 0.5, 0.5, 0.5, 0.05);
-                    } else {
+                    } else if (maceType == 2) { // Nether
                         origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_LAVA_POP, 1.0f, 0.5f);
                         origin.getWorld().spawnParticle(org.bukkit.Particle.FLAME, origin.clone().add(0.5, 1, 0.5), 20,
                                 0.5, 0.5, 0.5, 0.05);
+                    } else if (maceType == 3) { // End
+                        origin.getWorld().playSound(origin, org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, origin.clone().add(0.5, 1, 0.5), 20,
+                                0.5, 0.5, 0.5, 0.05);
+                        origin.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH,
+                                origin.clone().add(0.5, 1, 0.5), 10, 0.2, 0.2, 0.2, 0.01);
                     }
                     p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
                             new net.md_5.bungee.api.chat.TextComponent(
@@ -425,14 +469,14 @@ public class GameListener implements Listener {
             }
 
             private void failRitual(String reason) {
-                Bukkit.broadcastMessage(isWarden ? "§cThe Warden Mace ritual FAILED! " + reason
-                        : "§cThe Nether Mace ritual FAILED! " + reason);
+                String name = (maceType == 1) ? "Warden" : (maceType == 2) ? "Nether" : "End";
+                Bukkit.broadcastMessage("§cThe " + name + " Mace ritual FAILED! " + reason);
                 cleanup();
                 this.cancel();
             }
 
             private void completeRitual() {
-                if (isWarden) {
+                if (maceType == 1) {
                     if (dataManager.isWardenMaceCrafted()) {
                         p.sendMessage("§cToo late!");
                         cleanup();
@@ -442,9 +486,12 @@ public class GameListener implements Listener {
                     dataManager.setWardenMaceCrafted(true);
                     giveItem(itemManager.createWardenMace());
                     Bukkit.broadcastMessage("§b§lTHE WARDEN MACE HAS BEEN FORGED BY " + p.getName() + "!");
-                } else {
+                } else if (maceType == 2) {
                     giveItem(itemManager.createNetherMace());
                     Bukkit.broadcastMessage("§6§lTHE NETHER MACE HAS BEEN FORGED BY " + p.getName() + "!");
+                } else if (maceType == 3) {
+                    giveItem(itemManager.createEndMace());
+                    Bukkit.broadcastMessage("§5§lTHE END MACE HAS BEEN FORGED BY " + p.getName() + "!");
                 }
 
                 p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
@@ -475,11 +522,56 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onEntityDamage(org.bukkit.event.entity.EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof Player))
+            return;
+        Player p = (Player) e.getEntity();
+
+        // Check if player has Nether or End Mace in inventory
+        boolean hasNetherMace = false;
+        boolean hasEndMace = false;
+
+        for (ItemStack item : p.getInventory().getContents()) {
+            if (item != null && item.getType() == Material.MACE && item.hasItemMeta()) {
+                String dn = item.getItemMeta().getDisplayName();
+                if ("§cNether Mace".equals(dn)) {
+                    hasNetherMace = true;
+                } else if ("§5End Mace".equals(dn)) {
+                    hasEndMace = true;
+                }
+            }
+        }
+
+        if (hasNetherMace) {
+            // "Gets fire resistance and takes no damage to effect"
+            // Block Fire types
+            if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FIRE
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FIRE_TICK
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.LAVA
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.HOT_FLOOR) {
+                e.setCancelled(true);
+                // Ensure they have Fire Res effect too (visual + logic)
+                p.addPotionEffect(
+                        new org.bukkit.potion.PotionEffect(PotionEffectType.FIRE_RESISTANCE, 200, 0, false, false));
+            }
+            // Block Effects (Wither/Poison/Magic)
+            if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.POISON
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.MAGIC) {
+                e.setCancelled(true);
+            }
+        }
+
+        if (hasEndMace) {
+            if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FALL
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.DRAGON_BREATH
+                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FLY_INTO_WALL) {
+                e.setCancelled(true);
+            }
+        }
 
         // Cancel persistent Wither damage if it's the cosmetic effect (Level < 10)
-        if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER
-                && e.getEntity() instanceof Player) {
-            Player p = (Player) e.getEntity();
+        // (Existing logic)
+        if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER) {
             // If the player is low level, the Wither effect is cosmetic
             if (dataManager.getLevel(p.getUniqueId()) < 10) {
                 e.setCancelled(true);
@@ -501,8 +593,8 @@ public class GameListener implements Listener {
                         target.addPotionEffect(
                                 new org.bukkit.potion.PotionEffect(PotionEffectType.SLOW_FALLING, 300, 0));
                     }
-                    // 10% Chance Deadly Chicken
-                    if (java.util.concurrent.ThreadLocalRandom.current().nextInt(10) == 0) {
+                    // 10% Chance Deadly Chicken -> Changed to 40% (More likely)
+                    if (java.util.concurrent.ThreadLocalRandom.current().nextInt(10) < 4) {
                         org.bukkit.Location loc = target.getLocation();
                         Chicken chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
                         Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);

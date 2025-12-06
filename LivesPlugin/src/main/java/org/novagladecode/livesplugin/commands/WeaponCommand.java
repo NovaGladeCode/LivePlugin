@@ -31,7 +31,7 @@ public class WeaponCommand implements CommandExecutor {
         }
 
         if (args.length < 2 || !args[0].equalsIgnoreCase("give")) {
-            p.sendMessage("§cUsage: /weapon give <warden|nether|chickenbow>");
+            p.sendMessage("§cUsage: /weapon give <warden|nether|end|chickenbow>");
             return true;
         }
 
@@ -48,8 +48,11 @@ public class WeaponCommand implements CommandExecutor {
             case "chickenbow":
                 weapon = itemManager.createChickenBow();
                 break;
+            case "end":
+                weapon = itemManager.createEndMace();
+                break;
             default:
-                p.sendMessage("§cUnknown weapon. Usage: /weapon give <warden|nether|chickenbow>");
+                p.sendMessage("§cUnknown weapon. Usage: /weapon give <warden|nether|end|chickenbow>");
                 return true;
         }
 

@@ -8,14 +8,23 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ItemManager {
 
     private final JavaPlugin plugin;
+    public static ItemStack customNetherMace;
+    public static ItemStack customEndMace;
 
     public ItemManager(JavaPlugin plugin) {
         this.plugin = plugin;
+    }
+
+    public void init() {
+        createNetherMace();
+        createEndMace();
     }
 
     public void registerUnbanRecipe() {
@@ -26,8 +35,7 @@ public class ItemManager {
         recipe.shape("DND", "NLN", "DND");
         recipe.setIngredient('D', Material.DIAMOND_BLOCK);
         recipe.setIngredient('N', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('L', Material.NETHER_STAR); // We check for name in CraftItemEvent if needed, but for now
-                                                         // vanilla crafting accepts any item of that material
+        recipe.setIngredient('L', Material.NETHER_STAR);
 
         Bukkit.addRecipe(recipe);
     }
@@ -37,18 +45,52 @@ public class ItemManager {
 
         NamespacedKey key = new NamespacedKey(plugin, "warden_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, wardenMace);
-        // "very top of crafting table" (Heart) "normal mace in the middle", "diamond
-        // block around the rest"
         recipe.shape("DHD", "DMD", "DDD");
-
         recipe.setIngredient('D', Material.DIAMOND_BLOCK);
         recipe.setIngredient('M', Material.HEAVY_CORE);
-
-        // Use Echo Shard as the base ingredient, but we'll need to enforce the custom
-        // meta in a PrepareItemCraftEvent
-        // For the recipe registration, we just specify the material.
         recipe.setIngredient('H', Material.ECHO_SHARD);
 
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerNetherMaceRecipe() {
+        ItemStack item = createNetherMace();
+        NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("ISI", "RMR", "SSS");
+        recipe.setIngredient('I', Material.NETHERITE_INGOT);
+        recipe.setIngredient('S', Material.NETHERITE_SCRAP);
+        recipe.setIngredient('R', Material.BLAZE_ROD);
+        recipe.setIngredient('M', Material.HEAVY_CORE);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerEndMaceRecipe() {
+        createEndMace();
+        // Recipe is registered inside createEndMace logic in my previous draft,
+        // but easier to keep consistency here.
+        // Actually, createEndMace just creates the item object. I need to register
+        // recipe here.
+
+        NamespacedKey key = new NamespacedKey(plugin, "end_mace");
+        ShapedRecipe recipe = new ShapedRecipe(key, customEndMace);
+        recipe.shape("PEP", "EHE", "PBP");
+        recipe.setIngredient('H', Material.HEAVY_CORE);
+        recipe.setIngredient('B', Material.BREEZE_ROD);
+        recipe.setIngredient('E', Material.ENDER_EYE);
+        recipe.setIngredient('P', Material.POPPED_CHORUS_FRUIT);
+
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerChickenBowRecipe() {
+        ItemStack item = createChickenBow();
+        NamespacedKey key = new NamespacedKey(plugin, "chicken_bow");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("DFD", "FBF", "DFD");
+        recipe.setIngredient('D', Material.DIAMOND);
+        recipe.setIngredient('F', Material.FEATHER);
+        recipe.setIngredient('B', Material.BOW);
         Bukkit.addRecipe(recipe);
     }
 
@@ -65,7 +107,7 @@ public class ItemManager {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
         meta.setDisplayName("§3Warden Mace");
-        java.util.List<String> lore = new java.util.ArrayList<>();
+        List<String> lore = new ArrayList<>();
         lore.add("§7Forged from the heart of the deep dark...");
         lore.add("§7Abilities:");
         lore.add("§b/wardenmace 1 §7- Sculk Resonance");
@@ -73,6 +115,51 @@ public class ItemManager {
         meta.setLore(lore);
         mace.setItemMeta(meta);
         return mace;
+    }
+
+    public ItemStack createNetherMace() {
+        ItemStack mace = new ItemStack(Material.MACE);
+        ItemMeta meta = mace.getItemMeta();
+        meta.setDisplayName("§cNether Mace");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Forged in the depths of the Nether...");
+        lore.add("§7Abilities:");
+        lore.add("§6/nethermace 1 §7- Infernal Wrath");
+        lore.add("§6/nethermace 2 §7- Fire Tornado");
+        meta.setLore(lore);
+        mace.setItemMeta(meta);
+        customNetherMace = mace;
+        return mace;
+    }
+
+    public ItemStack createEndMace() {
+        ItemStack item = new ItemStack(Material.MACE);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("§5End Mace");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Formed from the void itself");
+        lore.add("§5Ability: Void Step");
+        lore.add("§5Ability: Singularity");
+        meta.setLore(lore);
+        meta.setUnbreakable(true);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.SHARPNESS, 10, true);
+        item.setItemMeta(meta);
+        customEndMace = item;
+        return item;
+    }
+
+    public ItemStack createChickenBow() {
+        ItemStack bow = new ItemStack(Material.BOW);
+        ItemMeta meta = bow.getItemMeta();
+        meta.setDisplayName("§eChicken Bow");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Cluck cluck... boom.");
+        lore.add("§7Abilities:");
+        lore.add("§e50% Chance: §7Slow Falling (15s)");
+        lore.add("§c40% Chance: §7Summon Deadly Chicken");
+        meta.setLore(lore);
+        bow.setItemMeta(meta);
+        return bow;
     }
 
     public ItemStack createLevelItem() {
@@ -114,58 +201,9 @@ public class ItemManager {
         return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§3Warden Heart");
     }
 
-    public void registerNetherMaceRecipe() {
-        ItemStack item = createNetherMace();
-        NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
-        ShapedRecipe recipe = new ShapedRecipe(key, item);
-        // I=Ingot, S=Scrap, R=Rod, M=Mace
-        // Top: I S I (2 ingots, 1 scrap)
-        // Mid: R M R
-        // Bot: S S S (3 scraps) -> Total 4 scraps, 2 ingots
-        recipe.shape("ISI", "RMR", "SSS");
-        recipe.setIngredient('I', Material.NETHERITE_INGOT);
-        recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('R', Material.BLAZE_ROD);
-        recipe.setIngredient('M', Material.HEAVY_CORE);
-        Bukkit.addRecipe(recipe);
-    }
-
-    public void registerChickenBowRecipe() {
-        ItemStack item = createChickenBow();
-        NamespacedKey key = new NamespacedKey(plugin, "chicken_bow");
-        ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("DFD", "FBF", "DFD");
-        recipe.setIngredient('D', Material.DIAMOND);
-        recipe.setIngredient('F', Material.FEATHER);
-        recipe.setIngredient('B', Material.BOW);
-        Bukkit.addRecipe(recipe);
-    }
-
-    public ItemStack createChickenBow() {
-        ItemStack bow = new ItemStack(Material.BOW);
-        ItemMeta meta = bow.getItemMeta();
-        meta.setDisplayName("§eChicken Bow");
-        java.util.List<String> lore = new java.util.ArrayList<>();
-        lore.add("§7Cluck cluck... boom.");
-        lore.add("§7Abilities:");
-        lore.add("§e50% Chance: §7Slow Falling (15s)");
-        lore.add("§c10% Chance: §7Summon Deadly Chicken");
-        meta.setLore(lore);
-        bow.setItemMeta(meta);
-        return bow;
-    }
-
-    public ItemStack createNetherMace() {
-        ItemStack mace = new ItemStack(Material.MACE);
-        ItemMeta meta = mace.getItemMeta();
-        meta.setDisplayName("§cNether Mace");
-        java.util.List<String> lore = new java.util.ArrayList<>();
-        lore.add("§7Forged in the depths of the Nether...");
-        lore.add("§7Abilities:");
-        lore.add("§6/nethermace 1 §7- Infernal Wrath");
-        lore.add("§6/nethermace 2 §7- Fire Tornado");
-        meta.setLore(lore);
-        mace.setItemMeta(meta);
-        return mace;
+    public boolean isEndMace(ItemStack item) {
+        if (item == null || item.getType() != Material.MACE || !item.hasItemMeta())
+            return false;
+        return "§5End Mace".equals(item.getItemMeta().getDisplayName());
     }
 }

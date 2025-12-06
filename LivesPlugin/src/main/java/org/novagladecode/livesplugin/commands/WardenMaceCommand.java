@@ -176,6 +176,17 @@ public class WardenMaceCommand implements CommandExecutor {
         // Sonic Boom burst at center
         trapLoc.getWorld().spawnParticle(Particle.SONIC_BOOM, trapLoc.clone().add(0, 1.5, 0), 3);
 
+        // "Make like attack" - Summon Evoker Fangs (The Maw)
+        for (int i = 0; i < 12; i++) {
+            double angle = Math.random() * Math.PI * 2;
+            double radius = Math.random() * 3.5;
+            double x = Math.cos(angle) * radius;
+            double z = Math.sin(angle) * radius;
+            Location biteLoc = trapLoc.clone().add(x, 0, z);
+            // Ensure on ground (simple approximation)
+            biteLoc.getWorld().spawn(biteLoc, org.bukkit.entity.EvokerFangs.class);
+        }
+
         // Logical Effect: Pull and Damage
         for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 6, 6, 6)) {
             if (e instanceof LivingEntity && e != p) {

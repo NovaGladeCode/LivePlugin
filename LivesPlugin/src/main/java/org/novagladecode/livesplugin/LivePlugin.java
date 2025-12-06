@@ -10,6 +10,7 @@ import org.novagladecode.livesplugin.commands.DragonBreathCommand;
 
 import org.novagladecode.livesplugin.commands.NetherMaceCommand;
 import org.novagladecode.livesplugin.commands.WardenMaceCommand;
+import org.novagladecode.livesplugin.commands.EndMaceCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.UnbanGUI;
 import org.novagladecode.livesplugin.listeners.GameListener;
@@ -34,6 +35,7 @@ public class LivePlugin extends JavaPlugin {
         itemManager.registerUnbanRecipe();
         itemManager.registerWardenMaceRecipe();
         itemManager.registerNetherMaceRecipe();
+        itemManager.registerEndMaceRecipe();
         itemManager.registerChickenBowRecipe();
 
         // Register Listeners
@@ -51,6 +53,7 @@ public class LivePlugin extends JavaPlugin {
         getCommand("weapon").setExecutor(new org.novagladecode.livesplugin.commands.WeaponCommand(itemManager));
         getCommand("nethermace").setExecutor(new NetherMaceCommand(this, dataManager));
         getCommand("wardenmace").setExecutor(new WardenMaceCommand(this, dataManager));
+        getCommand("endmace").setExecutor(new EndMaceCommand(this, dataManager));
         getCommand("trust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
         getCommand("untrust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
 

@@ -139,7 +139,8 @@ public class NetherMaceCommand implements CommandExecutor {
                     org.bukkit.entity.Fireball fireball = current.getWorld().spawn(current,
                             org.bukkit.entity.SmallFireball.class);
                     fireball.setVelocity(new Vector(0, -1, 0));
-                    fireball.setYield(0); // No explosion damage from the fireball itself
+                    fireball.setYield(2.0f); // Higher yield for damage (careful with griefing - set gamerule if needed)
+                    fireball.setIsIncendiary(true);
                     Bukkit.getScheduler().runTaskLater(plugin, () -> {
                         if (fireball.isValid()) {
                             fireball.remove();
@@ -179,8 +180,8 @@ public class NetherMaceCommand implements CommandExecutor {
                                 continue;
 
                             LivingEntity le = (LivingEntity) e;
-                            le.damage(8.0, p);
-                            le.setFireTicks(60); // 3 seconds of fire
+                            le.damage(18.0, p); // Significantly increased damage (9 hearts)
+                            le.setFireTicks(120); // 6 seconds of fire
 
                             // Knockback
                             Vector knockback = e.getLocation().toVector().subtract(end.toVector()).normalize();
