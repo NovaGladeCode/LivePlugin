@@ -328,45 +328,45 @@ public class GameListener implements Listener {
         if (result.getType() == Material.MACE && result.hasItemMeta()) {
             String displayName = result.getItemMeta().getDisplayName();
 
-            if ("§3Warden Mace".equals(displayName)) {
-                if (dataManager.isWardenMaceCrafted()) {
-                    e.getInventory().setResult(null);
-                    return;
-                }
-                for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                    if (ingredient != null && ingredient.getType() == Material.ECHO_SHARD) {
-                        if (!itemManager.isWardenHeart(ingredient)) {
-                            e.getInventory().setResult(null);
-                            return;
+            boolean isCustom = "§3Warden Mace".equals(displayName) || "§cNether Mace".equals(displayName) || "§5End Mace".equals(displayName);
+            if (isCustom) {
+                boolean alreadyCrafted = false;
+                if (displayName.equals("§3Warden Mace") && dataManager.isWardenMaceCrafted()) alreadyCrafted = true;
+                if (displayName.equals("§cNether Mace") && dataManager.isNetherMaceCrafted()) alreadyCrafted = true;
+                if (displayName.equals("§5End Mace") && dataManager.isEndMaceCrafted()) alreadyCrafted = true;
+
+                // Validate custom hearts like before (keep logic)
+                if (displayName.equals("§3Warden Mace")) {
+                    for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                        if (ingredient != null && ingredient.getType() == Material.ECHO_SHARD) {
+                            if (!itemManager.isWardenHeart(ingredient)) alreadyCrafted = true;
+                        }
+                    }
+                } else if (displayName.equals("§cNether Mace")) {
+                    for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                        if (ingredient != null && ingredient.getType() == Material.NAUTILUS_SHELL) {
+                            if (!itemManager.isWitherHeart(ingredient)) alreadyCrafted = true;
+                        }
+                    }
+                } else if (displayName.equals("§5End Mace")) {
+                    for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                        if (ingredient != null && ingredient.getType() == Material.HEART_OF_THE_SEA) {
+                            if (!itemManager.isDragonHeart(ingredient)) alreadyCrafted = true;
                         }
                     }
                 }
-            } else if ("§cNether Mace".equals(displayName)) {
-                if (dataManager.isNetherMaceCrafted()) {
+                // Block preview if already crafted or if not valid
+                if (alreadyCrafted) {
                     e.getInventory().setResult(null);
                     return;
                 }
-                for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                    if (ingredient != null && ingredient.getType() == Material.NETHER_STAR) {
-                        if (!itemManager.isWitherHeart(ingredient)) {
-                            e.getInventory().setResult(null);
-                            return;
-                        }
-                    }
-                }
-            } else if ("§5End Mace".equals(displayName)) {
-                if (dataManager.isEndMaceCrafted()) {
-                    e.getInventory().setResult(null);
-                    return;
-                }
-                for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                    if (ingredient != null && ingredient.getType() == Material.HEART_OF_THE_SEA) {
-                        if (!itemManager.isDragonHeart(ingredient)) {
-                            e.getInventory().setResult(null);
-                            return;
-                        }
-                    }
-                }
+                // Set result to dummy, not real item
+                ItemStack dummy = new ItemStack(Material.BARRIER);
+                ItemMeta m = dummy.getItemMeta();
+                m.setDisplayName("§cRitual Required");
+                dummy.setItemMeta(m);
+                e.getInventory().setResult(dummy);
+                return;
             }
         }
     }

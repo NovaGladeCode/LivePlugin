@@ -1,12 +1,18 @@
 package org.novagladecode.livesplugin.logic;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.Material;
+import org.bukkit.entity.Item;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
+import org.bukkit.block.ShulkerBox;
+import org.bukkit.block.Barrel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -233,5 +239,52 @@ public class ItemManager {
         if (item == null || item.getType() != Material.MACE || !item.hasItemMeta())
             return false;
         return "§5End Mace".equals(item.getItemMeta().getDisplayName());
+    }
+
+    public boolean isWardenMaceAnywhere() {
+        return isMaceWithNameAnywhere("§3Warden Mace");
+    }
+    public boolean isNetherMaceAnywhere() {
+        return isMaceWithNameAnywhere("§cNether Mace");
+    }
+    public boolean isEndMaceAnywhere() {
+        return isMaceWithNameAnywhere("§5End Mace");
+    }
+    private boolean isMaceWithNameAnywhere(String name) {
+        // Check all players
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            for (ItemStack item : p.getInventory()) {
+                if (isMaceWithDisplayName(item, name)) return true;
+            }
+            for (ItemStack item : p.getEnderChest()) {
+                if (isMaceWithDisplayName(item, name)) return true;
+            }
+        }
+        // Check dropped items
+        for (World w : Bukkit.getWorlds()) {
+            for (Item entity : w.getEntitiesByClass(Item.class)) {
+                if (isMaceWithDisplayName(entity.getItemStack(), name)) return true;
+            }
+            // Check loaded containers (chest, barrel, shulker boxes)
+            for (BlockState tile : w.getLoadedBlockStates()) {
+                if (tile instanceof Chest) {
+                    for (ItemStack item : ((Chest) tile).getBlockInventory().getContents()) {
+                        if (isMaceWithDisplayName(item, name)) return true;
+                    }
+                } else if (tile instanceof Barrel) {
+                    for (ItemStack item : ((Barrel) tile).getInventory().getContents()) {
+                        if (isMaceWithDisplayName(item, name)) return true;
+                    }
+                } else if (tile instanceof ShulkerBox) {
+                    for (ItemStack item : ((ShulkerBox) tile).getInventory().getContents()) {
+                        if (isMaceWithDisplayName(item, name)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    private boolean isMaceWithDisplayName(ItemStack item, String name) {
+        return item != null && item.getType() == Material.MACE && item.hasItemMeta() && name.equals(item.getItemMeta().getDisplayName());
     }
 }
