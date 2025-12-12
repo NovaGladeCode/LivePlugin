@@ -9,6 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.NamespacedKey;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.inventory.Recipe;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.RecipeGUI;
@@ -57,12 +60,28 @@ public class MaceCommand implements CommandExecutor {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
-                // Reset all custom recipes
+                // Remove old custom recipes first
+                JavaPlugin javaPlugin = plugin;
+                NamespacedKey[] keys = new NamespacedKey[] {
+                    new NamespacedKey(javaPlugin, "warden_mace"),
+                    new NamespacedKey(javaPlugin, "nether_mace"),
+                    new NamespacedKey(javaPlugin, "end_mace"),
+                    new NamespacedKey(javaPlugin, "chicken_bow")
+                };
+                for (NamespacedKey key : keys) {
+                    Bukkit.removeRecipe(key);
+                }
+                // Re-register them
                 plugin.getItemManager().registerWardenMaceRecipe();
                 plugin.getItemManager().registerNetherMaceRecipe();
                 plugin.getItemManager().registerEndMaceRecipe();
                 plugin.getItemManager().registerChickenBowRecipe();
                 sender.sendMessage("§aCustom recipes re-registered!");
+                // Reset the lockout flags so all can be crafted again
+                plugin.getDataManager().setWardenMaceCrafted(false);
+                plugin.getDataManager().setNetherMaceCrafted(false);
+                plugin.getDataManager().setEndMaceCrafted(false);
+                return true;
             } else if (p != null) {
                 recipeGUI.openMainMenu(p);
             } else {

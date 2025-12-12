@@ -71,6 +71,10 @@ public class LivePlugin extends JavaPlugin {
         return itemManager;
     }
 
+    public PlayerDataManager getDataManager() {
+        return dataManager;
+    }
+
     @Override
     public void onDisable() {
         if (dataManager != null) {
