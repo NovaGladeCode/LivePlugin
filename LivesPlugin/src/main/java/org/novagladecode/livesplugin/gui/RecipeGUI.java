@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.novagladecode.livesplugin.logic.ItemManager;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class RecipeGUI implements Listener {
 

@@ -559,8 +559,8 @@ public class GameListener implements Listener {
                     }
                 }
 
-                // Set cooldown (5 seconds)
-                sonicBoomCooldown.put(attackerUUID, currentTime + 5000);
+                // Set cooldown (20 seconds)
+                sonicBoomCooldown.put(attackerUUID, currentTime + 20000);
 
                 // Trigger sonic boom on hit
                 org.bukkit.Location hitLoc = e.getEntity().getLocation();
