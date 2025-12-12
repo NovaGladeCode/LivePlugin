@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
+import org.novagladecode.livesplugin.gui.RecipeGUI;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -19,10 +20,12 @@ public class MaceCommand implements CommandExecutor {
 
     private final LivePlugin plugin;
     private final PlayerDataManager dataManager;
+    private final RecipeGUI recipeGUI;
 
     public MaceCommand(LivePlugin plugin, PlayerDataManager dataManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
+        this.recipeGUI = new RecipeGUI(plugin.getItemManager()); // Needs getter if private
     }
 
     @Override
@@ -46,6 +49,16 @@ public class MaceCommand implements CommandExecutor {
         }
 
         String sub = args[0].toLowerCase();
+
+        // Add: /might recipe
+        if (sub.equals("recipe")) {
+            if (p != null) {
+                recipeGUI.openMainMenu(p);
+            } else {
+                sender.sendMessage("§cOnly players can use this command!");
+            }
+            return true;
+        }
 
         switch (sub) {
             case "help":

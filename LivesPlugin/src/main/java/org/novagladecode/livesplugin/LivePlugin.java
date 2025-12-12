@@ -70,6 +70,10 @@ public class LivePlugin extends JavaPlugin {
         maceInteractMode.put(uuid, enabled);
     }
 
+    public ItemManager getItemManager() {
+        return itemManager;
+    }
+
     @Override
     public void onDisable() {
         if (dataManager != null) {
