@@ -39,9 +39,7 @@ public class LivePlugin extends JavaPlugin {
 
         getCommand("might").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this, dataManager));
 
-        getCommand("weapon")
-                .setExecutor(
-                        new org.novagladecode.livesplugin.commands.WeaponCommand(itemManager, recipeGUI, dataManager));
+        // getCommand("weapon").setExecutor(new org.novagladecode.livesplugin.commands.WeaponCommand(itemManager, recipeGUI, dataManager)); // Weapon command is now obsolete
 
         getCommand("trust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
         getCommand("untrust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));

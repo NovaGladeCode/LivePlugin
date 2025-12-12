@@ -50,12 +50,93 @@ public class MaceCommand implements CommandExecutor {
 
         String sub = args[0].toLowerCase();
 
-        // Add: /might recipe
+        // --- /might recipe [reset] ---
         if (sub.equals("recipe")) {
-            if (p != null) {
+            if (args.length > 1 && args[1].equalsIgnoreCase("reset")) {
+                if (!sender.isOp()) {
+                    sender.sendMessage("§cYou do not have permission.");
+                    return true;
+                }
+                // Reset all custom recipes
+                plugin.getItemManager().registerWardenMaceRecipe();
+                plugin.getItemManager().registerNetherMaceRecipe();
+                plugin.getItemManager().registerEndMaceRecipe();
+                plugin.getItemManager().registerChickenBowRecipe();
+                sender.sendMessage("§aCustom recipes re-registered!");
+            } else if (p != null) {
                 recipeGUI.openMainMenu(p);
             } else {
                 sender.sendMessage("§cOnly players can use this command!");
+            }
+            return true;
+        }
+
+        // --- /might give <item> ---
+        if (sub.equals("give")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("§cOnly players can use this command.");
+                return true;
+            }
+            Player target = (Player) sender;
+            if (!target.isOp()) {
+                target.sendMessage("§cYou do not have permission to use this command.");
+                return true;
+            }
+            if (args.length < 2) {
+                target.sendMessage("§cUsage: /might give <warden|nether|end|chickenbow>");
+                return true;
+            }
+            ItemStack weapon = null;
+            switch (args[1].toLowerCase()) {
+                case "warden":
+                    weapon = plugin.getItemManager().createWardenMace();
+                    break;
+                case "nether":
+                    weapon = plugin.getItemManager().createNetherMace();
+                    break;
+                case "end":
+                    weapon = plugin.getItemManager().createEndMace();
+                    break;
+                case "chickenbow":
+                    weapon = plugin.getItemManager().createChickenBow();
+                    break;
+                default:
+                    target.sendMessage("§cUnknown weapon. Usage: /might give <warden|nether|end|chickenbow>");
+                    return true;
+            }
+            if (weapon != null) {
+                target.getInventory().addItem(weapon);
+                target.sendMessage("§aGiven " + args[1] + " to your inventory.");
+            }
+            return true;
+        }
+
+        // --- /might point set <player> <amount> ---
+        if (sub.equals("point")) {
+            if (!sender.isOp()) {
+                sender.sendMessage("§cYou do not have permission.");
+                return true;
+            }
+            if (args.length < 4 || !args[1].equalsIgnoreCase("set")) {
+                sender.sendMessage("§cUsage: /might point set <player> <amount>");
+                return true;
+            }
+            Player target = Bukkit.getPlayer(args[2]);
+            if (target == null) {
+                sender.sendMessage("§cPlayer not found.");
+                return true;
+            }
+            try {
+                int amount = Integer.parseInt(args[3]);
+                if (amount < 0 || amount > 10) {
+                    sender.sendMessage("§cAmount must be between 0 and 10.");
+                    return true;
+                }
+                dataManager.setPoints(target.getUniqueId(), amount);
+                sender.sendMessage("§aSet " + target.getName() + "'s Might to " + amount);
+                target.sendMessage("§aYour Might was set to " + amount + " by an admin.");
+            } catch (NumberFormatException e) {
+                sender.sendMessage("§cInvalid number.");
             }
             return true;
         }
@@ -213,13 +294,16 @@ public class MaceCommand implements CommandExecutor {
         if (sender instanceof Player) {
             sender.sendMessage("§e/might togglecontrol §7- Toggle click-to-cast");
             sender.sendMessage("§e/might withdraw <amount> §7- Convert Might to item");
+            sender.sendMessage("§e/might recipe §7- Show custom recipe menu");
         }
         if (sender.isOp()) {
             sender.sendMessage("§c=== Admin ===");
+            sender.sendMessage("§e/might give <item> §7- Get a special item");
             sender.sendMessage("§e/might set <player> <amount> §7- Set Might");
             sender.sendMessage("§e/might reset <player|all> §7- Reset Might to 2");
             sender.sendMessage("§e/might start §7- Start Border Countdown");
-            sender.sendMessage("§e/weapon give ... §7- Get Items");
+            sender.sendMessage("§e/might recipe reset §7- Re-register all custom recipes");
+            sender.sendMessage("§e/might point set <player> <amount> §7- Set player Might");
         }
     }
 }
