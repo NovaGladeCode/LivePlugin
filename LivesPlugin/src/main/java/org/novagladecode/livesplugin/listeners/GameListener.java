@@ -46,6 +46,8 @@ public class GameListener implements Listener {
 
     // Warden Mace sonic boom cooldown tracking
     private final HashMap<UUID, Long> sonicBoomCooldown = new HashMap<>();
+    // Mace attack cooldown (20 seconds)
+    private final HashMap<UUID, Long> maceAttackCooldown = new HashMap<>();
 
     public GameListener(JavaPlugin plugin, PlayerDataManager dataManager, ItemManager itemManager) {
         this.plugin = plugin;
@@ -522,6 +524,29 @@ public class GameListener implements Listener {
                     victim.getWorld().playSound(victim.getLocation(), org.bukkit.Sound.ITEM_SHIELD_BREAK, 1.0f, 1.0f);
                     victim.sendMessage("§c§lSHIELD STUNNED! §7(5s cooldown)");
                     attacker.sendMessage("§aYou stunned their shield!");
+                }
+            }
+
+            // General Mace Attack Cooldown (20 seconds for all custom maces)
+            if (weapon.getType() == Material.MACE && weapon.hasItemMeta()) {
+                String weaponName = weapon.getItemMeta().getDisplayName();
+                if (weaponName.equals("§3Warden Mace") || weaponName.equals("§cNether Mace")
+                        || weaponName.equals("§5End Mace")) {
+                    UUID attackerUUID = attacker.getUniqueId();
+                    long currentTime = System.currentTimeMillis();
+
+                    if (maceAttackCooldown.containsKey(attackerUUID)) {
+                        long cooldownEnd = maceAttackCooldown.get(attackerUUID);
+                        if (currentTime < cooldownEnd) {
+                            e.setCancelled(true);
+                            long remaining = (cooldownEnd - currentTime) / 1000;
+                            attacker.sendMessage("§cMace attack on cooldown! " + remaining + "s remaining.");
+                            return;
+                        }
+                    }
+
+                    // Set 20-second cooldown
+                    maceAttackCooldown.put(attackerUUID, currentTime + 20000);
                 }
             }
 
