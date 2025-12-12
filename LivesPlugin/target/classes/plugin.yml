@@ -3,34 +3,32 @@ version: 2.0
 main: org.novagladecode.livesplugin.LivePlugin
 api-version: 1.21
 author: YourName
-description: A lives system with levels and effects
+description: A custom ability and weapon plugin
 
 commands:
-  invis:
-    description: Toggle invisibility (requires level 9+)
-    usage: /invis
-  life:
-    description: Manage your levels and lives
-    usage: /life <level|withdraw|set|reset|help>
-  airboost:
-    description: Boost yourself into the air (requires level 15+)
-    usage: /airboost
-  dragonbreath:
-    description: Spawn dragon breath (requires Dragon Egg)
-    usage: /dragonbreath
-  weapon:
-    description: Give custom weapons (OP only)
-    usage: /weapon give <warden|nether|chickenbow>
-    permission: livesplugin.op
-  nethermace:
-    description: Use Nether Mace abilities
-    usage: /nethermace <1|2>
+  live:
+    description: Main plugin command (Mace Controls)
+    usage: /live <subcommand>
+    aliases: [mace]
   wardenmace:
-    description: Use Warden Mace abilities
-    usage: /wardenmace <1|2>
+    description: Warden Mace abilities
+    usage: /wardenmace <1/2>
+  nethermace:
+    description: Nether Mace abilities
+    usage: /nethermace <1/2>
+  endmace:
+    description: End Mace abilities
+    usage: /endmace <1/2>
   trust:
-    description: Trust a player to be immune to abilities
+    description: Trust a player to avoid friendly fire from maces
     usage: /trust <player>
   untrust:
     description: Untrust a player
     usage: /untrust <player>
+  weapon:
+    description: Get custom weapons
+    usage: /weapon get <name>
+permissions:
+  livesplugin.admin:
+    description: Admin permissions
+    default: op

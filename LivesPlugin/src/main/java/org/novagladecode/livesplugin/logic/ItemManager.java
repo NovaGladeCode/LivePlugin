@@ -110,7 +110,7 @@ public class ItemManager {
         List<String> lore = new ArrayList<>();
         lore.add("§7Forged from the heart of the deep dark...");
         lore.add("§7Abilities:");
-        lore.add("§b/wardenmace 1 §7- Sculk Resonance");
+        lore.add("§b/wardenmace 1 §7- Sonic Wave");
         lore.add("§b/wardenmace 2 §7- Warden's Grasp");
         meta.setLore(lore);
         mace.setItemMeta(meta);
@@ -138,8 +138,9 @@ public class ItemManager {
         meta.setDisplayName("§5End Mace");
         List<String> lore = new ArrayList<>();
         lore.add("§7Formed from the void itself");
-        lore.add("§5Ability: Void Step");
-        lore.add("§5Ability: Singularity");
+        lore.add("§7Abilities:");
+        lore.add("§5/endmace 1 §7- Void Cloak");
+        lore.add("§5/endmace 2 §7- Singularity");
         meta.setLore(lore);
         meta.setUnbreakable(true);
         meta.addEnchant(org.bukkit.enchantments.Enchantment.BREACH, 3, true);

@@ -56,77 +56,115 @@ public class WardenMaceCommand implements CommandExecutor {
         long currentTime = System.currentTimeMillis();
 
         if (args[0].equals("1")) {
-            // Ability 1: Sculk Resonance
-            if (cooldown1.containsKey(p.getUniqueId())) {
-                long cooldown = cooldown1.get(p.getUniqueId());
-                if (currentTime < cooldown) {
-                    p.sendMessage("§cSculk Resonance is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
-                    return true;
-                }
-            }
-
-            activateSonicBoom(p);
-            cooldown1.put(p.getUniqueId(), currentTime + 10000); // 10 seconds cooldown (shorter for an attack)
-            p.sendMessage("§3Sonic Boom unleashed!");
-
+            useAbility1(p);
         } else if (args[0].equals("2")) {
-            // Ability 2: Warden's Grasp
-            if (cooldown2.containsKey(p.getUniqueId())) {
-                long cooldown = cooldown2.get(p.getUniqueId());
-                if (currentTime < cooldown) {
-                    p.sendMessage("§cWarden's Grasp is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
-                    return true;
-                }
-            }
-
-            activateGrasp(p);
-            cooldown2.put(p.getUniqueId(), currentTime + 240000); // 4 minutes
-            p.sendMessage("§3Warden's Grasp activated!");
+            useAbility2(p);
         }
 
         return true;
     }
 
-    private void activateSonicBoom(Player p) {
-        Location start = p.getEyeLocation();
-        Vector direction = start.getDirection().normalize();
+    public void useAbility1(Player p) {
+        int points = dataManager.getPoints(p.getUniqueId());
+        if (points < 3) {
+            p.sendMessage("§cYou need 3 Ability Points to use this! (Current: " + points + "/3)");
+            return;
+        }
 
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 1.0f, 1.0f);
-        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_CHARGE, 1.0f, 1.5f);
-
-        // Raycast
-        for (double d = 0; d < 20; d += 0.5) {
-            Location loc = start.clone().add(direction.clone().multiply(d));
-
-            // Visuals
-            if (d % 1.0 == 0) { // Every block
-                p.getWorld().spawnParticle(Particle.SONIC_BOOM, loc, 1);
+        long currentTime = System.currentTimeMillis();
+        if (cooldown1.containsKey(p.getUniqueId())) {
+            long cooldown = cooldown1.get(p.getUniqueId());
+            if (currentTime < cooldown) {
+                p.sendMessage("§cSonic Wave is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                return;
             }
-            p.getWorld().spawnParticle(Particle.SCULK_SOUL, loc, 1, 0.1, 0.1, 0.1, 0.0);
+        }
 
-            // Collision
-            if (loc.getBlock().getType().isSolid()) {
-                p.getWorld().spawnParticle(Particle.EXPLOSION, loc, 1);
-                break;
+        // Ability 1: Sonic Wave (Radial Push)
+        activateSonicWave(p);
+        cooldown1.put(p.getUniqueId(), currentTime + 240000); // 4 minutes
+        p.sendMessage("§bSonic Wave activated!");
+    }
+
+    public void useAbility2(Player p) {
+        int points = dataManager.getPoints(p.getUniqueId());
+        if (points < 6) {
+            p.sendMessage("§cYou need 6 Ability Points to use this! (Current: " + points + "/6)");
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (cooldown2.containsKey(p.getUniqueId())) {
+            long cooldown = cooldown2.get(p.getUniqueId());
+            if (currentTime < cooldown) {
+                p.sendMessage("§cWarden's Grasp is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                return;
+            }
+        }
+
+        activateGrasp(p);
+        cooldown2.put(p.getUniqueId(), currentTime + 300000); // 5 minutes
+        p.sendMessage("§bWarden's Grasp activated!");
+    }
+
+    private void activateSonicWave(Player p) {
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 0.5f);
+        p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1.5f, 0.5f);
+
+        // Launch player upward
+        p.setVelocity(new Vector(0, 1.2, 0));
+
+        Location center = p.getLocation();
+
+        // Delayed shockwave after brief upward launch
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Location shockwaveCenter = center.clone();
+
+            // Visual expanding wave with multiple particle types
+            for (double r = 1; r <= 15; r += 0.3) {
+                final double radius = r;
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    // Create circular wave
+                    for (int deg = 0; deg < 360; deg += 8) {
+                        double rad = Math.toRadians(deg);
+                        double x = Math.cos(rad) * radius;
+                        double z = Math.sin(rad) * radius;
+                        Location loc = shockwaveCenter.clone().add(x, 0.5, z);
+
+                        // Multiple particle layers for dramatic effect
+                        p.getWorld().spawnParticle(Particle.SONIC_BOOM, loc, 1, 0, 0, 0, 0);
+                        p.getWorld().spawnParticle(Particle.SCULK_SOUL, loc, 3, 0.2, 0.2, 0.2, 0.01);
+                        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, loc, 1, 0, 0, 0, 0);
+                    }
+
+                    // Sound effect for wave expansion
+                    if (radius % 3 == 0) {
+                        p.getWorld().playSound(shockwaveCenter, Sound.ENTITY_WARDEN_HEARTBEAT, 0.8f, 1.5f);
+                    }
+                }, (long) (radius * 0.8));
             }
 
-            // Entity Hit
-            for (Entity e : loc.getWorld().getNearbyEntities(loc, 1.0, 1.0, 1.0)) {
+            // Push entities
+            for (Entity e : p.getWorld().getNearbyEntities(shockwaveCenter, 15, 15, 15)) {
                 if (e instanceof LivingEntity && e != p) {
-                    // Trust check
                     if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
                         continue;
 
-                    LivingEntity target = (LivingEntity) e;
-                    target.damage(16.0, p); // 8 Hearts (Magic/Sonic damage)
-                    target.setVelocity(direction.clone().multiply(2.5).setY(0.5)); // Heavy knockback
+                    LivingEntity le = (LivingEntity) e;
+                    double distance = le.getLocation().distance(shockwaveCenter);
 
-                    target.getWorld().playSound(target.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1.0f, 1.0f);
-                    // Single hit per entity per beam? Or piercing?
-                    // Raycast continues (Piercing)
+                    // Stronger knockback for closer entities
+                    double knockbackMultiplier = 1 - (distance / 15);
+                    Vector dir = le.getLocation().toVector().subtract(shockwaveCenter.toVector()).normalize();
+                    dir.setY(0.8);
+                    le.setVelocity(dir.multiply(3.5 * Math.max(0.3, knockbackMultiplier)));
+
+                    le.damage(12.0, p);
+                    le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 80, 0));
+                    le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 1));
                 }
             }
-        }
+        }, 10L);
     }
 
     private void activateGrasp(Player p) {
@@ -141,7 +179,6 @@ public class WardenMaceCommand implements CommandExecutor {
             if (target.getBlock().getType().isSolid()) {
                 break;
             }
-            // Dense particle trail
             if (i % 2 == 0) {
                 target.getWorld().spawnParticle(Particle.SCULK_SOUL, target, 1, 0.1, 0.1, 0.1, 0.01);
             }
@@ -151,78 +188,77 @@ public class WardenMaceCommand implements CommandExecutor {
         }
 
         // Trap Location
-        Location trapLoc = target; // Center of trap
+        Location trapLoc = target;
         trapLoc.getWorld().playSound(trapLoc, Sound.ENTITY_WARDEN_EMERGE, 1.5f, 0.5f);
         trapLoc.getWorld().playSound(trapLoc, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.5f, 0.6f);
 
-        // Massive Deep Dark Expansion
-        // Ground spread (Circle)
-        for (int degree = 0; degree < 360; degree += 15) {
-            double rad = Math.toRadians(degree);
-            double x = Math.cos(rad) * 4.5;
-            double z = Math.sin(rad) * 4.5;
-            Location floorInfo = trapLoc.clone().add(x, 0, z);
-            trapLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, floorInfo, 1, 0.1, 0, 0.1, 0.05);
-            trapLoc.getWorld().spawnParticle(Particle.SCULK_SOUL, floorInfo.add(0, 0.5, 0), 1, 0.1, 0.1, 0.1, 0.02);
-        }
-
-        // Erupting Tendrils/Pillars
-        for (int i = 0; i < 20; i++) {
-            double angle = Math.random() * Math.PI * 2;
-            double radius = Math.random() * 4.0;
-            double x = Math.cos(angle) * radius;
-            double z = Math.sin(angle) * radius;
-            Location tendril = trapLoc.clone().add(x, 0, z);
-
-            for (double y = 0; y < 4; y += 0.4) {
-                tendril.getWorld().spawnParticle(Particle.SCULK_CHARGE, tendril.clone().add(0, y, 0), 1, 0.1, 0.1, 0.1,
-                        0, 0.0f);
+        // "Summon Sculk" - Visual Block Changes (Client side to prevent griefing)
+        int radius = 5;
+        for (int x = -radius; x <= radius; x++) {
+            for (int z = -radius; z <= radius; z++) {
+                for (int y = -1; y <= 1; y++) {
+                    Location bLoc = trapLoc.clone().add(x, y, z);
+                    if (bLoc.distance(trapLoc) <= radius && bLoc.getBlock().getType().isSolid()) {
+                        p.sendBlockChange(bLoc, Material.SCULK.createBlockData());
+                        bLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, bLoc.clone().add(0, 1, 0), 1, 0.2, 0.2,
+                                0.2, 0.05);
+                    }
+                }
             }
         }
 
-        // Sonic Boom burst at center
-        trapLoc.getWorld().spawnParticle(Particle.SONIC_BOOM, trapLoc.clone().add(0, 1.5, 0), 3);
+        // Continuous tracking over 5 seconds (100 ticks)
+        new org.bukkit.scheduler.BukkitRunnable() {
+            int ticks = 0;
+            final int MAX_TICKS = 100;
 
-        // "Make like attack" - Summon Evoker Fangs (The Maw)
-        for (int i = 0; i < 12; i++) {
-            double angle = Math.random() * Math.PI * 2;
-            double radius = Math.random() * 3.5;
-            double x = Math.cos(angle) * radius;
-            double z = Math.sin(angle) * radius;
-            Location biteLoc = trapLoc.clone().add(x, 0, z);
-            // Ensure on ground (simple approximation)
-            biteLoc.getWorld().spawn(biteLoc, org.bukkit.entity.EvokerFangs.class);
-        }
-
-        // Logical Effect: Pull and Damage
-        for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 6, 6, 6)) {
-            if (e instanceof LivingEntity && e != p) {
-                // Trust check
-                if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
-                    continue;
-
-                LivingEntity le = (LivingEntity) e;
-
-                // Pull towards center
-                Vector pull = trapLoc.toVector().subtract(le.getLocation().toVector()).normalize().multiply(1.2); // Stronger
-                                                                                                                  // pull
-                le.setVelocity(pull);
-
-                // Heavy debuffs (Grasp)
-                le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 4)); // 5s Immobilized
-                le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 100, 0));
-                le.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither damage
-                le.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0)); // Extra disorientation
-
-                le.damage(8.0, p); // 4 hearts direct damage
-
-                if (le instanceof Player) {
-                    ((Player) le).sendMessage("§3§lTHE ABYSS CONSUMES YOU!");
+            @Override
+            public void run() {
+                if (ticks >= MAX_TICKS) {
+                    this.cancel();
+                    return;
                 }
 
-                // Play individual sound for victim
-                le.getWorld().playSound(le.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 1.0f, 1.0f);
+                // Scan and track entities within 10 blocks every 10 ticks
+                if (ticks % 10 == 0) {
+                    for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 10, 10, 10)) {
+                        if (e instanceof LivingEntity && e != p) {
+                            if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                                continue;
+
+                            LivingEntity le = (LivingEntity) e;
+
+                            // Auto Track: Spawn Fangs at THE ENTITY location
+                            le.getWorld().spawn(le.getLocation(), org.bukkit.entity.EvokerFangs.class);
+
+                            // Pull towards center
+                            Vector pull = trapLoc.toVector().subtract(le.getLocation().toVector()).normalize()
+                                    .multiply(1.5);
+                            le.setVelocity(pull);
+
+                            // Grasp Debuffs (reapply every cycle)
+                            if (ticks == 0) {
+                                le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 120, 4));
+                                le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 120, 0));
+                                le.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 120, 1));
+                                le.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
+                                le.damage(8.0, p);
+
+                                if (le instanceof Player) {
+                                    ((Player) le).sendMessage("§3§lTHE WARDEN GRASPS YOU!");
+                                }
+                            }
+
+                            le.getWorld().playSound(le.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 0.5f, 1.0f);
+                        }
+                    }
+
+                    // Visual effects
+                    trapLoc.getWorld().spawnParticle(Particle.SCULK_SOUL, trapLoc, 10, 3, 3, 3, 0.05);
+                }
+
+                ticks += 5;
             }
-        }
+        }.runTaskTimer(plugin, 0L, 5L);
     }
 }

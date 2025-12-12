@@ -54,37 +54,56 @@ public class NetherMaceCommand implements CommandExecutor {
         long currentTime = System.currentTimeMillis();
 
         if (args[0].equals("1")) {
-            // Ability 1: Infernal Wrath
-            if (cooldown1.containsKey(p.getUniqueId())) {
-                long cooldown = cooldown1.get(p.getUniqueId());
-                if (currentTime < cooldown) {
-                    p.sendMessage("§cInfernal Wrath is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
-                    return true;
-                }
-            }
-
-            activateInfernalWrath(p);
-            cooldown1.put(p.getUniqueId(), currentTime + 240000); // 4 minutes
-            p.sendMessage("§6Infernal Wrath activated!");
-
+            useAbility1(p);
         } else if (args[0].equals("2")) {
-            // Ability 2: Fire Tornado
-            if (cooldown2.containsKey(p.getUniqueId())) {
-                long cooldown = cooldown2.get(p.getUniqueId());
-                if (currentTime < cooldown) {
-                    p.sendMessage("§cFire Tornado is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
-                    return true;
-                }
-            }
-
-            activateFireTornado(p);
-            cooldown2.put(p.getUniqueId(), currentTime + 360000); // 6 minutes
-            p.sendMessage("§6Fire Tornado activated!");
+            useAbility2(p);
         } else {
             p.sendMessage("§cUsage: /nethermace <1|2>");
         }
 
         return true;
+    }
+
+    public void useAbility1(Player p) {
+        int points = dataManager.getPoints(p.getUniqueId());
+        if (points < 3) {
+            p.sendMessage("§cYou need 3 Ability Points to use this! (Current: " + points + "/3)");
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (cooldown1.containsKey(p.getUniqueId())) {
+            long cooldown = cooldown1.get(p.getUniqueId());
+            if (currentTime < cooldown) {
+                p.sendMessage("§cInfernal Wrath is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                return;
+            }
+        }
+
+        activateInfernalWrath(p);
+        cooldown1.put(p.getUniqueId(), currentTime + 240000); // 4 minutes
+        p.sendMessage("§6Infernal Wrath activated!");
+    }
+
+    public void useAbility2(Player p) {
+        int points = dataManager.getPoints(p.getUniqueId());
+        if (points < 6) {
+            p.sendMessage("§cYou need 6 Ability Points to use this! (Current: " + points + "/6)");
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (cooldown2.containsKey(p.getUniqueId())) {
+            long cooldown = cooldown2.get(p.getUniqueId());
+            if (currentTime < cooldown) {
+                p.sendMessage("§cFire Tornado is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                return;
+            }
+        }
+
+        activateFireTornado(p);
+        cooldown2.put(p.getUniqueId(), currentTime + 360000); // 6 minutes
+        p.sendMessage("§6Fire Tornado activated!");
     }
 
     private void activateInfernalWrath(Player p) {
@@ -103,8 +122,12 @@ public class NetherMaceCommand implements CommandExecutor {
                     double x = Math.cos(angle) * distance;
                     double z = Math.sin(angle) * distance;
 
+                    // Start relative to player so it looks like it comes from above them
                     Location meteorStart = center.clone().add(x, 30, z);
+
+                    // End on the ground (highest block)
                     Location meteorEnd = center.clone().add(x, 0, z);
+                    meteorEnd.setY(p.getWorld().getHighestBlockYAt(meteorEnd) + 1);
 
                     createMeteor(meteorStart, meteorEnd, p);
                 }
@@ -223,7 +246,7 @@ public class NetherMaceCommand implements CommandExecutor {
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
             tick[0]++;
 
-            if (tick[0] > 200 || !p.isOnline()) {
+            if (tick[0] > 80 || !p.isOnline()) { // 4 seconds (80 ticks)
                 task.cancel();
                 p.sendMessage("§6Fire Tornado dissipated!");
                 // Reset flying if they weren't flying before
@@ -236,22 +259,24 @@ public class NetherMaceCommand implements CommandExecutor {
 
             Location center = p.getLocation();
 
-            // INSANELY DENSE RED TORNADO - Funnel Shape
-            double height = 12;
+            // ENHANCED FIRE TORNADO - Funnel Shape with multiple effects
+            double height = 15;
 
-            // Red dust option for coloring
+            // Color options for dramatic effect
             org.bukkit.Particle.DustOptions redDust = new org.bukkit.Particle.DustOptions(
-                    org.bukkit.Color.fromRGB(220, 20, 20), 1.5f);
+                    org.bukkit.Color.fromRGB(255, 50, 0), 2.0f);
             org.bukkit.Particle.DustOptions orangeDust = new org.bukkit.Particle.DustOptions(
-                    org.bukkit.Color.fromRGB(255, 140, 0), 1.5f);
+                    org.bukkit.Color.fromRGB(255, 165, 0), 2.0f);
+            org.bukkit.Particle.DustOptions yellowDust = new org.bukkit.Particle.DustOptions(
+                    org.bukkit.Color.fromRGB(255, 255, 0), 1.5f);
 
-            for (double y = 0; y < height; y += 0.2) {
-                // Funnel shape: Starts thin, gets wide at top
-                double radius = 1.0 + (y * 0.6);
+            for (double y = 0; y < height; y += 0.15) {
+                // Funnel shape: Starts thin, gets wider at top
+                double radius = 1.5 + (y * 0.5);
 
-                // 5 spirals for coverage
-                for (int spiral = 0; spiral < 5; spiral++) {
-                    double angle = (tick[0] * 20 + y * 30 + spiral * 72) % 360;
+                // 8 spirals for maximum density and coverage
+                for (int spiral = 0; spiral < 8; spiral++) {
+                    double angle = (tick[0] * 120 + y * 40 + spiral * 45) % 360; // Very fast rotation
                     double rad = Math.toRadians(angle);
 
                     double x = Math.cos(rad) * radius;
@@ -259,12 +284,36 @@ public class NetherMaceCommand implements CommandExecutor {
 
                     Location particleLoc = center.clone().add(x, y, z);
 
-                    // Visualize the tornado
-                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 1, 0, 0, 0, 0.01);
-                    particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, redDust);
+                    // Multiple layered particle effects
+                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 2, 0.1, 0.1, 0.1, 0.02);
+                    particleLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, particleLoc, 1, 0.05, 0.05, 0.05,
+                            0.01);
 
-                    if (y > 8) {
-                        particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 1, 0, 0, 0, 0);
+                    // Color variations based on height
+                    if (y < 5) {
+                        particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 2, 0, 0, 0, redDust);
+                        particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 1, 0.1, 0.1, 0.1, 0);
+                    } else if (y < 10) {
+                        particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 2, 0, 0, 0, orangeDust);
+                    } else {
+                        particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, yellowDust);
+                        particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 2, 0.1, 0.1, 0.1, 0.02);
+                    }
+
+                    // Dripping lava effect at bottom
+                    if (y < 3) {
+                        particleLoc.getWorld().spawnParticle(Particle.DRIPPING_LAVA, particleLoc, 1, 0, 0, 0, 0);
+                    }
+                }
+
+                // Inner core effect - additional spiral for density
+                if (y % 1 < 0.5) {
+                    double coreRadius = radius * 0.3;
+                    for (int i = 0; i < 360; i += 30) {
+                        double rad = Math.toRadians(i + tick[0] * 10);
+                        Location coreLoc = center.clone().add(Math.cos(rad) * coreRadius, y,
+                                Math.sin(rad) * coreRadius);
+                        coreLoc.getWorld().spawnParticle(Particle.FLAME, coreLoc, 1, 0, 0, 0, 0);
                     }
                 }
             }
@@ -320,12 +369,12 @@ public class NetherMaceCommand implements CommandExecutor {
                             // Push away gently if too close
                             Vector push = e.getLocation().toVector().subtract(center.toVector()).normalize();
                             push.setY(0.1);
-                            e.setVelocity(push.multiply(0.15));
+                            e.setVelocity(push.multiply(0.1)); // Reduced push
                         } else if (distance > 3 && distance < 8) {
                             // Pull gently if too far
                             Vector pull = center.toVector().subtract(e.getLocation().toVector()).normalize();
                             pull.setY(0.05);
-                            e.setVelocity(pull.multiply(0.1));
+                            e.setVelocity(pull.multiply(0.05)); // Reduced pull
                         }
                     }
                 }

@@ -63,35 +63,54 @@ public class EndMaceCommand implements CommandExecutor, Listener {
         long currentTime = System.currentTimeMillis();
 
         if (args[0].equals("1")) {
-            // Ability 1: Void Cloak (Invis)
-            if (cooldown1.containsKey(p.getUniqueId())) {
-                long cooldown = cooldown1.get(p.getUniqueId());
-                if (currentTime < cooldown) {
-                    p.sendMessage("§cVoid Cloak is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
-                    return true;
-                }
-            }
-
-            activateVoidCloak(p);
-            cooldown1.put(p.getUniqueId(), currentTime + 60000); // 1 minute
-            p.sendMessage("§5Void Cloak activated!");
-
+            useAbility1(p);
         } else if (args[0].equals("2")) {
-            // Ability 2: Singularity (Modified)
-            if (cooldown2.containsKey(p.getUniqueId())) {
-                long cooldown = cooldown2.get(p.getUniqueId());
-                if (currentTime < cooldown) {
-                    p.sendMessage("§cSingularity is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
-                    return true;
-                }
-            }
-
-            activateSingularity(p);
-            cooldown2.put(p.getUniqueId(), currentTime + 300000); // 5 minutes
-            p.sendMessage("§5Singularity activated!");
+            useAbility2(p);
         }
 
         return true;
+    }
+
+    public void useAbility1(Player p) {
+        int points = dataManager.getPoints(p.getUniqueId());
+        if (points < 3) {
+            p.sendMessage("§cYou need 3 Ability Points to use this! (Current: " + points + "/3)");
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (cooldown1.containsKey(p.getUniqueId())) {
+            long cooldown = cooldown1.get(p.getUniqueId());
+            if (currentTime < cooldown) {
+                p.sendMessage("§cVoid Cloak is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                return;
+            }
+        }
+
+        activateVoidCloak(p);
+        cooldown1.put(p.getUniqueId(), currentTime + 60000); // 1 minute
+        p.sendMessage("§5Void Cloak activated!");
+    }
+
+    public void useAbility2(Player p) {
+        int points = dataManager.getPoints(p.getUniqueId());
+        if (points < 6) {
+            p.sendMessage("§cYou need 6 Ability Points to use this! (Current: " + points + "/6)");
+            return;
+        }
+
+        long currentTime = System.currentTimeMillis();
+        if (cooldown2.containsKey(p.getUniqueId())) {
+            long cooldown = cooldown2.get(p.getUniqueId());
+            if (currentTime < cooldown) {
+                p.sendMessage("§cSingularity is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                return;
+            }
+        }
+
+        activateSingularity(p);
+        cooldown2.put(p.getUniqueId(), currentTime + 300000); // 5 minutes
+        p.sendMessage("§5Singularity activated!");
     }
 
     private void activateVoidCloak(Player p) {

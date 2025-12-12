@@ -16,8 +16,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
-import org.novagladecode.livesplugin.gui.UnbanGUI;
-import org.novagladecode.livesplugin.logic.EffectManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -34,7 +32,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.entity.Item;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.CraftingInventory;
+
 import org.bukkit.Location;
 import java.util.List;
 import java.util.ArrayList;
@@ -45,19 +43,14 @@ public class GameListener implements Listener {
     private final JavaPlugin plugin;
     private final PlayerDataManager dataManager;
     private final ItemManager itemManager;
-    private final EffectManager effectManager;
-    private final UnbanGUI unbanGUI;
 
     // Warden Mace sonic boom cooldown tracking
     private final HashMap<UUID, Long> sonicBoomCooldown = new HashMap<>();
 
-    public GameListener(JavaPlugin plugin, PlayerDataManager dataManager, ItemManager itemManager,
-            EffectManager effectManager, UnbanGUI unbanGUI) {
+    public GameListener(JavaPlugin plugin, PlayerDataManager dataManager, ItemManager itemManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
         this.itemManager = itemManager;
-        this.effectManager = effectManager;
-        this.unbanGUI = unbanGUI;
     }
 
     @EventHandler
@@ -65,44 +58,36 @@ public class GameListener implements Listener {
         Player p = e.getPlayer();
         dataManager.initializePlayer(p.getUniqueId());
 
-        // Check if banned
-        if (dataManager.isBanned(p.getUniqueId())) {
-            p.kickPlayer("§cYou are banned! Someone must craft an Unban Token to revive you.");
-        } else {
-            int level = dataManager.getLevel(p.getUniqueId());
-            effectManager.applyEffects(p, level);
-
-            // Scan inventory for banned items and process valid items
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                boolean foundBanned = false;
-                for (ItemStack item : p.getInventory().getContents()) {
-                    if (item != null && item.getType() != Material.AIR) {
-                        if (isBannedItem(item)) {
-                            item.setAmount(0);
-                            foundBanned = true;
-                        } else {
-                            processItem(item);
-                        }
+        // Scan inventory for banned items and process valid items
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            boolean foundBanned = false;
+            for (ItemStack item : p.getInventory().getContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    if (isBannedItem(item)) {
+                        item.setAmount(0);
+                        foundBanned = true;
+                    } else {
+                        processItem(item);
                     }
                 }
+            }
 
-                // Check armor slots
-                for (ItemStack armor : p.getInventory().getArmorContents()) {
-                    if (armor != null && armor.getType() != Material.AIR) {
-                        if (isBannedItem(armor)) {
-                            armor.setAmount(0);
-                            foundBanned = true;
-                        } else {
-                            processItem(armor);
-                        }
+            // Check armor slots
+            for (ItemStack armor : p.getInventory().getArmorContents()) {
+                if (armor != null && armor.getType() != Material.AIR) {
+                    if (isBannedItem(armor)) {
+                        armor.setAmount(0);
+                        foundBanned = true;
+                    } else {
+                        processItem(armor);
                     }
                 }
+            }
 
-                if (foundBanned) {
-                    p.sendMessage("§cNetherite armor and weapons have been removed from your inventory!");
-                }
-            }, 20L); // Wait 1 second for player to fully load
-        }
+            if (foundBanned) {
+                p.sendMessage("§cNetherite armor and weapons have been removed from your inventory!");
+            }
+        }, 20L); // Wait 1 second for player to fully load
     }
 
     @EventHandler
@@ -110,73 +95,24 @@ public class GameListener implements Listener {
         Player victim = e.getEntity();
         Player killer = victim.getKiller();
 
-        UUID victimUUID = victim.getUniqueId();
-        int level = dataManager.getLevel(victimUUID);
-
-        // Victim loses one level on death (if they have any)
-        if (level > 0) {
-            level--;
-            dataManager.setLevel(victimUUID, level);
+        // Reset victim's points
+        dataManager.resetPoints(victim.getUniqueId());
+        if (victim.isOnline()) { // Should be, they just died
+            victim.sendMessage("§cYou died! Your ability points have been reset to 0.");
         }
 
-        final int finalLevel = level;
-
-        // Check if player should be banned
-        if (finalLevel <= 0) {
-            dataManager.setBanned(victimUUID, true);
-            dataManager.saveData();
-
-            // Kick banned players
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (victim.isOnline()) {
-                    victim.kickPlayer(
-                            "§cYou died! -1 Life\n§cYou're at §40 lives§c.\n§cYou are banned until someone crafts an Unban Token.");
-                }
-            }, 40L);
-        } else {
-            // Respawn alive players immediately
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (victim.isOnline() && victim.isDead()) {
-                    victim.spigot().respawn();
-
-                    // Teleport to spawn after a brief delay
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        if (victim.isOnline()) {
-                            org.bukkit.Location spawnLoc = victim.getBedSpawnLocation();
-                            if (spawnLoc == null) {
-                                spawnLoc = victim.getWorld().getSpawnLocation();
-                            }
-                            victim.teleport(spawnLoc);
-
-                            // Send death message
-                            victim.sendMessage("§c§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                            victim.sendMessage("§c§lYOU DIED!");
-                            victim.sendMessage("§e-1 Life");
-                            victim.sendMessage("§eYou're at §6" + finalLevel + " "
-                                    + (finalLevel == 1 ? "life" : "lives") + "§e.");
-                            victim.sendMessage("§c§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                        }
-                    }, 5L);
-                }
-            }, 1L); // Respawn almost immediately
-        }
-
-        dataManager.saveData();
-
-        // Give killer a level
+        // Give killer a point
         if (killer != null) {
-            UUID killerUUID = killer.getUniqueId();
-            int killerLevel = dataManager.getLevel(killerUUID);
-            if (killerLevel < 15) {
-                killerLevel++;
+            dataManager.addPoint(killer.getUniqueId());
+            int points = dataManager.getPoints(killer.getUniqueId());
+
+            killer.sendMessage("§a+1 Ability Point. Total: " + points);
+            if (points == 3) {
+                killer.sendMessage("§b§lTIER 1 ABILITIES UNLOCKED! §e(3 Points)");
             }
-            dataManager.setLevel(killerUUID, killerLevel);
-
-            killer.sendMessage("§aYou killed " + victim.getName() + "! Your level is now: " + killerLevel);
-
-            dataManager.saveData();
-
-            effectManager.applyEffects(killer, killerLevel);
+            if (points == 6) {
+                killer.sendMessage("§e§lTIER 2 ABILITIES UNLOCKED! §e(6 Points - MAX)");
+            }
         }
     }
 
@@ -187,38 +123,6 @@ public class GameListener implements Listener {
 
         if (item == null)
             return;
-
-        // Check if right-clicking with Level Item
-        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
-                && itemManager.isLevelItem(item)) {
-            e.setCancelled(true);
-
-            UUID uuid = p.getUniqueId();
-            int currentLevel = dataManager.getLevel(uuid);
-
-            if (currentLevel >= 15) {
-                p.sendMessage("§cYou are already at max level (15)!");
-                e.setCancelled(true);
-                return;
-            }
-
-            dataManager.setLevel(uuid, currentLevel + 1);
-            dataManager.saveData();
-
-            p.sendMessage("§aYou used a Level Item! Your level is now: " + (currentLevel + 1));
-
-            // Consume the item
-            item.setAmount(item.getAmount() - 1);
-
-            // Apply effects with new level
-            effectManager.applyEffects(p, currentLevel + 1);
-        }
-
-        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
-                && itemManager.isUnbanItem(item)) {
-            e.setCancelled(true);
-            unbanGUI.openUnbanMenu(p);
-        }
 
         // Chicken Bow "No Arrow" firing logic
         if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
@@ -237,6 +141,8 @@ public class GameListener implements Listener {
             }
         }
     }
+
+    // Removed onExpBottle (Level Boost)
 
     @EventHandler
     public void onEntityShootBow(EntityShootBowEvent e) {
@@ -273,17 +179,17 @@ public class GameListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (ritualLocations.containsKey(e.getBlock().getLocation())) {
-            e.setCancelled(true);
-            e.getPlayer().sendMessage("§cThis table is protected by a dark ritual...");
+            e.getPlayer().sendMessage("§cRitual Table broken! The ritual is disrupted.");
+            // Task will detect table absence and fail
         }
     }
 
     @EventHandler
     public void onBlockDamage(BlockDamageEvent e) {
         if (ritualLocations.containsKey(e.getBlock().getLocation())) {
-            // Apply Mining Fatigue 3 to simulate Obsidian hardness/slow mining
+            // Apply Mining Fatigue I to simulate slower mining
             e.getPlayer().addPotionEffect(
-                    new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.MINING_FATIGUE, 40, 2));
+                    new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.MINING_FATIGUE, 200, 0));
         }
     }
 
@@ -439,6 +345,11 @@ public class GameListener implements Listener {
                     return;
                 }
 
+                if (origin.getBlock().getType() != Material.CRAFTING_TABLE) {
+                    failRitual("The ritual table was destroyed!");
+                    return;
+                }
+
                 // Effects
                 if (ticks % 20 == 0) {
                     if (maceType == 1) { // Warden
@@ -511,11 +422,8 @@ public class GameListener implements Listener {
             }
 
             private void giveItem(ItemStack item) {
-                if (p.getInventory().firstEmpty() != -1) {
-                    p.getInventory().addItem(item);
-                } else {
-                    p.getWorld().dropItem(p.getLocation(), item);
-                }
+                // Drop mace on top of crafting table
+                origin.getWorld().dropItem(origin.clone().add(0.5, 1.2, 0.5), item);
             }
         }.runTaskTimer(plugin, 0L, 20L);
     }
@@ -569,14 +477,6 @@ public class GameListener implements Listener {
             }
         }
 
-        // Cancel persistent Wither damage if it's the cosmetic effect (Level < 10)
-        // (Existing logic)
-        if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER) {
-            // If the player is low level, the Wither effect is cosmetic
-            if (dataManager.getLevel(p.getUniqueId()) < 10) {
-                e.setCancelled(true);
-            }
-        }
     }
 
     @EventHandler
@@ -611,6 +511,19 @@ public class GameListener implements Listener {
         if (e.getDamager() instanceof Player) {
             Player attacker = (Player) e.getDamager();
             ItemStack weapon = attacker.getInventory().getItemInMainHand();
+
+            // Shield Stun Logic
+            if (e.getEntity() instanceof Player && weapon.getType() == Material.MACE) {
+                Player victim = (Player) e.getEntity();
+                if (victim.isBlocking()) {
+                    // Disable shield for 5 seconds (100 ticks)
+                    victim.setCooldown(Material.SHIELD, 100);
+                    victim.clearActiveItem(); // Force lower shield
+                    victim.getWorld().playSound(victim.getLocation(), org.bukkit.Sound.ITEM_SHIELD_BREAK, 1.0f, 1.0f);
+                    victim.sendMessage("§c§lSHIELD STUNNED! §7(5s cooldown)");
+                    attacker.sendMessage("§aYou stunned their shield!");
+                }
+            }
 
             // Check if holding Warden Mace
             if (weapon.getType() == org.bukkit.Material.MACE && weapon.hasItemMeta()
@@ -811,9 +724,7 @@ public class GameListener implements Listener {
 
         // Downgrade Protection 4 to Protection 3
         if (meta.hasEnchant(Enchantment.PROTECTION)) {
-            int level = meta.getEnchantLevel(Enchantment.PROTECTION);
-            if (level >= 4) {
-                meta.removeEnchant(Enchantment.PROTECTION);
+            if (meta.getEnchantLevel(Enchantment.PROTECTION) > 3) {
                 meta.addEnchant(Enchantment.PROTECTION, 3, true);
                 changed = true;
             }
@@ -824,4 +735,68 @@ public class GameListener implements Listener {
         }
     }
 
+    // Combat Tag Logic
+    private final Map<UUID, Long> combatTags = new HashMap<>();
+
+    @EventHandler
+    public void onCombatDamage(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+        // Only player-vs-player combat triggers tag
+        if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+            Player victim = (Player) e.getEntity();
+            Player attacker = (Player) e.getDamager();
+
+            // Tag both players for 60 seconds
+            long expiry = System.currentTimeMillis() + 60000;
+            combatTags.put(victim.getUniqueId(), expiry);
+            combatTags.put(attacker.getUniqueId(), expiry);
+
+            // Optional: Message users (can get spammy, maybe check if already tagged)
+            // victim.sendMessage("§cYou are in combat! Elytra and Riptide disabled for
+            // 60s.");
+            // attacker.sendMessage("§cYou are in combat! Elytra and Riptide disabled for
+            // 60s.");
+        }
+    }
+
+    @EventHandler
+    public void onElytraToggle(org.bukkit.event.entity.EntityToggleGlideEvent e) {
+        if (!(e.getEntity() instanceof Player))
+            return;
+        if (!e.isGliding())
+            return; // Only block enabling
+
+        if (isCombatTagged(e.getEntity().getUniqueId())) {
+            e.setCancelled(true);
+            ((Player) e.getEntity()).sendMessage("§cCannot use Elytra while in combat!");
+        }
+    }
+
+    // Riptide logic: PlayerRiptideEvent is not cancellable in some versions.
+    // We check Interact for Trident w/ Riptide while tagged.
+    @EventHandler
+    public void onRiptideInteract(PlayerInteractEvent e) {
+        if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (e.getItem() != null && e.getItem().getType() == Material.TRIDENT) {
+                if (e.getItem().getItemMeta().hasEnchant(Enchantment.RIPTIDE)) {
+                    // Check if conditions for riptide (wet or rain) are met?
+                    // Actually, just blocking the attempt if tagged is safer.
+                    if (isCombatTagged(e.getPlayer().getUniqueId())) {
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage("§cCannot use Riptide while in combat!");
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isCombatTagged(UUID uuid) {
+        if (!combatTags.containsKey(uuid))
+            return false;
+        long expiry = combatTags.get(uuid);
+        if (System.currentTimeMillis() > expiry) {
+            combatTags.remove(uuid);
+            return false;
+        }
+        return true;
+    }
 }

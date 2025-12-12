@@ -42,38 +42,32 @@ public class PlayerDataManager {
 
     public void initializePlayer(UUID uuid) {
         if (!dataConfig.contains(uuid.toString())) {
-            dataConfig.set(uuid + ".lives", 5);
-            dataConfig.set(uuid + ".level", 5);
-            dataConfig.set(uuid + ".banned", false);
+            dataConfig.set(uuid + ".points", 0);
             saveData();
         }
     }
 
-    public int getLives(UUID uuid) {
-        return dataConfig.getInt(uuid + ".lives");
+    public int getPoints(UUID uuid) {
+        return dataConfig.getInt(uuid + ".points", 0);
     }
 
-    public void setLives(UUID uuid, int lives) {
-        dataConfig.set(uuid + ".lives", lives);
+    public void setPoints(UUID uuid, int points) {
+        dataConfig.set(uuid + ".points", points);
+        saveData();
     }
 
-    public int getLevel(UUID uuid) {
-        return dataConfig.getInt(uuid + ".level");
+    public void addPoint(UUID uuid) {
+        int current = getPoints(uuid);
+        if (current < 6) {
+            setPoints(uuid, current + 1);
+        }
     }
 
-    public void setLevel(UUID uuid, int level) {
-        if (level > 15)
-            level = 15;
-        dataConfig.set(uuid + ".level", level);
+    public void resetPoints(UUID uuid) {
+        setPoints(uuid, 0);
     }
 
-    public boolean isBanned(UUID uuid) {
-        return dataConfig.getBoolean(uuid + ".banned");
-    }
-
-    public void setBanned(UUID uuid, boolean banned) {
-        dataConfig.set(uuid + ".banned", banned);
-    }
+    // Removing Lives/Levels/Ban logic as requested
 
     public long getInvisCooldown(UUID uuid) {
         return invisCooldowns.getOrDefault(uuid, 0L);
@@ -94,20 +88,6 @@ public class PlayerDataManager {
             }
         }
         return null;
-    }
-
-    public java.util.List<UUID> getBannedPlayers() {
-        java.util.List<UUID> bannedPlayers = new java.util.ArrayList<>();
-        for (String key : dataConfig.getKeys(false)) {
-            try {
-                UUID uuid = UUID.fromString(key);
-                if (dataConfig.getBoolean(uuid + ".banned")) {
-                    bannedPlayers.add(uuid);
-                }
-            } catch (IllegalArgumentException ignored) {
-            }
-        }
-        return bannedPlayers;
     }
 
     public boolean isWardenMaceCrafted() {

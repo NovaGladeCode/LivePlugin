@@ -11,9 +11,11 @@ import org.novagladecode.livesplugin.logic.ItemManager;
 public class WeaponCommand implements CommandExecutor {
 
     private final ItemManager itemManager;
+    private final org.novagladecode.livesplugin.gui.RecipeGUI recipeGUI;
 
-    public WeaponCommand(ItemManager itemManager) {
+    public WeaponCommand(ItemManager itemManager, org.novagladecode.livesplugin.gui.RecipeGUI recipeGUI) {
         this.itemManager = itemManager;
+        this.recipeGUI = recipeGUI;
     }
 
     @Override
@@ -25,42 +27,56 @@ public class WeaponCommand implements CommandExecutor {
 
         Player p = (Player) sender;
 
-        if (!p.isOp()) {
-            p.sendMessage("§cYou do not have permission to use this command.");
+        if (args.length == 0) {
+            p.sendMessage("§cUsage: /weapon <give|recipe> [name]");
             return true;
         }
 
-        if (args.length < 2 || !args[0].equalsIgnoreCase("give")) {
-            p.sendMessage("§cUsage: /weapon give <warden|nether|end|chickenbow>");
+        if (args[0].equalsIgnoreCase("recipe")) {
+            recipeGUI.openMainMenu(p);
             return true;
         }
 
-        ItemStack weapon = null;
-        String type = args[1].toLowerCase();
-
-        switch (type) {
-            case "warden":
-                weapon = itemManager.createWardenMace();
-                break;
-            case "nether":
-                weapon = itemManager.createNetherMace();
-                break;
-            case "chickenbow":
-                weapon = itemManager.createChickenBow();
-                break;
-            case "end":
-                weapon = itemManager.createEndMace();
-                break;
-            default:
-                p.sendMessage("§cUnknown weapon. Usage: /weapon give <warden|nether|end|chickenbow>");
+        if (args[0].equalsIgnoreCase("give")) {
+            if (!p.isOp()) {
+                p.sendMessage("§cYou do not have permission to use this command.");
                 return true;
+            }
+
+            if (args.length < 2) {
+                p.sendMessage("§cUsage: /weapon give <warden|nether|end|chickenbow>");
+                return true;
+            }
+
+            ItemStack weapon = null;
+            String type = args[1].toLowerCase();
+
+            switch (type) {
+                case "warden":
+                    weapon = itemManager.createWardenMace();
+                    break;
+                case "nether":
+                    weapon = itemManager.createNetherMace();
+                    break;
+                case "chickenbow":
+                    weapon = itemManager.createChickenBow();
+                    break;
+                case "end":
+                    weapon = itemManager.createEndMace();
+                    break;
+                default:
+                    p.sendMessage("§cUnknown weapon. Usage: /weapon give <warden|nether|end|chickenbow>");
+                    return true;
+            }
+
+            if (weapon != null) {
+                p.getInventory().addItem(weapon);
+                p.sendMessage("§aGiven " + type + " to your inventory.");
+            }
+            return true;
         }
 
-        if (weapon != null) {
-            p.getInventory().addItem(weapon);
-            p.sendMessage("§aGiven " + type + " to your inventory.");
-        }
-
+        p.sendMessage("§cUsage: /weapon <give|recipe> [name]");
         return true;
     }
 }
