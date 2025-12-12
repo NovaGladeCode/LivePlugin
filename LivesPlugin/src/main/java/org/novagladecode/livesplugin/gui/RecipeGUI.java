@@ -61,7 +61,6 @@ public class RecipeGUI implements Listener {
         Material HEAVY_CORE = Material.HEAVY_CORE;
         Material N_INGOT = Material.NETHERITE_INGOT;
         Material N_SCRAP = Material.NETHERITE_SCRAP;
-        Material BLAZE = Material.BLAZE_ROD;
         Material CHORUS = Material.POPPED_CHORUS_FRUIT;
         Material BREEZE = Material.BREEZE_ROD;
         Material FEATHER = Material.FEATHER;
