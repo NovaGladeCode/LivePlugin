@@ -13,6 +13,7 @@ import org.novagladecode.livesplugin.logic.ItemManager;
 
 import java.util.Arrays;
 
+@SuppressWarnings("deprecation")
 public class RecipeGUI implements Listener {
 
     private final ItemManager itemManager;
