@@ -22,6 +22,9 @@ import org.bukkit.util.Vector;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
+import java.util.ArrayList;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class EndMaceCommand implements CommandExecutor, Listener {
 
@@ -103,14 +106,14 @@ public class EndMaceCommand implements CommandExecutor, Listener {
         if (cooldown2.containsKey(p.getUniqueId())) {
             long cooldown = cooldown2.get(p.getUniqueId());
             if (currentTime < cooldown) {
-                p.sendMessage("§cSingularity is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
+                p.sendMessage("§cPhantom Assault is on cooldown! " + (cooldown - currentTime) / 1000 + "s left.");
                 return;
             }
         }
 
-        activateSingularity(p);
+        activatePhantomAssault(p);
         cooldown2.put(p.getUniqueId(), currentTime + 300000); // 5 minutes
-        p.sendMessage("§5Singularity activated!");
+        p.sendMessage("§5Phantom Assault activated!");
     }
 
     private void activateVoidCloak(Player p) {
@@ -170,63 +173,59 @@ public class EndMaceCommand implements CommandExecutor, Listener {
         }
     }
 
-    private void activateSingularity(Player p) {
-        Location center = p.getLocation().add(0, 5, 0); // Above player
-        p.getWorld().playSound(center, Sound.BLOCK_END_PORTAL_SPAWN, 1.0f, 0.5f);
+    private void activatePhantomAssault(Player p) {
+        Location startLoc = p.getLocation();
+        List<LivingEntity> targets = new ArrayList<>();
+        // Radius check
+        for (Entity e : p.getNearbyEntities(15, 15, 15)) {
+            if (e instanceof LivingEntity && e != p) {
+                if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
+                    continue;
+                targets.add((LivingEntity) e);
+            }
+        }
 
-        // Single tick effect? Or duration?
-        // User said "inted pull them in ... launch up and away".
-        // Sounds like a one-time burst or short duration.
-        // I'll make it a 3-second duration ability that pulls, damages, then launches
-        // at the end.
+        if (targets.isEmpty()) {
+            p.sendMessage("§cNo targets nearby for Phantom Assault!");
+            return;
+        }
 
-        new org.bukkit.scheduler.BukkitRunnable() {
-            int ticks = 0;
+        p.sendMessage("§5§lPHANTOM ASSAULT INITIATED!");
+        p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.5f);
+
+        new BukkitRunnable() {
+            int index = 0;
 
             @Override
             public void run() {
-                if (!p.isOnline() || ticks >= 60) { // 3 seconds
-                    // Launch at end
-                    for (Entity e : center.getWorld().getNearbyEntities(center, 15, 15, 15)) {
-                        if (e instanceof LivingEntity && e != p) {
-                            if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
-                                continue;
-
-                            // Launch Up and Away
-                            Vector dir = e.getLocation().toVector().subtract(center.toVector()).normalize();
-                            dir.setY(1.0); // Up
-                            dir.multiply(2.5); // Massive launch
-                            e.setVelocity(dir);
-                        }
-                    }
+                if (index >= targets.size() || !p.isOnline()) {
+                    // Finish
+                    p.teleport(startLoc);
+                    p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
                     this.cancel();
                     return;
                 }
 
-                // Visuals
-                center.getWorld().spawnParticle(Particle.SQUID_INK, center, 5, 0.5, 0.5, 0.5, 0);
-                center.getWorld().spawnParticle(Particle.PORTAL, center, 10, 1, 1, 1, 0);
-
-                // Pull and Damage
-                for (Entity e : center.getWorld().getNearbyEntities(center, 15, 15, 15)) {
-                    if (e instanceof LivingEntity && e != p) {
-                        if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
-                            continue;
-
-                        LivingEntity le = (LivingEntity) e;
-
-                        // Strong Pull
-                        Vector pull = center.toVector().subtract(le.getLocation().toVector()).normalize().multiply(0.8);
-                        le.setVelocity(pull);
-
-                        // Damage every second (20 ticks)
-                        if (ticks % 20 == 0) {
-                            le.damage(6.0, p); // 3 hearts per tick check
-                        }
-                    }
+                LivingEntity target = targets.get(index);
+                if (target.isValid()) {
+                    // Teleport behind
+                    Location strikeLoc = target.getLocation().add(target.getLocation().getDirection().multiply(-1)); // Behind
+                    strikeLoc.setDirection(target.getLocation().toVector().subtract(strikeLoc.toVector())); // Face
+                                                                                                            // target
+                    p.teleport(strikeLoc);
+                    p.getWorld().playSound(strikeLoc, Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
+                    
+                    // Enhanced particle effects
+                    Location targetLoc = target.getLocation().add(0, 1, 0);
+                    p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, targetLoc, 5, 0.5, 0.5, 0.5, 0.1);
+                    p.getWorld().spawnParticle(Particle.ASH, targetLoc, 30, 0.8, 0.8, 0.8, 0.1);
+                    p.getWorld().spawnParticle(Particle.END_ROD, targetLoc, 15, 0.5, 0.5, 0.5, 0.05);
+                    p.getWorld().spawnParticle(Particle.CRIT, targetLoc, 20, 0.6, 0.6, 0.6, 0.1);
+                    
+                    target.damage(20.0, p); // 10 hearts (doubled from 5)
                 }
-                ticks += 5;
+                index++;
             }
-        }.runTaskTimer(plugin, 0L, 5L);
+        }.runTaskTimer(plugin, 0L, 5L); // Every 5 ticks
     }
 }
