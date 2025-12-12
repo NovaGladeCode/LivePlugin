@@ -195,6 +195,9 @@ public class GameListener implements Listener {
                         chicken.setCustomName("§cAngry Chicken");
                         chicken.setCustomNameVisible(true);
                         chicken.setAdult();
+                        // Angry Speed (Speed V)
+                        chicken.addPotionEffect(
+                                new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SPEED, 6000, 4));
                     }
 
                     // Send message to shooter
