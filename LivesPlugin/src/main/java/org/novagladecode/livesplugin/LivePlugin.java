@@ -53,7 +53,6 @@ public class LivePlugin extends JavaPlugin {
                 wardenMaceCommand, netherMaceCommand, endMaceCommand), this);
 
         // Register Recipes (Duplicates removed, kept one set)
-        itemManager.registerUnbanRecipe();
         itemManager.registerWardenMaceRecipe();
         itemManager.registerNetherMaceRecipe();
         itemManager.registerEndMaceRecipe();

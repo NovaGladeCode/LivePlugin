@@ -33,8 +33,7 @@ public class RecipeGUI implements Listener {
                 "§7Click to view usage & crafting"));
         inv.setItem(3, createNamedGuiItem(itemManager.createChickenBow(), "§eChicken Bow Recipe",
                 "§7Click to view usage & crafting"));
-        inv.setItem(4, createNamedGuiItem(itemManager.createUnbanItem(), "§5Unban Token Recipe",
-                "§7Click to view usage & crafting"));
+        // inv.setItem(4, createNamedGuiItem(itemManager.createUnbanItem(), "§5Unban Token Recipe", "§7Click to view usage & crafting")); // Removed from GUI
 
         p.openInventory(inv);
     }
@@ -68,18 +67,18 @@ public class RecipeGUI implements Listener {
 
         switch (itemType) {
             case "Warden Mace":
-                // D H D
-                // D M D
-                // D D D
-                ingredients[0] = new ItemStack(D_BLOCK);
-                ingredients[1] = itemManager.createWardenHeart();
-                ingredients[2] = new ItemStack(D_BLOCK);
-                ingredients[3] = new ItemStack(D_BLOCK);
+                // C S C
+                // H M H
+                // C S C
+                ingredients[0] = new ItemStack(Material.SCULK_CATALYST);
+                ingredients[1] = new ItemStack(Material.SCULK_SENSOR);
+                ingredients[2] = new ItemStack(Material.SCULK_CATALYST);
+                ingredients[3] = itemManager.createWardenHeart();
                 ingredients[4] = new ItemStack(HEAVY_CORE);
-                ingredients[5] = new ItemStack(D_BLOCK);
-                ingredients[6] = new ItemStack(D_BLOCK);
-                ingredients[7] = new ItemStack(D_BLOCK);
-                ingredients[8] = new ItemStack(D_BLOCK);
+                ingredients[5] = itemManager.createWardenHeart();
+                ingredients[6] = new ItemStack(Material.SCULK_CATALYST);
+                ingredients[7] = new ItemStack(Material.SCULK_SENSOR);
+                ingredients[8] = new ItemStack(Material.SCULK_CATALYST);
                 result = itemManager.createWardenMace();
                 break;
             case "Nether Mace":
@@ -128,19 +127,7 @@ public class RecipeGUI implements Listener {
                 result = itemManager.createChickenBow();
                 break;
             case "Unban Token":
-                // D N D
-                // N L N
-                // D N D
-                ingredients[0] = new ItemStack(D_BLOCK);
-                ingredients[1] = new ItemStack(N_SCRAP);
-                ingredients[2] = new ItemStack(D_BLOCK);
-                ingredients[3] = new ItemStack(N_SCRAP);
-                ingredients[4] = itemManager.createLevelItem();
-                ingredients[5] = new ItemStack(N_SCRAP);
-                ingredients[6] = new ItemStack(D_BLOCK);
-                ingredients[7] = new ItemStack(N_SCRAP);
-                ingredients[8] = new ItemStack(D_BLOCK);
-                result = itemManager.createUnbanItem();
+                // (do nothing -- unban token removed)
                 break;
         }
 

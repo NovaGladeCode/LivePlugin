@@ -45,10 +45,11 @@ public class ItemManager {
 
         NamespacedKey key = new NamespacedKey(plugin, "warden_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, wardenMace);
-        recipe.shape("DHD", "DMD", "DDD");
-        recipe.setIngredient('D', Material.DIAMOND_BLOCK);
+        recipe.shape("CSC", "HMH", "CSC");
+        recipe.setIngredient('C', Material.SCULK_CATALYST);
+        recipe.setIngredient('S', Material.SCULK_SENSOR);
+        recipe.setIngredient('H', Material.ECHO_SHARD); // Warden Heart (special-named)
         recipe.setIngredient('M', Material.HEAVY_CORE);
-        recipe.setIngredient('H', Material.ECHO_SHARD); // Validated as Warden Heart in listener
 
         Bukkit.addRecipe(recipe);
     }
