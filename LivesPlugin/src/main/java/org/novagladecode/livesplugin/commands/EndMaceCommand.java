@@ -73,8 +73,8 @@ public class EndMaceCommand implements CommandExecutor, Listener {
 
     public void useAbility1(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
-        if (points < 3) {
-            p.sendMessage("§cYou need 3 Ability Points to use this! (Current: " + points + "/3)");
+        if (points < 5) {
+            p.sendMessage("§cYou need 5 Might to use this! (Current: " + points + "/5)");
             return;
         }
 
@@ -94,8 +94,8 @@ public class EndMaceCommand implements CommandExecutor, Listener {
 
     public void useAbility2(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
-        if (points < 6) {
-            p.sendMessage("§cYou need 6 Ability Points to use this! (Current: " + points + "/6)");
+        if (points < 10) {
+            p.sendMessage("§cYou need 10 Might to use this! (Current: " + points + "/10)");
             return;
         }
 

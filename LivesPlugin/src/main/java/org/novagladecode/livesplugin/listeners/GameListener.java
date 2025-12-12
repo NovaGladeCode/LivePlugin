@@ -23,7 +23,7 @@ import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Chicken;
-import org.bukkit.entity.Zombie;
+
 import org.bukkit.entity.EntityType;
 
 import java.util.HashMap;
@@ -101,7 +101,7 @@ public class GameListener implements Listener {
         // Reset victim's points
         dataManager.resetPoints(victim.getUniqueId());
         if (victim.isOnline()) { // Should be, they just died
-            victim.sendMessage("§cYou died! Your ability points have been reset to 0.");
+            victim.sendMessage("§cYou died! Your Might has been reset to 0.");
         }
 
         // Give killer a point
@@ -109,12 +109,12 @@ public class GameListener implements Listener {
             dataManager.addPoint(killer.getUniqueId());
             int points = dataManager.getPoints(killer.getUniqueId());
 
-            killer.sendMessage("§a+1 Ability Point. Total: " + points);
-            if (points == 3) {
-                killer.sendMessage("§b§lTIER 1 ABILITIES UNLOCKED! §e(3 Points)");
+            killer.sendMessage("§a+1 Might. Total: " + points);
+            if (points == 5) {
+                killer.sendMessage("§b§lTIER 1 ABILITIES UNLOCKED! §e(5 Might)");
             }
-            if (points == 6) {
-                killer.sendMessage("§e§lTIER 2 ABILITIES UNLOCKED! §e(6 Points - MAX)");
+            if (points == 10) {
+                killer.sendMessage("§e§lTIER 2 ABILITIES UNLOCKED! §e(10 Might - MAX)");
             }
         }
     }
@@ -539,13 +539,16 @@ public class GameListener implements Listener {
                         target.addPotionEffect(
                                 new org.bukkit.potion.PotionEffect(PotionEffectType.SLOW_FALLING, 300, 0));
                     }
-                    // 10% Chance Deadly Chicken -> Changed to 40% (More likely)
+                    // 40% Chance Angry Chicken
                     if (java.util.concurrent.ThreadLocalRandom.current().nextInt(10) < 4) {
                         org.bukkit.Location loc = target.getLocation();
                         Chicken chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
-                        Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
-                        zombie.setBaby(true);
-                        chicken.addPassenger(zombie);
+                        chicken.setAdult();
+                        // Angry Speed (Speed V)
+                        chicken.addPotionEffect(new org.bukkit.potion.PotionEffect(PotionEffectType.SPEED, 6000, 4));
+                        chicken.setCustomName("§cAngry Chicken");
+                        chicken.setCustomNameVisible(true);
+
                         if (target instanceof Player)
                             ((Player) target).sendMessage("§cThe Chicken Army attacks!");
                     }
@@ -577,6 +580,14 @@ public class GameListener implements Listener {
                 if (weaponName.equals("§3Warden Mace") || weaponName.equals("§cNether Mace")
                         || weaponName.equals("§5End Mace")) {
                     UUID attackerUUID = attacker.getUniqueId();
+
+                    // Check Points (Must be > 0)
+                    if (dataManager.getPoints(attackerUUID) <= 0) {
+                        e.setCancelled(true);
+                        attacker.sendMessage("§cYou need at least 1 Might to use this mace!");
+                        return;
+                    }
+
                     long currentTime = System.currentTimeMillis();
 
                     if (maceAttackCooldown.containsKey(attackerUUID)) {
@@ -589,8 +600,8 @@ public class GameListener implements Listener {
                         }
                     }
 
-                    // Set 20-second cooldown
-                    maceAttackCooldown.put(attackerUUID, currentTime + 20000);
+                    // Set 10-second cooldown
+                    maceAttackCooldown.put(attackerUUID, currentTime + 10000);
                 }
             }
 

@@ -42,7 +42,7 @@ public class PlayerDataManager {
 
     public void initializePlayer(UUID uuid) {
         if (!dataConfig.contains(uuid.toString())) {
-            dataConfig.set(uuid + ".points", 0);
+            dataConfig.set(uuid + ".points", 2);
             saveData();
         }
     }
@@ -58,7 +58,7 @@ public class PlayerDataManager {
 
     public void addPoint(UUID uuid) {
         int current = getPoints(uuid);
-        if (current < 6) {
+        if (current < 10) {
             setPoints(uuid, current + 1);
         }
     }

@@ -1,14 +1,14 @@
-name: LivesPlugin
+name: MaceAndMight
 version: 2.0
 main: org.novagladecode.livesplugin.LivePlugin
 api-version: 1.21
 author: YourName
-description: A custom ability and weapon plugin
+description: Mace & Might SMP Plugin
 
 commands:
-  live:
+  might:
     description: Main plugin command (Mace Controls)
-    usage: /live <subcommand>
+    usage: /might <subcommand>
     aliases: [mace]
   wardenmace:
     description: Warden Mace abilities
