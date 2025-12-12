@@ -37,7 +37,7 @@ public class LivePlugin extends JavaPlugin {
         endMaceCommand = new org.novagladecode.livesplugin.commands.EndMaceCommand(this, dataManager);
         getCommand("endmace").setExecutor(endMaceCommand);
 
-        getCommand("might").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this));
+        getCommand("might").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this, dataManager));
 
         getCommand("weapon")
                 .setExecutor(

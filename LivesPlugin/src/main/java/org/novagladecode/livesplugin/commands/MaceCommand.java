@@ -1,65 +1,212 @@
 package org.novagladecode.livesplugin.commands;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.novagladecode.livesplugin.LivePlugin;
+import org.novagladecode.livesplugin.data.PlayerDataManager;
 
+import java.util.Collections;
 import java.util.UUID;
 
 public class MaceCommand implements CommandExecutor {
 
-    private final org.novagladecode.livesplugin.LivePlugin plugin;
+    private final LivePlugin plugin;
+    private final PlayerDataManager dataManager;
 
-    public MaceCommand(org.novagladecode.livesplugin.LivePlugin plugin) {
+    public MaceCommand(LivePlugin plugin, PlayerDataManager dataManager) {
         this.plugin = plugin;
+        this.dataManager = dataManager;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cOnly players can use this command!");
-            return true;
+            // Console support for some commands?
+            if (args.length > 0 && (args[0].equalsIgnoreCase("reset") || args[0].equalsIgnoreCase("set")
+                    || args[0].equalsIgnoreCase("start"))) {
+                // Allow console
+            } else {
+                sender.sendMessage("§cOnly players can use this command (mostly)!");
+                return true;
+            }
         }
 
-        Player p = (Player) sender;
+        Player p = (sender instanceof Player) ? (Player) sender : null;
 
         if (args.length == 0) {
-            sendHelp(p);
+            sendHelp(sender);
             return true;
         }
 
-        UUID uuid = p.getUniqueId();
+        String sub = args[0].toLowerCase();
 
-        if (args[0].equalsIgnoreCase("help")) {
-            sendHelp(p);
-            return true;
+        switch (sub) {
+            case "help":
+                sendHelp(sender);
+                return true;
 
-        } else if (args[0].equalsIgnoreCase("togglecontrol")) {
-            boolean current = plugin.isMaceInteractMode(uuid);
-            plugin.setMaceInteractMode(uuid, !current);
-            if (!current) {
-                p.sendMessage("§aMace Control Mode enabled! (Right Click / Shift+Right Click)");
-            } else {
-                p.sendMessage("§cMace Control Mode disabled! (Use commands)");
-            }
-            return true;
+            case "togglecontrol":
+                if (p == null)
+                    return true;
+                UUID uuid = p.getUniqueId();
+                boolean current = plugin.isMaceInteractMode(uuid);
+                plugin.setMaceInteractMode(uuid, !current);
+                if (!current) {
+                    p.sendMessage("§aMace Control Mode enabled! (Right Click / Shift+Right Click)");
+                } else {
+                    p.sendMessage("§cMace Control Mode disabled! (Use commands)");
+                }
+                return true;
 
-        } else {
-            sendHelp(p);
-            return true;
+            case "set":
+                // /might set <player> <amount>
+                if (!sender.isOp()) {
+                    sender.sendMessage("§cYou do not have permission.");
+                    return true;
+                }
+                if (args.length < 3) {
+                    sender.sendMessage("§cUsage: /might set <player> <amount>");
+                    return true;
+                }
+                Player target = Bukkit.getPlayer(args[1]);
+                if (target == null) {
+                    sender.sendMessage("§cPlayer not found.");
+                    return true;
+                }
+                try {
+                    int amount = Integer.parseInt(args[2]);
+                    if (amount < 0 || amount > 10) {
+                        sender.sendMessage("§cAmount must be between 0 and 10.");
+                        return true;
+                    }
+                    dataManager.setPoints(target.getUniqueId(), amount);
+                    sender.sendMessage("§aSet " + target.getName() + "'s Might to " + amount);
+                    target.sendMessage("§aYour Might was set to " + amount + " by an admin.");
+                } catch (NumberFormatException e) {
+                    sender.sendMessage("§cInvalid number.");
+                }
+                return true;
+
+            case "withdraw":
+                // /might withdraw <amount>
+                if (p == null) {
+                    sender.sendMessage("§cConsole cannot withdraw.");
+                    return true;
+                }
+                if (args.length < 2) {
+                    p.sendMessage("§cUsage: /might withdraw <amount>");
+                    return true;
+                }
+                try {
+                    int amount = Integer.parseInt(args[1]);
+                    if (amount <= 0) {
+                        p.sendMessage("§cAmount must be positive.");
+                        return true;
+                    }
+                    int currentPoints = dataManager.getPoints(p.getUniqueId());
+                    if (currentPoints < amount) {
+                        p.sendMessage("§cNot enough Might! You have " + currentPoints + ".");
+                        return true;
+                    }
+
+                    // Deduct points
+                    dataManager.setPoints(p.getUniqueId(), currentPoints - amount);
+
+                    // Give items
+                    ItemStack item = new ItemStack(Material.NETHER_STAR, amount);
+                    ItemMeta meta = item.getItemMeta();
+                    meta.setDisplayName("§6Might Token");
+                    meta.setLore(Collections.singletonList("§7Right-click to reclaim 1 Might"));
+                    item.setItemMeta(meta);
+
+                    p.getInventory().addItem(item);
+                    p.sendMessage("§aWithdrew " + amount + " Might!");
+                } catch (NumberFormatException e) {
+                    p.sendMessage("§cInvalid number.");
+                }
+                return true;
+
+            case "reset":
+                // /might reset <target|@a>
+                if (!sender.isOp()) {
+                    sender.sendMessage("§cYou do not have permission.");
+                    return true;
+                }
+                if (args.length < 2) {
+                    sender.sendMessage("§cUsage: /might reset <player|all>");
+                    return true;
+                }
+
+                String targetStr = args[1];
+                if (targetStr.equalsIgnoreCase("all") || targetStr.equalsIgnoreCase("@a")) {
+                    for (Player online : Bukkit.getOnlinePlayers()) {
+                        dataManager.setPoints(online.getUniqueId(), 2); // Reset to starting 2
+                        online.sendMessage("§eYour Might has been reset to 2 by an admin.");
+                    }
+                    sender.sendMessage("§aReset Might for all players to 2.");
+                } else {
+                    Player resetTarget = Bukkit.getPlayer(targetStr);
+                    if (resetTarget == null) {
+                        sender.sendMessage("§cPlayer not found.");
+                        return true;
+                    }
+                    dataManager.setPoints(resetTarget.getUniqueId(), 2);
+                    resetTarget.sendMessage("§eYour Might has been reset to 2 by an admin.");
+                    sender.sendMessage("§aReset " + resetTarget.getName() + "'s Might to 2.");
+                }
+                return true;
+
+            case "start":
+                // /might start
+                if (!sender.isOp()) {
+                    sender.sendMessage("§cYou do not have permission.");
+                    return true;
+                }
+                sender.sendMessage("§aStarting 10s countdown to Border Set...");
+                Bukkit.broadcastMessage("§c§lBorder will be set to 3000 in 10 seconds!");
+
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    Bukkit.broadcastMessage("§c§lSetting World Border to 3000!");
+                    if (Bukkit.getWorld("world") != null) {
+                        Bukkit.getWorld("world").getWorldBorder().setSize(3000);
+                        Bukkit.broadcastMessage("§aBorder set!");
+                    } else {
+                        // Fallback try fallback world
+                        if (!Bukkit.getWorlds().isEmpty()) {
+                            Bukkit.getWorlds().get(0).getWorldBorder().setSize(3000);
+                            Bukkit.broadcastMessage("§aBorder set (default world)!");
+                        } else {
+                            sender.sendMessage("§cCould not find world to set border.");
+                        }
+                    }
+                }, 200L); // 10 seconds
+                return true;
+
+            default:
+                sendHelp(sender);
+                return true;
         }
     }
 
-    private void sendHelp(Player p) {
-        p.sendMessage("§6=== Mace & Might Commands ===");
-        p.sendMessage("§e/might togglecontrol §7- Toggle click-to-cast for maces");
-        if (p.isOp()) {
-            p.sendMessage("§e/weapon give <warden|nether|end|chickenbow> §7- Get Items");
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("§6=== Mace & Might Commands ===");
+        if (sender instanceof Player) {
+            sender.sendMessage("§e/might togglecontrol §7- Toggle click-to-cast");
+            sender.sendMessage("§e/might withdraw <amount> §7- Convert Might to item");
         }
-        p.sendMessage("§6=== Mace Abilities ===");
-        p.sendMessage("§bWarden Mace: §7/wardenmace 1 (Sonic Wave), /wardenmace 2 (Grasp)");
-        p.sendMessage("§cNether Mace: §7/nethermace 1 (Wrath), /nethermace 2 (Tornado)");
-        p.sendMessage("§5End Mace:    §7/endmace 1 (Void Cloak), /endmace 2 (Singularity)");
+        if (sender.isOp()) {
+            sender.sendMessage("§c=== Admin ===");
+            sender.sendMessage("§e/might set <player> <amount> §7- Set Might");
+            sender.sendMessage("§e/might reset <player|all> §7- Reset Might to 2");
+            sender.sendMessage("§e/might start §7- Start Border Countdown");
+            sender.sendMessage("§e/weapon give ... §7- Get Items");
+        }
     }
 }

@@ -127,6 +127,28 @@ public class GameListener implements Listener {
         if (item == null)
             return;
 
+        // Might Token Redemption
+        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
+                && item.getType() == Material.NETHER_STAR
+                && item.hasItemMeta()
+                && "§6Might Token".equals(item.getItemMeta().getDisplayName())) {
+
+            e.setCancelled(true);
+            int points = dataManager.getPoints(p.getUniqueId());
+            if (points >= 10) {
+                p.sendMessage("§cYou have max (10) Might!");
+                return;
+            }
+
+            // Add point
+            dataManager.setPoints(p.getUniqueId(), points + 1);
+            p.sendMessage("§aRedeemed 1 Might! (Total: " + (points + 1) + ")");
+
+            // Remove item
+            item.setAmount(item.getAmount() - 1);
+            return;
+        }
+
         // Chicken Bow "No Arrow" firing logic
         if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
                 && item != null && item.getType() == Material.BOW && item.hasItemMeta()
