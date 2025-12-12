@@ -25,7 +25,6 @@ import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Zombie;
 import org.bukkit.entity.EntityType;
-import org.bukkit.attribute.Attribute;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -196,10 +195,6 @@ public class GameListener implements Listener {
                         chicken.setCustomName("§cAngry Chicken");
                         chicken.setCustomNameVisible(true);
                         chicken.setAdult();
-
-                        // Make chicken faster
-                        chicken.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)
-                                .setBaseValue(0.35);
                     }
 
                     // Send message to shooter
