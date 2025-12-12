@@ -45,8 +45,8 @@ public class ItemManager {
 
         NamespacedKey key = new NamespacedKey(plugin, "warden_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, wardenMace);
-        recipe.shape("SHS", "SMS", "SSS");
-        recipe.setIngredient('S', Material.SCULK_CATALYST);
+        recipe.shape("DHD", "DMD", "DDD");
+        recipe.setIngredient('D', Material.DIAMOND_BLOCK);
         recipe.setIngredient('M', Material.HEAVY_CORE);
         recipe.setIngredient('H', Material.ECHO_SHARD); // Validated as Warden Heart in listener
 
@@ -60,7 +60,7 @@ public class ItemManager {
         recipe.shape("ISI", "WMW", "SSS");
         recipe.setIngredient('I', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('W', Material.NETHER_STAR); // Validated as Wither Heart
+        recipe.setIngredient('W', Material.NETHER_STAR); // Validated as Wither Heart in listener
         recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
     }
@@ -69,9 +69,9 @@ public class ItemManager {
         createEndMace(); // Ensure item cache
         NamespacedKey key = new NamespacedKey(plugin, "end_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, customEndMace);
-        recipe.shape(" H ", "CMC", " B ");
-        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Validated as Dragon Heart
-        recipe.setIngredient('C', Material.DRAGON_HEAD);
+        recipe.shape("PHP", "HMH", "PBP");
+        recipe.setIngredient('P', Material.POPPED_CHORUS_FRUIT);
+        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Validated as Dragon Heart in listener
         recipe.setIngredient('M', Material.HEAVY_CORE);
         recipe.setIngredient('B', Material.BREEZE_ROD);
 

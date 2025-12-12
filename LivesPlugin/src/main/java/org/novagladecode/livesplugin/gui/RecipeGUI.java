@@ -63,7 +63,6 @@ public class RecipeGUI implements Listener {
         Material N_SCRAP = Material.NETHERITE_SCRAP;
         Material BLAZE = Material.BLAZE_ROD;
         Material CHORUS = Material.POPPED_CHORUS_FRUIT;
-        Material ENDER_EYE = Material.ENDER_EYE;
         Material BREEZE = Material.BREEZE_ROD;
         Material FEATHER = Material.FEATHER;
         Material BOW = Material.BOW;
@@ -86,29 +85,29 @@ public class RecipeGUI implements Listener {
                 break;
             case "Nether Mace":
                 // I S I
-                // R M R
+                // W M W
                 // S S S
                 ingredients[0] = new ItemStack(N_INGOT);
                 ingredients[1] = new ItemStack(N_SCRAP);
                 ingredients[2] = new ItemStack(N_INGOT);
-                ingredients[3] = new ItemStack(BLAZE);
+                ingredients[3] = itemManager.createWitherHeart();
                 ingredients[4] = new ItemStack(HEAVY_CORE);
-                ingredients[5] = new ItemStack(BLAZE);
+                ingredients[5] = itemManager.createWitherHeart();
                 ingredients[6] = new ItemStack(N_SCRAP);
                 ingredients[7] = new ItemStack(N_SCRAP);
                 ingredients[8] = new ItemStack(N_SCRAP);
                 result = itemManager.createNetherMace();
                 break;
             case "End Mace":
-                // P E P
-                // E M E
+                // P H P
+                // H M H
                 // P B P
                 ingredients[0] = new ItemStack(CHORUS);
-                ingredients[1] = new ItemStack(ENDER_EYE);
+                ingredients[1] = itemManager.createDragonHeart();
                 ingredients[2] = new ItemStack(CHORUS);
-                ingredients[3] = new ItemStack(ENDER_EYE);
+                ingredients[3] = itemManager.createDragonHeart();
                 ingredients[4] = new ItemStack(HEAVY_CORE);
-                ingredients[5] = new ItemStack(ENDER_EYE);
+                ingredients[5] = itemManager.createDragonHeart();
                 ingredients[6] = new ItemStack(CHORUS);
                 ingredients[7] = new ItemStack(BREEZE);
                 ingredients[8] = new ItemStack(CHORUS);
