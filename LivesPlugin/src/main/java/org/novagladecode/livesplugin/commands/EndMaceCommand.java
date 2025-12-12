@@ -195,7 +195,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
                             // Launch Up and Away
                             Vector dir = e.getLocation().toVector().subtract(center.toVector()).normalize();
                             dir.setY(1.0); // Up
-                            dir.multiply(1.5); // 6 blocks approx strength? (1.5 velocity is high)
+                            dir.multiply(2.5); // Massive launch
                             e.setVelocity(dir);
                         }
                     }
@@ -215,13 +215,13 @@ public class EndMaceCommand implements CommandExecutor, Listener {
 
                         LivingEntity le = (LivingEntity) e;
 
-                        // Mild Pull
-                        Vector pull = center.toVector().subtract(le.getLocation().toVector()).normalize().multiply(0.4);
+                        // Strong Pull
+                        Vector pull = center.toVector().subtract(le.getLocation().toVector()).normalize().multiply(0.8);
                         le.setVelocity(pull);
 
                         // Damage every second (20 ticks)
                         if (ticks % 20 == 0) {
-                            le.damage(4.0, p); // 2 hearts (User said "do some damage")
+                            le.damage(6.0, p); // 3 hearts per tick check
                         }
                     }
                 }

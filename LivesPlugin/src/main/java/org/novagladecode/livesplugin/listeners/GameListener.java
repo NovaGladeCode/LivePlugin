@@ -98,10 +98,11 @@ public class GameListener implements Listener {
         Player victim = e.getEntity();
         Player killer = victim.getKiller();
 
-        // Reset victim's points
-        dataManager.resetPoints(victim.getUniqueId());
-        if (victim.isOnline()) { // Should be, they just died
-            victim.sendMessage("§cYou died! Your Might has been reset to 0.");
+        // Deduct 1 Might on death
+        dataManager.removePoint(victim.getUniqueId());
+        int currentP = dataManager.getPoints(victim.getUniqueId());
+        if (victim.isOnline()) {
+            victim.sendMessage("§cYou died! -1 Might. (Current: " + currentP + ")");
         }
 
         // Give killer a point
@@ -236,6 +237,43 @@ public class GameListener implements Listener {
     public void onEntityDeath(org.bukkit.event.entity.EntityDeathEvent e) {
         if (e.getEntityType() == org.bukkit.entity.EntityType.WARDEN) {
             e.getDrops().add(itemManager.createWardenHeart());
+            return;
+        }
+
+        if (e.getEntityType() == EntityType.WITHER) {
+            e.getDrops().clear();
+            e.getDrops().add(itemManager.createWitherHeart());
+            return;
+        }
+
+        if (e.getEntityType() == EntityType.ENDER_DRAGON) {
+            // Logic for Dragon Death - Obsidian Platform + Heart
+            // Find portal location (approx 0,0 usually)
+            Location center = new Location(e.getEntity().getWorld(), 0, 0, 0);
+            int y = e.getEntity().getWorld().getHighestBlockYAt(0, 0);
+
+            Location[] corners = {
+                    center.clone().add(3, y, 3),
+                    center.clone().add(3, y, -3),
+                    center.clone().add(-3, y, 3),
+                    center.clone().add(-3, y, -3)
+            };
+
+            for (Location corner : corners) {
+                corner.getBlock().setType(Material.OBSIDIAN);
+                corner.clone().add(0, 1, 0).getBlock().setType(Material.OBSIDIAN);
+            }
+
+            // Item Frame on top of the first corner
+            Location frameLoc = corners[0].clone().add(0, 2, 0);
+
+            org.bukkit.entity.ItemFrame frame = (org.bukkit.entity.ItemFrame) frameLoc.getWorld().spawnEntity(frameLoc,
+                    EntityType.ITEM_FRAME);
+            frame.setItem(itemManager.createDragonHeart());
+            frame.setFacingDirection(org.bukkit.block.BlockFace.UP);
+            frame.setFixed(true);
+
+            Bukkit.broadcastMessage("§5The Dragon Heart has appeared on the portal!");
         }
     }
 
@@ -267,23 +305,46 @@ public class GameListener implements Listener {
         if (result == null)
             return;
 
-        // Check for Warden Mace recipe
-        if (result.getType() == Material.MACE && result.hasItemMeta() &&
-                "§3Warden Mace".equals(result.getItemMeta().getDisplayName())) {
+        if (result.getType() == Material.MACE && result.hasItemMeta()) {
+            String displayName = result.getItemMeta().getDisplayName();
 
-            // Uniqueness check: If global flag is true, NO ONE can craft it
-            if (dataManager.isWardenMaceCrafted()) {
-                e.getInventory().setResult(null);
-                return;
-            }
-
-            // Validate ingredients - specifically the Heart
-            for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                if (ingredient != null && ingredient.getType() == Material.ECHO_SHARD) {
-                    // This must be the actual Warden Heart item
-                    if (!itemManager.isWardenHeart(ingredient)) {
-                        e.getInventory().setResult(null);
-                        return;
+            if ("§3Warden Mace".equals(displayName)) {
+                if (dataManager.isWardenMaceCrafted()) {
+                    e.getInventory().setResult(null);
+                    return;
+                }
+                for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                    if (ingredient != null && ingredient.getType() == Material.ECHO_SHARD) {
+                        if (!itemManager.isWardenHeart(ingredient)) {
+                            e.getInventory().setResult(null);
+                            return;
+                        }
+                    }
+                }
+            } else if ("§cNether Mace".equals(displayName)) {
+                if (dataManager.isNetherMaceCrafted()) {
+                    e.getInventory().setResult(null);
+                    return;
+                }
+                for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                    if (ingredient != null && ingredient.getType() == Material.NETHER_STAR) {
+                        if (!itemManager.isWitherHeart(ingredient)) {
+                            e.getInventory().setResult(null);
+                            return;
+                        }
+                    }
+                }
+            } else if ("§5End Mace".equals(displayName)) {
+                if (dataManager.isEndMaceCrafted()) {
+                    e.getInventory().setResult(null);
+                    return;
+                }
+                for (ItemStack ingredient : e.getInventory().getMatrix()) {
+                    if (ingredient != null && ingredient.getType() == Material.HEART_OF_THE_SEA) {
+                        if (!itemManager.isDragonHeart(ingredient)) {
+                            e.getInventory().setResult(null);
+                            return;
+                        }
                     }
                 }
             }
@@ -313,6 +374,20 @@ public class GameListener implements Listener {
         if (isWarden && dataManager.isWardenMaceCrafted()) {
             e.setCancelled(true);
             p.sendMessage("§cThe Warden Mace has already been forged! Only one may exist.");
+            return;
+        }
+
+        // Nether Uniqueness Check
+        if (isNether && dataManager.isNetherMaceCrafted()) {
+            e.setCancelled(true);
+            p.sendMessage("§cThe Nether Mace has already been forged! Only one may exist.");
+            return;
+        }
+
+        // End Uniqueness Check
+        if (isEnd && dataManager.isEndMaceCrafted()) {
+            e.setCancelled(true);
+            p.sendMessage("§cThe End Mace has already been forged! Only one may exist.");
             return;
         }
 
@@ -466,9 +541,23 @@ public class GameListener implements Listener {
                     giveItem(itemManager.createWardenMace());
                     Bukkit.broadcastMessage("§b§lTHE WARDEN MACE HAS BEEN FORGED BY " + p.getName() + "!");
                 } else if (maceType == 2) {
+                    if (dataManager.isNetherMaceCrafted()) {
+                        p.sendMessage("§cToo late!");
+                        cleanup();
+                        this.cancel();
+                        return;
+                    }
+                    dataManager.setNetherMaceCrafted(true);
                     giveItem(itemManager.createNetherMace());
                     Bukkit.broadcastMessage("§6§lTHE NETHER MACE HAS BEEN FORGED BY " + p.getName() + "!");
                 } else if (maceType == 3) {
+                    if (dataManager.isEndMaceCrafted()) {
+                        p.sendMessage("§cToo late!");
+                        cleanup();
+                        this.cancel();
+                        return;
+                    }
+                    dataManager.setEndMaceCrafted(true);
                     giveItem(itemManager.createEndMace());
                     Bukkit.broadcastMessage("§5§lTHE END MACE HAS BEEN FORGED BY " + p.getName() + "!");
                 }

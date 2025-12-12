@@ -58,8 +58,15 @@ public class PlayerDataManager {
 
     public void addPoint(UUID uuid) {
         int current = getPoints(uuid);
-        if (current < 10) {
+        if (current < 10) { // Max Might is 10
             setPoints(uuid, current + 1);
+        }
+    }
+
+    public void removePoint(UUID uuid) {
+        int current = getPoints(uuid);
+        if (current > 0) {
+            setPoints(uuid, current - 1);
         }
     }
 
@@ -96,6 +103,24 @@ public class PlayerDataManager {
 
     public void setWardenMaceCrafted(boolean crafted) {
         dataConfig.set("global.wardenMaceCrafted", crafted);
+        saveData();
+    }
+
+    public boolean isNetherMaceCrafted() {
+        return dataConfig.getBoolean("global.netherMaceCrafted", false);
+    }
+
+    public void setNetherMaceCrafted(boolean crafted) {
+        dataConfig.set("global.netherMaceCrafted", crafted);
+        saveData();
+    }
+
+    public boolean isEndMaceCrafted() {
+        return dataConfig.getBoolean("global.endMaceCrafted", false);
+    }
+
+    public void setEndMaceCrafted(boolean crafted) {
+        dataConfig.set("global.endMaceCrafted", crafted);
         saveData();
     }
 

@@ -284,20 +284,27 @@ public class NetherMaceCommand implements CommandExecutor {
 
                     Location particleLoc = center.clone().add(x, y, z);
 
-                    // Multiple layered particle effects
-                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 2, 0.1, 0.1, 0.1, 0.02);
-                    particleLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, particleLoc, 1, 0.05, 0.05, 0.05,
+                    // Multiple layered particle effects - INCREASED DENSITY
+                    particleLoc.getWorld().spawnParticle(Particle.FLAME, particleLoc, 5, 0.1, 0.1, 0.1, 0.02);
+                    particleLoc.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, particleLoc, 3, 0.05, 0.05, 0.05,
                             0.01);
+                    particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 2, 0.1, 0.1, 0.1, 0.02);
+                    particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 1, 0.1, 0.1, 0.1, 0);
 
                     // Color variations based on height
                     if (y < 5) {
                         particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 2, 0, 0, 0, redDust);
-                        particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 1, 0.1, 0.1, 0.1, 0);
+                        particleLoc.getWorld().spawnParticle(Particle.LAVA, particleLoc, 2, 0.1, 0.1, 0.1, 0); // More
+                                                                                                               // lava
+                                                                                                               // at
+                                                                                                               // base
                     } else if (y < 10) {
                         particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 2, 0, 0, 0, orangeDust);
+                        particleLoc.getWorld().spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, particleLoc, 1, 0.05, 0.05,
+                                0.05, 0.01);
                     } else {
                         particleLoc.getWorld().spawnParticle(Particle.DUST, particleLoc, 1, 0, 0, 0, yellowDust);
-                        particleLoc.getWorld().spawnParticle(Particle.SMOKE, particleLoc, 2, 0.1, 0.1, 0.1, 0.02);
+                        particleLoc.getWorld().spawnParticle(Particle.LARGE_SMOKE, particleLoc, 1, 0.1, 0.1, 0.1, 0.02);
                     }
 
                     // Dripping lava effect at bottom

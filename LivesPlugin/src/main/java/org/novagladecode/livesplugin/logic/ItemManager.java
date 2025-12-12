@@ -45,10 +45,10 @@ public class ItemManager {
 
         NamespacedKey key = new NamespacedKey(plugin, "warden_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, wardenMace);
-        recipe.shape("DHD", "DMD", "DDD");
-        recipe.setIngredient('D', Material.DIAMOND_BLOCK);
+        recipe.shape("SHS", "SMS", "SSS");
+        recipe.setIngredient('S', Material.SCULK_CATALYST);
         recipe.setIngredient('M', Material.HEAVY_CORE);
-        recipe.setIngredient('H', Material.ECHO_SHARD);
+        recipe.setIngredient('H', Material.ECHO_SHARD); // Validated as Warden Heart in listener
 
         Bukkit.addRecipe(recipe);
     }
@@ -57,28 +57,23 @@ public class ItemManager {
         ItemStack item = createNetherMace();
         NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("ISI", "RMR", "SSS");
+        recipe.shape("ISI", "WMW", "SSS");
         recipe.setIngredient('I', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('R', Material.BLAZE_ROD);
+        recipe.setIngredient('W', Material.NETHER_STAR); // Validated as Wither Heart
         recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
     }
 
     public void registerEndMaceRecipe() {
-        createEndMace();
-        // Recipe is registered inside createEndMace logic in my previous draft,
-        // but easier to keep consistency here.
-        // Actually, createEndMace just creates the item object. I need to register
-        // recipe here.
-
+        createEndMace(); // Ensure item cache
         NamespacedKey key = new NamespacedKey(plugin, "end_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, customEndMace);
-        recipe.shape("PEP", "EHE", "PBP");
-        recipe.setIngredient('H', Material.HEAVY_CORE);
+        recipe.shape(" H ", "CMC", " B ");
+        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Validated as Dragon Heart
+        recipe.setIngredient('C', Material.DRAGON_HEAD);
+        recipe.setIngredient('M', Material.HEAVY_CORE);
         recipe.setIngredient('B', Material.BREEZE_ROD);
-        recipe.setIngredient('E', Material.ENDER_EYE);
-        recipe.setIngredient('P', Material.POPPED_CHORUS_FRUIT);
 
         Bukkit.addRecipe(recipe);
     }
@@ -99,6 +94,7 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§3Warden Heart");
         meta.setLore(Arrays.asList("§7A pulsating heart dropped", "§7by the deep dark guardian."));
+        meta.setCustomModelData(1);
         item.setItemMeta(meta);
         return item;
     }
@@ -200,6 +196,40 @@ public class ItemManager {
             return false;
         ItemMeta meta = item.getItemMeta();
         return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§3Warden Heart");
+    }
+
+    public ItemStack createWitherHeart() {
+        ItemStack item = new ItemStack(Material.NETHER_STAR);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("§8Wither Heart");
+        meta.setLore(Arrays.asList("§7A dark star dropped", "§7by the Wither."));
+        meta.setCustomModelData(2);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public boolean isWitherHeart(ItemStack item) {
+        if (item == null || item.getType() != Material.NETHER_STAR)
+            return false;
+        ItemMeta meta = item.getItemMeta();
+        return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§8Wither Heart");
+    }
+
+    public ItemStack createDragonHeart() {
+        ItemStack item = new ItemStack(Material.HEART_OF_THE_SEA);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("§5Dragon Heart");
+        meta.setLore(Arrays.asList("§7The pulsing heart of", "§7the Ender Dragon."));
+        meta.setCustomModelData(3);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public boolean isDragonHeart(ItemStack item) {
+        if (item == null || item.getType() != Material.HEART_OF_THE_SEA)
+            return false;
+        ItemMeta meta = item.getItemMeta();
+        return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§5Dragon Heart");
     }
 
     public boolean isEndMace(ItemStack item) {
