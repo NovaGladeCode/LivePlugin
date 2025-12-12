@@ -53,7 +53,7 @@ public class MaceCommand implements CommandExecutor {
 
     private void sendHelp(Player p) {
         p.sendMessage("§6=== Live Maces Commands ===");
-        p.sendMessage("§e/life togglecontrol §7- Toggle click-to-cast for maces");
+        p.sendMessage("§e/mace togglecontrol §7- Toggle click-to-cast for maces");
         if (p.isOp()) {
             p.sendMessage("§e/weapon give <warden|nether|end|chickenbow> §7- Get Items");
         }
