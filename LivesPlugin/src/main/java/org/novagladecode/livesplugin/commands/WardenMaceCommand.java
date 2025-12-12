@@ -205,6 +205,7 @@ public class WardenMaceCommand implements CommandExecutor {
         }
 
         // Continuous tracking (2 seconds: 40 ticks)
+        final Player closestFinal = closest;
         new org.bukkit.scheduler.BukkitRunnable() {
             int ticks = 0;
             final int MAX_TICKS = 40;
@@ -215,22 +216,22 @@ public class WardenMaceCommand implements CommandExecutor {
                     return;
                 }
                 // Only affects the closest target
-                if (closest.isOnline() && closest.getWorld().equals(trapLoc.getWorld())) {
+                if (closestFinal.isOnline() && closestFinal.getWorld().equals(trapLoc.getWorld())) {
                     // Fangs/track effect at target
-                    closest.getWorld().spawn(closest.getLocation(), org.bukkit.entity.EvokerFangs.class);
+                    closestFinal.getWorld().spawn(closestFinal.getLocation(), org.bukkit.entity.EvokerFangs.class);
                     // Pull toward center (optional: slight force)
-                    Vector pull = trapLoc.toVector().subtract(closest.getLocation().toVector()).normalize().multiply(1.2);
-                    closest.setVelocity(pull);
+                    Vector pull = trapLoc.toVector().subtract(closestFinal.getLocation().toVector()).normalize().multiply(1.2);
+                    closestFinal.setVelocity(pull);
                     
                     // Grasp debuffs (reapply)
-                    closest.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 3));
-                    closest.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 40, 0));
-                    closest.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 40, 1));
-                    closest.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 0));
-                    closest.damage(4.0, p); // Lighter damage since less time
-                    closest.getWorld().playSound(closest.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 0.5f, 1.0f);
+                    closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 3));
+                    closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 40, 0));
+                    closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 40, 1));
+                    closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 0));
+                    closestFinal.damage(4.0, p); // Lighter damage since less time
+                    closestFinal.getWorld().playSound(closestFinal.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 0.5f, 1.0f);
                     if (ticks == 0) {
-                        closest.sendMessage("§3§lTHE WARDEN TRACKS YOU!");
+                        closestFinal.sendMessage("§3§lTHE WARDEN TRACKS YOU!");
                     }
                 }
                 // Visual effects (big!)
