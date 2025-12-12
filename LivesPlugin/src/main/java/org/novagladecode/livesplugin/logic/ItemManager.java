@@ -59,7 +59,7 @@ public class ItemManager {
         recipe.shape("ISI", "SHS", "BMB");
         recipe.setIngredient('I', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('H', Material.NETHER_STAR); // Wither Heart
+        recipe.setIngredient('H', Material.NAUTILUS_SHELL); // Wither Heart now
         recipe.setIngredient('B', Material.BLAZE_ROD);
         recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
@@ -198,16 +198,16 @@ public class ItemManager {
     }
 
     public ItemStack createWitherHeart() {
-        ItemStack item = new ItemStack(Material.NETHER_STAR);
+        ItemStack item = new ItemStack(Material.NAUTILUS_SHELL);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§8Wither Heart");
-        meta.setLore(Arrays.asList("§7A dark star dropped", "§7by the Wither."));
+        meta.setLore(Arrays.asList("§7A dark shell dropped", "§7by the Wither."));
         item.setItemMeta(meta);
         return item;
     }
 
     public boolean isWitherHeart(ItemStack item) {
-        if (item == null || item.getType() != Material.NETHER_STAR)
+        if (item == null || item.getType() != Material.NAUTILUS_SHELL)
             return false;
         ItemMeta meta = item.getItemMeta();
         return meta != null && meta.hasDisplayName() && meta.getDisplayName().equals("§8Wither Heart");
