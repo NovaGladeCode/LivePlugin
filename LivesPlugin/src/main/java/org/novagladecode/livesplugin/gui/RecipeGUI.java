@@ -58,7 +58,6 @@ public class RecipeGUI implements Listener {
 
         Material D_BLOCK = Material.DIAMOND_BLOCK;
         Material DIAMOND = Material.DIAMOND;
-        Material ECHO = Material.ECHO_SHARD;
         Material HEAVY_CORE = Material.HEAVY_CORE;
         Material N_INGOT = Material.NETHERITE_INGOT;
         Material N_SCRAP = Material.NETHERITE_SCRAP;
@@ -68,7 +67,6 @@ public class RecipeGUI implements Listener {
         Material BREEZE = Material.BREEZE_ROD;
         Material FEATHER = Material.FEATHER;
         Material BOW = Material.BOW;
-        Material LEVEL_ITEM = Material.NETHER_STAR; // Visual
 
         switch (itemType) {
             case "Warden Mace":
