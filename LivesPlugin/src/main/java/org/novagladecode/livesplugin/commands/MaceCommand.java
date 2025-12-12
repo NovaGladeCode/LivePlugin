@@ -282,9 +282,33 @@ public class MaceCommand implements CommandExecutor {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
+                // Reset Might for all players
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    dataManager.setPoints(online.getUniqueId(), 2);
+                    online.sendMessage("§eYour Might has been reset to 2 by an admin (event start)!");
+                }
+                // Reset recipes and unique flags just like recipe reset
+                JavaPlugin javaPlugin = plugin;
+                NamespacedKey[] keys = new NamespacedKey[] {
+                    new NamespacedKey(javaPlugin, "warden_mace"),
+                    new NamespacedKey(javaPlugin, "nether_mace"),
+                    new NamespacedKey(javaPlugin, "end_mace"),
+                    new NamespacedKey(javaPlugin, "chicken_bow")
+                };
+                for (NamespacedKey key : keys) {
+                    Bukkit.removeRecipe(key);
+                }
+                plugin.getItemManager().registerWardenMaceRecipe();
+                plugin.getItemManager().registerNetherMaceRecipe();
+                plugin.getItemManager().registerEndMaceRecipe();
+                plugin.getItemManager().registerChickenBowRecipe();
+                plugin.getDataManager().setWardenMaceCrafted(false);
+                plugin.getDataManager().setNetherMaceCrafted(false);
+                plugin.getDataManager().setEndMaceCrafted(false);
+                sender.sendMessage("§aAll players' Might reset and custom recipes re-registered for the event!");
+                // The rest of original start logic (countdown etc.)
                 sender.sendMessage("§aStarting 10s countdown to Border Set...");
                 Bukkit.broadcastMessage("§c§lBorder will be set to 3000 in 10 seconds!");
-
                 Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     Bukkit.broadcastMessage("§c§lSetting World Border to 3000!");
                     if (Bukkit.getWorld("world") != null) {
