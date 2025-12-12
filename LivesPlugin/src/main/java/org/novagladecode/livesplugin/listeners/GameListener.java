@@ -18,12 +18,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
 import org.bukkit.event.entity.EntityShootBowEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Zombie;
 import org.bukkit.entity.EntityType;
+import org.bukkit.attribute.Attribute;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -162,6 +164,50 @@ public class GameListener implements Listener {
             if (bow != null && bow.hasItemMeta() && "§eChicken Bow".equals(bow.getItemMeta().getDisplayName())) {
                 e.getProjectile().setMetadata("chicken_arrow", new FixedMetadataValue(plugin, true));
                 e.setConsumeItem(false); // Do not consume arrows
+            }
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit(ProjectileHitEvent e) {
+        if (e.getEntity() instanceof Arrow) {
+            Arrow arrow = (Arrow) e.getEntity();
+
+            // Check if this is a chicken arrow
+            if (arrow.hasMetadata("chicken_arrow")) {
+                arrow.remove(); // Remove the arrow
+
+                org.bukkit.Location hitLoc = arrow.getLocation();
+
+                // 50% chance for Slow Falling (15 seconds) for shooter
+                if (Math.random() < 0.5 && arrow.getShooter() instanceof Player) {
+                    Player shooter = (Player) arrow.getShooter();
+                    shooter.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                            PotionEffectType.SLOW_FALLING, 300, 0));
+                    shooter.sendMessage("§eChicken Bow Effect: Slow Falling!");
+                }
+
+                // 40% chance to summon 1-3 angry chickens
+                if (Math.random() < 0.4) {
+                    int chickenCount = 1 + (int) (Math.random() * 3); // 1-3 chickens
+
+                    for (int i = 0; i < chickenCount; i++) {
+                        Chicken chicken = hitLoc.getWorld().spawn(hitLoc, Chicken.class);
+                        chicken.setCustomName("§cAngry Chicken");
+                        chicken.setCustomNameVisible(true);
+                        chicken.setAdult();
+
+                        // Make chicken faster
+                        chicken.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED)
+                                .setBaseValue(0.35);
+                    }
+
+                    // Send message to shooter
+                    if (arrow.getShooter() instanceof Player) {
+                        ((Player) arrow.getShooter()).sendMessage("§eChicken Bow: Summoned " + chickenCount
+                                + " Angry Chicken" + (chickenCount > 1 ? "s" : "") + "!");
+                    }
+                }
             }
         }
     }
