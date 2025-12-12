@@ -64,6 +64,7 @@ public class RecipeGUI implements Listener {
         Material BREEZE = Material.BREEZE_ROD;
         Material FEATHER = Material.FEATHER;
         Material BOW = Material.BOW;
+        Material BLAZE = Material.BLAZE_ROD;
 
         switch (itemType) {
             case "Warden Mace":
@@ -83,12 +84,12 @@ public class RecipeGUI implements Listener {
                 break;
             case "Nether Mace":
                 // I S I
-                // W M W
+                // B M W
                 // S S S
                 ingredients[0] = new ItemStack(N_INGOT);
                 ingredients[1] = new ItemStack(N_SCRAP);
                 ingredients[2] = new ItemStack(N_INGOT);
-                ingredients[3] = itemManager.createWitherHeart();
+                ingredients[3] = new ItemStack(BLAZE);
                 ingredients[4] = new ItemStack(HEAVY_CORE);
                 ingredients[5] = itemManager.createWitherHeart();
                 ingredients[6] = new ItemStack(N_SCRAP);

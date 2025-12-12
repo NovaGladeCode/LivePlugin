@@ -42,26 +42,25 @@ public class ItemManager {
 
     public void registerWardenMaceRecipe() {
         ItemStack wardenMace = createWardenMace();
-
         NamespacedKey key = new NamespacedKey(plugin, "warden_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, wardenMace);
-        recipe.shape("CSC", "HMH", "CSC");
+        recipe.shape("CSC", "SHS", "CMC");
         recipe.setIngredient('C', Material.SCULK_CATALYST);
         recipe.setIngredient('S', Material.SCULK_SENSOR);
-        recipe.setIngredient('H', Material.ECHO_SHARD); // Warden Heart (special-named)
+        recipe.setIngredient('H', Material.ECHO_SHARD); // Warden Heart
         recipe.setIngredient('M', Material.HEAVY_CORE);
-
         Bukkit.addRecipe(recipe);
     }
 
     public void registerNetherMaceRecipe() {
-        ItemStack item = createNetherMace();
+        ItemStack netherMace = createNetherMace();
         NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
-        ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("ISI", "WMW", "SSS");
+        ShapedRecipe recipe = new ShapedRecipe(key, netherMace);
+        recipe.shape("ISI", "SHS", "BMB");
         recipe.setIngredient('I', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('W', Material.NETHER_STAR); // uses Wither Heart
+        recipe.setIngredient('H', Material.NETHER_STAR); // Wither Heart
+        recipe.setIngredient('B', Material.BLAZE_ROD);
         recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
     }
@@ -70,11 +69,12 @@ public class ItemManager {
         createEndMace();
         NamespacedKey key = new NamespacedKey(plugin, "end_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, customEndMace);
-        recipe.shape("PHP", "HMH", "PBP");
+        recipe.shape("PCP", "CHC", "BMB");
         recipe.setIngredient('P', Material.POPPED_CHORUS_FRUIT);
-        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // uses Dragon Heart
-        recipe.setIngredient('M', Material.HEAVY_CORE);
+        recipe.setIngredient('C', Material.DRAGON_HEAD);
+        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Dragon Heart
         recipe.setIngredient('B', Material.BREEZE_ROD);
+        recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
     }
 
