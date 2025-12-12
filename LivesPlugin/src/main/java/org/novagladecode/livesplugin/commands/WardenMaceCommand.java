@@ -168,31 +168,29 @@ public class WardenMaceCommand implements CommandExecutor {
     }
 
     private void activateGrasp(Player p) {
-        // "Warden's Grasp" - Raycast and trap
-        Location start = p.getEyeLocation();
-        Vector direction = start.getDirection();
-        Location target = start.clone();
-
-        // Raycast up to 20 blocks
-        for (int i = 0; i < 20; i++) {
-            target.add(direction);
-            if (target.getBlock().getType().isSolid()) {
-                break;
-            }
-            if (i % 2 == 0) {
-                target.getWorld().spawnParticle(Particle.SCULK_SOUL, target, 1, 0.1, 0.1, 0.1, 0.01);
-            }
-            if (i % 5 == 0) {
-                target.getWorld().playSound(target, Sound.ENTITY_WARDEN_HEARTBEAT, 0.5f, 1.5f);
+        // Find the closest non-trusted player within 20 blocks
+        Player closest = null;
+        double minDist = Double.MAX_VALUE;
+        for (Entity e : p.getNearbyEntities(20, 20, 20)) {
+            if (e instanceof Player && e != p) {
+                Player test = (Player) e;
+                if (dataManager.isTrusted(p.getUniqueId(), test.getUniqueId())) continue;
+                double d = test.getLocation().distance(p.getLocation());
+                if (d < minDist) {
+                    minDist = d;
+                    closest = test;
+                }
             }
         }
-
-        // Trap Location
-        Location trapLoc = target;
+        if (closest == null) {
+            p.sendMessage("§cNo valid players found nearby for Warden's Grasp!");
+            return;
+        }
+        Location trapLoc = closest.getLocation();
         trapLoc.getWorld().playSound(trapLoc, Sound.ENTITY_WARDEN_EMERGE, 1.5f, 0.5f);
         trapLoc.getWorld().playSound(trapLoc, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.5f, 0.6f);
 
-        // "Summon Sculk" - Visual Block Changes (Client side to prevent griefing)
+        // Sculk visual for drama (client-only changed blocks)
         int radius = 5;
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
@@ -200,63 +198,43 @@ public class WardenMaceCommand implements CommandExecutor {
                     Location bLoc = trapLoc.clone().add(x, y, z);
                     if (bLoc.distance(trapLoc) <= radius && bLoc.getBlock().getType().isSolid()) {
                         p.sendBlockChange(bLoc, Material.SCULK.createBlockData());
-                        bLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, bLoc.clone().add(0, 1, 0), 1, 0.2, 0.2,
-                                0.2, 0.05);
+                        bLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, bLoc.clone().add(0, 1, 0), 1, 0.2, 0.2, 0.2, 0.05);
                     }
                 }
             }
         }
 
-        // Continuous tracking over 5 seconds (100 ticks)
+        // Continuous tracking (2 seconds: 40 ticks)
         new org.bukkit.scheduler.BukkitRunnable() {
             int ticks = 0;
-            final int MAX_TICKS = 100;
-
+            final int MAX_TICKS = 40;
             @Override
             public void run() {
                 if (ticks >= MAX_TICKS) {
                     this.cancel();
                     return;
                 }
-
-                // Scan and track entities within 10 blocks every 10 ticks
-                if (ticks % 10 == 0) {
-                    for (Entity e : trapLoc.getWorld().getNearbyEntities(trapLoc, 10, 10, 10)) {
-                        if (e instanceof LivingEntity && e != p) {
-                            if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
-                                continue;
-
-                            LivingEntity le = (LivingEntity) e;
-
-                            // Auto Track: Spawn Fangs at THE ENTITY location
-                            le.getWorld().spawn(le.getLocation(), org.bukkit.entity.EvokerFangs.class);
-
-                            // Pull towards center
-                            Vector pull = trapLoc.toVector().subtract(le.getLocation().toVector()).normalize()
-                                    .multiply(1.5);
-                            le.setVelocity(pull);
-
-                            // Grasp Debuffs (reapply every cycle)
-                            if (ticks == 0) {
-                                le.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 120, 4));
-                                le.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 120, 0));
-                                le.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 120, 1));
-                                le.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
-                                le.damage(8.0, p);
-
-                                if (le instanceof Player) {
-                                    ((Player) le).sendMessage("§3§lTHE WARDEN GRASPS YOU!");
-                                }
-                            }
-
-                            le.getWorld().playSound(le.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 0.5f, 1.0f);
-                        }
+                // Only affects the closest target
+                if (closest.isOnline() && closest.getWorld().equals(trapLoc.getWorld())) {
+                    // Fangs/track effect at target
+                    closest.getWorld().spawn(closest.getLocation(), org.bukkit.entity.EvokerFangs.class);
+                    // Pull toward center (optional: slight force)
+                    Vector pull = trapLoc.toVector().subtract(closest.getLocation().toVector()).normalize().multiply(1.2);
+                    closest.setVelocity(pull);
+                    
+                    // Grasp debuffs (reapply)
+                    closest.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 3));
+                    closest.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 40, 0));
+                    closest.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 40, 1));
+                    closest.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 0));
+                    closest.damage(4.0, p); // Lighter damage since less time
+                    closest.getWorld().playSound(closest.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 0.5f, 1.0f);
+                    if (ticks == 0) {
+                        closest.sendMessage("§3§lTHE WARDEN TRACKS YOU!");
                     }
-
-                    // Visual effects
-                    trapLoc.getWorld().spawnParticle(Particle.SCULK_SOUL, trapLoc, 10, 3, 3, 3, 0.05);
                 }
-
+                // Visual effects (big!)
+                trapLoc.getWorld().spawnParticle(Particle.SCULK_SOUL, trapLoc, 10, 3, 3, 3, 0.04);
                 ticks += 5;
             }
         }.runTaskTimer(plugin, 0L, 5L);

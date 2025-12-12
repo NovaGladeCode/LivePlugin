@@ -336,27 +336,27 @@ public class GameListener implements Listener {
                 if (displayName.equals("§5End Mace") && dataManager.isEndMaceCrafted()) alreadyCrafted = true;
 
                 // Validate custom hearts like before (keep logic)
+                boolean crafted = false;
                 if (displayName.equals("§3Warden Mace")) {
-                    for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                        if (ingredient != null && ingredient.getType() == Material.ECHO_SHARD) {
-                            if (!itemManager.isWardenHeart(ingredient)) alreadyCrafted = true;
-                        }
+                    crafted = dataManager.isWardenMaceCrafted();
+                    if (crafted && !itemManager.isWardenMaceAnywhere()) {
+                        dataManager.setWardenMaceCrafted(false);
+                        crafted = false;
                     }
                 } else if (displayName.equals("§cNether Mace")) {
-                    for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                        if (ingredient != null && ingredient.getType() == Material.NAUTILUS_SHELL) {
-                            if (!itemManager.isWitherHeart(ingredient)) alreadyCrafted = true;
-                        }
+                    crafted = dataManager.isNetherMaceCrafted();
+                    if (crafted && !itemManager.isNetherMaceAnywhere()) {
+                        dataManager.setNetherMaceCrafted(false);
+                        crafted = false;
                     }
                 } else if (displayName.equals("§5End Mace")) {
-                    for (ItemStack ingredient : e.getInventory().getMatrix()) {
-                        if (ingredient != null && ingredient.getType() == Material.HEART_OF_THE_SEA) {
-                            if (!itemManager.isDragonHeart(ingredient)) alreadyCrafted = true;
-                        }
+                    crafted = dataManager.isEndMaceCrafted();
+                    if (crafted && !itemManager.isEndMaceAnywhere()) {
+                        dataManager.setEndMaceCrafted(false);
+                        crafted = false;
                     }
                 }
-                // Block preview if already crafted or if not valid
-                if (alreadyCrafted) {
+                if (crafted) {
                     e.getInventory().setResult(null);
                     return;
                 }
