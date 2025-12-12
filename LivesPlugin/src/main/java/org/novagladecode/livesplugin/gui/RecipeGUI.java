@@ -69,47 +69,47 @@ public class RecipeGUI implements Listener {
         switch (itemType) {
             case "Warden Mace":
                 // C S C
-                // H M H
-                // C S C
+                // S H S
+                // C M C
                 ingredients[0] = new ItemStack(Material.SCULK_CATALYST);
                 ingredients[1] = new ItemStack(Material.SCULK_SENSOR);
                 ingredients[2] = new ItemStack(Material.SCULK_CATALYST);
-                ingredients[3] = itemManager.createWardenHeart();
-                ingredients[4] = new ItemStack(HEAVY_CORE);
-                ingredients[5] = itemManager.createWardenHeart();
+                ingredients[3] = new ItemStack(Material.SCULK_SENSOR);
+                ingredients[4] = itemManager.createWardenHeart();
+                ingredients[5] = new ItemStack(Material.SCULK_SENSOR);
                 ingredients[6] = new ItemStack(Material.SCULK_CATALYST);
-                ingredients[7] = new ItemStack(Material.SCULK_SENSOR);
+                ingredients[7] = new ItemStack(HEAVY_CORE);
                 ingredients[8] = new ItemStack(Material.SCULK_CATALYST);
                 result = itemManager.createWardenMace();
                 break;
             case "Nether Mace":
                 // I S I
-                // B M W
-                // S S S
+                // S H S
+                // B M B
                 ingredients[0] = new ItemStack(N_INGOT);
                 ingredients[1] = new ItemStack(N_SCRAP);
                 ingredients[2] = new ItemStack(N_INGOT);
-                ingredients[3] = new ItemStack(BLAZE);
-                ingredients[4] = new ItemStack(HEAVY_CORE);
-                ingredients[5] = itemManager.createWitherHeart();
-                ingredients[6] = new ItemStack(N_SCRAP);
-                ingredients[7] = new ItemStack(N_SCRAP);
-                ingredients[8] = new ItemStack(N_SCRAP);
+                ingredients[3] = new ItemStack(N_SCRAP);
+                ingredients[4] = itemManager.createWitherHeart();
+                ingredients[5] = new ItemStack(N_SCRAP);
+                ingredients[6] = new ItemStack(BLAZE);
+                ingredients[7] = new ItemStack(HEAVY_CORE);
+                ingredients[8] = new ItemStack(BLAZE);
                 result = itemManager.createNetherMace();
                 break;
             case "End Mace":
-                // P H P
-                // H M H
-                // P B P
+                // P C P
+                // C H C
+                // B M B
                 ingredients[0] = new ItemStack(CHORUS);
-                ingredients[1] = itemManager.createDragonHeart();
+                ingredients[1] = new ItemStack(Material.DRAGON_HEAD);
                 ingredients[2] = new ItemStack(CHORUS);
-                ingredients[3] = itemManager.createDragonHeart();
-                ingredients[4] = new ItemStack(HEAVY_CORE);
-                ingredients[5] = itemManager.createDragonHeart();
-                ingredients[6] = new ItemStack(CHORUS);
-                ingredients[7] = new ItemStack(BREEZE);
-                ingredients[8] = new ItemStack(CHORUS);
+                ingredients[3] = new ItemStack(Material.DRAGON_HEAD);
+                ingredients[4] = itemManager.createDragonHeart();
+                ingredients[5] = new ItemStack(Material.DRAGON_HEAD);
+                ingredients[6] = new ItemStack(BREEZE);
+                ingredients[7] = new ItemStack(HEAVY_CORE);
+                ingredients[8] = new ItemStack(BREEZE);
                 result = itemManager.createEndMace();
                 break;
             case "Chicken Bow":
