@@ -38,6 +38,9 @@ import org.bukkit.Location;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.Vector;
 
 public class GameListener implements Listener {
 
@@ -150,22 +153,7 @@ public class GameListener implements Listener {
             return;
         }
 
-        // Chicken Bow "No Arrow" firing logic
-        if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
-                && item != null && item.getType() == Material.BOW && item.hasItemMeta()
-                && "§eChicken Bow".equals(item.getItemMeta().getDisplayName())) {
-
-            // Check if player already charging? Vanilla handles charging if arrow present.
-            // If no arrow, vanilla does nothing. We manually fire.
-            if (!p.getInventory().contains(Material.ARROW) && !p.getInventory().contains(Material.SPECTRAL_ARROW)
-                    && !p.getInventory().contains(Material.TIPPED_ARROW)) {
-                // Instant fire logic
-                Arrow arrow = p.launchProjectile(Arrow.class);
-                arrow.setMetadata("chicken_arrow", new FixedMetadataValue(plugin, true));
-                arrow.setVelocity(p.getLocation().getDirection().multiply(3.0)); // Fast shot
-                p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.ENTITY_ARROW_SHOOT, 1.0f, 1.0f);
-            }
-        }
+        // Legacy instant fire removed. Check vanilla behavior.
     }
 
     // Removed onExpBottle (Level Boost)
@@ -185,7 +173,7 @@ public class GameListener implements Listener {
 
             if (bow != null && bow.hasItemMeta() && "§eChicken Bow".equals(bow.getItemMeta().getDisplayName())) {
                 e.getProjectile().setMetadata("chicken_arrow", new FixedMetadataValue(plugin, true));
-                e.setConsumeItem(false); // Do not consume arrows
+                e.setConsumeItem(true); // Require arrows
             }
         }
     }
@@ -218,9 +206,41 @@ public class GameListener implements Listener {
                         chicken.setCustomName("§cAngry Chicken");
                         chicken.setCustomNameVisible(true);
                         chicken.setAdult();
-                        // Angry Speed (Speed V)
                         chicken.addPotionEffect(
                                 new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SPEED, 6000, 4));
+
+                        // Angry AI Task
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                if (!chicken.isValid() || chicken.isDead()) {
+                                    this.cancel();
+                                    return;
+                                }
+                                Player target = null;
+                                double minDst = 100;
+                                for (Entity en : chicken.getNearbyEntities(10, 10, 10)) {
+                                    if (en instanceof Player && en != arrow.getShooter()) {
+                                        double d = en.getLocation().distance(chicken.getLocation());
+                                        if (d < minDst) {
+                                            minDst = d;
+                                            target = (Player) en;
+                                        }
+                                    }
+                                }
+
+                                if (target != null) {
+                                    // Move/Attack
+                                    if (minDst > 1) {
+                                        Vector dir = target.getLocation().toVector()
+                                                .subtract(chicken.getLocation().toVector()).normalize().multiply(0.4);
+                                        chicken.setVelocity(dir.setY(chicken.getVelocity().getY()));
+                                    } else {
+                                        target.damage(2.0, chicken); // Peck
+                                    }
+                                }
+                            }
+                        }.runTaskTimer(plugin, 10L, 10L);
                     }
 
                     // Send message to shooter
@@ -241,7 +261,7 @@ public class GameListener implements Listener {
         }
 
         if (e.getEntityType() == EntityType.WITHER) {
-            e.getDrops().clear();
+            // Drops persist (Nether Star)
             e.getDrops().add(itemManager.createWitherHeart());
             return;
         }

@@ -94,7 +94,6 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§3Warden Heart");
         meta.setLore(Arrays.asList("§7A pulsating heart dropped", "§7by the deep dark guardian."));
-        meta.setCustomModelData(1);
         item.setItemMeta(meta);
         return item;
     }
@@ -203,7 +202,6 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§8Wither Heart");
         meta.setLore(Arrays.asList("§7A dark star dropped", "§7by the Wither."));
-        meta.setCustomModelData(2);
         item.setItemMeta(meta);
         return item;
     }
@@ -220,7 +218,6 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§5Dragon Heart");
         meta.setLore(Arrays.asList("§7The pulsing heart of", "§7the Ender Dragon."));
-        meta.setCustomModelData(3);
         item.setItemMeta(meta);
         return item;
     }
