@@ -1,15 +1,11 @@
 package org.novagladecode.livesplugin;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.novagladecode.livesplugin.commands.MaceCommand;
 
 import org.novagladecode.livesplugin.commands.NetherMaceCommand;
 import org.novagladecode.livesplugin.commands.WardenMaceCommand;
 import org.novagladecode.livesplugin.commands.EndMaceCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
-import org.novagladecode.livesplugin.listeners.GameListener;
 import org.novagladecode.livesplugin.logic.ItemManager;
 
 public class LivePlugin extends JavaPlugin {
@@ -30,10 +26,9 @@ public class LivePlugin extends JavaPlugin {
                 itemManager);
         getServer().getPluginManager().registerEvents(recipeGUI, this);
 
-        // Register Recipes
-        itemManager.registerUnbanRecipe();
         // Register Commands
-        wardenMaceCommand = new commands.WardenMaceCommand(this, dataManager);
+        // Register Commands
+        wardenMaceCommand = new WardenMaceCommand(this, dataManager);
         getCommand("wardenmace").setExecutor(wardenMaceCommand);
 
         netherMaceCommand = new org.novagladecode.livesplugin.commands.NetherMaceCommand(this, dataManager);
