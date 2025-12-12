@@ -60,21 +60,20 @@ public class ItemManager {
         recipe.shape("ISI", "WMW", "SSS");
         recipe.setIngredient('I', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('W', Material.NETHER_STAR); // Validated as Wither Heart in listener
+        recipe.setIngredient('W', Material.NETHER_STAR); // uses Wither Heart
         recipe.setIngredient('M', Material.HEAVY_CORE);
         Bukkit.addRecipe(recipe);
     }
 
     public void registerEndMaceRecipe() {
-        createEndMace(); // Ensure item cache
+        createEndMace();
         NamespacedKey key = new NamespacedKey(plugin, "end_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, customEndMace);
         recipe.shape("PHP", "HMH", "PBP");
         recipe.setIngredient('P', Material.POPPED_CHORUS_FRUIT);
-        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Validated as Dragon Heart in listener
+        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // uses Dragon Heart
         recipe.setIngredient('M', Material.HEAVY_CORE);
         recipe.setIngredient('B', Material.BREEZE_ROD);
-
         Bukkit.addRecipe(recipe);
     }
 
