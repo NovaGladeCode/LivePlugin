@@ -339,6 +339,7 @@ public class MaceCommand implements CommandExecutor {
             sender.sendMessage("§e/might withdraw <amount> §7- Convert Might to item");
             sender.sendMessage("§e/might recipe §7- Show custom recipe menu");
         }
+        // Admin section - only visible to operators
         if (sender.isOp()) {
             sender.sendMessage("§c=== Admin ===");
             sender.sendMessage("§e/might give <item> §7- Get a special item");

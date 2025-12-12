@@ -213,7 +213,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
                 if (!p.isOnline() || ticks > 60) { // 3 seconds max
                     // Final explosion effect
                     p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 1.5f);
-                    p.getWorld().spawnParticle(Particle.EXPLOSION, startLoc.add(0, 1, 0), 10, 1, 1, 1, 0.1);
+                    p.getWorld().spawnParticle(Particle.EXPLOSION, startLoc.clone().add(0, 1, 0), 10, 1, 1, 1, 0.1);
                     p.getWorld().spawnParticle(Particle.END_ROD, startLoc, 100, 2, 2, 2, 0.1);
                     p.getWorld().spawnParticle(Particle.ASH, startLoc, 150, 2, 2, 2, 0.1);
                     this.cancel();

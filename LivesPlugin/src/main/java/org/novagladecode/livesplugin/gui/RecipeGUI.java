@@ -171,15 +171,15 @@ public class RecipeGUI implements Listener {
                 return;
 
             String name = current.getItemMeta().getDisplayName();
-            if (name.contains("Warden Mace"))
+            if (name != null && name.contains("Warden Mace"))
                 openRecipeView(p, "Warden Mace");
-            else if (name.contains("Nether Mace"))
+            else if (name != null && name.contains("Nether Mace"))
                 openRecipeView(p, "Nether Mace");
-            else if (name.contains("End Mace"))
+            else if (name != null && name.contains("End Mace"))
                 openRecipeView(p, "End Mace");
-            else if (name.contains("Chicken Bow"))
+            else if (name != null && name.contains("Chicken Bow"))
                 openRecipeView(p, "Chicken Bow");
-            else if (name.contains("Unban Token"))
+            else if (name != null && name.contains("Unban Token"))
                 openRecipeView(p, "Unban Token");
         } else if (title.startsWith("§8Recipe: ")) {
             e.setCancelled(true);

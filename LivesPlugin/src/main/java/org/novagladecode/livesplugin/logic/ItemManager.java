@@ -1,6 +1,7 @@
 package org.novagladecode.livesplugin.logic;
 
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -9,10 +10,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
-import org.bukkit.block.ShulkerBox;
-import org.bukkit.block.Barrel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -264,22 +261,6 @@ public class ItemManager {
         for (World w : Bukkit.getWorlds()) {
             for (Item entity : w.getEntitiesByClass(Item.class)) {
                 if (isMaceWithDisplayName(entity.getItemStack(), name)) return true;
-            }
-            // Check loaded containers (chest, barrel, shulker boxes)
-            for (BlockState tile : w.getLoadedBlockStates()) {
-                if (tile instanceof Chest) {
-                    for (ItemStack item : ((Chest) tile).getBlockInventory().getContents()) {
-                        if (isMaceWithDisplayName(item, name)) return true;
-                    }
-                } else if (tile instanceof Barrel) {
-                    for (ItemStack item : ((Barrel) tile).getInventory().getContents()) {
-                        if (isMaceWithDisplayName(item, name)) return true;
-                    }
-                } else if (tile instanceof ShulkerBox) {
-                    for (ItemStack item : ((ShulkerBox) tile).getInventory().getContents()) {
-                        if (isMaceWithDisplayName(item, name)) return true;
-                    }
-                }
             }
         }
         return false;

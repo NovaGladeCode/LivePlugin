@@ -363,8 +363,10 @@ public class GameListener implements Listener {
                 // Set result to dummy, not real item
                 ItemStack dummy = new ItemStack(Material.BARRIER);
                 ItemMeta m = dummy.getItemMeta();
-                m.setDisplayName("§cRitual Required");
-                dummy.setItemMeta(m);
+                if (m != null) {
+                    m.setDisplayName("§cRitual Required");
+                    dummy.setItemMeta(m);
+                }
                 e.getInventory().setResult(dummy);
                 return;
             }
