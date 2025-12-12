@@ -190,42 +190,105 @@ public class EndMaceCommand implements CommandExecutor, Listener {
             return;
         }
 
-        p.sendMessage("§5§lPHANTOM ASSAULT INITIATED!");
-        p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 0.5f);
+        p.sendMessage("§5§lVOID PULL INITIATED!");
+        p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.3f);
+        p.getWorld().playSound(startLoc, Sound.ENTITY_WITHER_SPAWN, 0.8f, 0.5f);
+        
+        // Initial burst effect at player location
+        for (int i = 0; i < 50; i++) {
+            double angle = (2 * Math.PI * i) / 50;
+            double x = Math.cos(angle) * 2;
+            double z = Math.sin(angle) * 2;
+            Location particleLoc = startLoc.clone().add(x, 1, z);
+            p.getWorld().spawnParticle(Particle.END_ROD, particleLoc, 1, 0, 0, 0, 0);
+            p.getWorld().spawnParticle(Particle.ASH, particleLoc, 2, 0.1, 0.1, 0.1, 0.05);
+        }
 
         new BukkitRunnable() {
-            int index = 0;
+            int ticks = 0;
+            Map<LivingEntity, Boolean> damaged = new HashMap<>();
 
             @Override
             public void run() {
-                if (index >= targets.size() || !p.isOnline()) {
-                    // Finish
-                    p.teleport(startLoc);
-                    p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+                if (!p.isOnline() || ticks > 60) { // 3 seconds max
+                    // Final explosion effect
+                    p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 1.5f);
+                    p.getWorld().spawnParticle(Particle.EXPLOSION, startLoc.add(0, 1, 0), 10, 1, 1, 1, 0.1);
+                    p.getWorld().spawnParticle(Particle.END_ROD, startLoc, 100, 2, 2, 2, 0.1);
+                    p.getWorld().spawnParticle(Particle.ASH, startLoc, 150, 2, 2, 2, 0.1);
                     this.cancel();
                     return;
                 }
 
-                LivingEntity target = targets.get(index);
-                if (target.isValid()) {
-                    // Teleport behind
-                    Location strikeLoc = target.getLocation().add(target.getLocation().getDirection().multiply(-1)); // Behind
-                    strikeLoc.setDirection(target.getLocation().toVector().subtract(strikeLoc.toVector())); // Face
-                                                                                                            // target
-                    p.teleport(strikeLoc);
-                    p.getWorld().playSound(strikeLoc, Sound.ENTITY_PLAYER_ATTACK_CRIT, 1f, 1f);
+                Location playerLoc = p.getLocation().add(0, 1, 0);
+                
+                // Pull all targets and create visual effects
+                for (LivingEntity target : new ArrayList<>(targets)) {
+                    if (!target.isValid() || target.isDead()) {
+                        continue;
+                    }
                     
-                    // Enhanced particle effects
                     Location targetLoc = target.getLocation().add(0, 1, 0);
-                    p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, targetLoc, 5, 0.5, 0.5, 0.5, 0.1);
-                    p.getWorld().spawnParticle(Particle.ASH, targetLoc, 30, 0.8, 0.8, 0.8, 0.1);
-                    p.getWorld().spawnParticle(Particle.END_ROD, targetLoc, 15, 0.5, 0.5, 0.5, 0.05);
-                    p.getWorld().spawnParticle(Particle.CRIT, targetLoc, 20, 0.6, 0.6, 0.6, 0.1);
+                    double distance = targetLoc.distance(playerLoc);
                     
-                    target.damage(20.0, p); // 10 hearts (doubled from 5)
+                    // Pull target toward player
+                    if (distance > 1.5) {
+                        Vector pullDirection = playerLoc.toVector().subtract(targetLoc.toVector()).normalize();
+                        double pullStrength = Math.min(0.5, distance * 0.1); // Stronger pull
+                        target.setVelocity(pullDirection.multiply(pullStrength).setY(0.1));
+                    } else if (!damaged.getOrDefault(target, false)) {
+                        // Target is close enough, apply damage
+                        target.damage(20.0, p);
+                        damaged.put(target, true);
+                        
+                        // Impact effects
+                        p.getWorld().playSound(targetLoc, Sound.ENTITY_PLAYER_ATTACK_CRIT, 1.5f, 0.8f);
+                        p.getWorld().playSound(targetLoc, Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 1.2f);
+                        p.getWorld().spawnParticle(Particle.EXPLOSION, targetLoc, 5, 0.5, 0.5, 0.5, 0.1);
+                        p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, targetLoc, 10, 0.8, 0.8, 0.8, 0.1);
+                    }
+                    
+                    // Continuous visual effects on target
+                    // Swirling void particles around target
+                    double angle = (ticks * 0.2) % (2 * Math.PI);
+                    for (int i = 0; i < 8; i++) {
+                        double particleAngle = angle + (i * Math.PI / 4);
+                        double radius = 1.5;
+                        double x = Math.cos(particleAngle) * radius;
+                        double z = Math.sin(particleAngle) * radius;
+                        Location swirlLoc = targetLoc.clone().add(x, Math.sin(ticks * 0.1) * 0.5, z);
+                        p.getWorld().spawnParticle(Particle.END_ROD, swirlLoc, 1, 0, 0, 0, 0);
+                        p.getWorld().spawnParticle(Particle.ASH, swirlLoc, 2, 0.1, 0.1, 0.1, 0.02);
+                    }
+                    
+                    // Pull line effect between player and target
+                    Vector direction = playerLoc.toVector().subtract(targetLoc.toVector()).normalize();
+                    for (int i = 0; i < (int)distance; i++) {
+                        Location lineLoc = targetLoc.clone().add(direction.clone().multiply(i));
+                        p.getWorld().spawnParticle(Particle.END_ROD, lineLoc, 1, 0, 0, 0, 0);
+                        if (i % 2 == 0) {
+                            p.getWorld().spawnParticle(Particle.ASH, lineLoc, 1, 0.05, 0.05, 0.05, 0.01);
+                        }
+                    }
+                    
+                    // Target location effects
+                    p.getWorld().spawnParticle(Particle.CRIT, targetLoc, 5, 0.3, 0.3, 0.3, 0.05);
+                    p.getWorld().spawnParticle(Particle.END_ROD, targetLoc, 3, 0.2, 0.2, 0.2, 0.02);
                 }
-                index++;
+                
+                // Player location effects
+                for (int i = 0; i < 20; i++) {
+                    double angle = (2 * Math.PI * i) / 20 + (ticks * 0.1);
+                    double radius = 1.5 + Math.sin(ticks * 0.2) * 0.3;
+                    double x = Math.cos(angle) * radius;
+                    double z = Math.sin(angle) * radius;
+                    Location orbitLoc = playerLoc.clone().add(x, 0, z);
+                    p.getWorld().spawnParticle(Particle.END_ROD, orbitLoc, 1, 0, 0, 0, 0);
+                    p.getWorld().spawnParticle(Particle.ASH, orbitLoc, 1, 0.05, 0.05, 0.05, 0.01);
+                }
+                
+                ticks++;
             }
-        }.runTaskTimer(plugin, 0L, 5L); // Every 5 ticks
+        }.runTaskTimer(plugin, 0L, 1L); // Every tick for smooth pulling
     }
 }
