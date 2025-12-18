@@ -135,63 +135,63 @@ public class RecipeGUI implements Listener {
                 result = itemManager.createChickenBow();
                 break;
             case "Ghostblade":
-                // G S G
-                // S N S
-                // G S G
-                ingredients[0] = new ItemStack(Material.GHAST_TEAR);
-                ingredients[1] = new ItemStack(Material.SOUL_SAND);
-                ingredients[2] = new ItemStack(Material.GHAST_TEAR);
+                // T N S
+                // S W S
+                // S N T
+                ingredients[0] = new ItemStack(Material.TOTEM_OF_UNDYING);
+                ingredients[1] = new ItemStack(Material.NETHERITE_INGOT);
+                ingredients[2] = new ItemStack(Material.SOUL_SAND);
                 ingredients[3] = new ItemStack(Material.SOUL_SAND);
                 ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
                 ingredients[5] = new ItemStack(Material.SOUL_SAND);
-                ingredients[6] = new ItemStack(Material.GHAST_TEAR);
-                ingredients[7] = new ItemStack(Material.SOUL_SAND);
-                ingredients[8] = new ItemStack(Material.GHAST_TEAR);
+                ingredients[6] = new ItemStack(Material.SOUL_SAND);
+                ingredients[7] = new ItemStack(Material.NETHERITE_INGOT);
+                ingredients[8] = new ItemStack(Material.TOTEM_OF_UNDYING);
                 result = itemManager.createGhostblade();
                 break;
             case "Dragonblade":
-                // D F D
-                // F N F
-                // D F D
-                ingredients[0] = new ItemStack(Material.DRAGON_BREATH);
-                ingredients[1] = new ItemStack(Material.FIRE_CHARGE);
-                ingredients[2] = new ItemStack(Material.DRAGON_BREATH);
-                ingredients[3] = new ItemStack(Material.FIRE_CHARGE);
+                // H B H
+                // B W B
+                // H B H
+                ingredients[0] = new ItemStack(Material.DRAGON_HEAD);
+                ingredients[1] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[2] = new ItemStack(Material.DRAGON_HEAD);
+                ingredients[3] = new ItemStack(Material.NETHERITE_BLOCK);
                 ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
-                ingredients[5] = new ItemStack(Material.FIRE_CHARGE);
-                ingredients[6] = new ItemStack(Material.DRAGON_BREATH);
-                ingredients[7] = new ItemStack(Material.FIRE_CHARGE);
-                ingredients[8] = new ItemStack(Material.DRAGON_BREATH);
+                ingredients[5] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[6] = new ItemStack(Material.DRAGON_HEAD);
+                ingredients[7] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[8] = new ItemStack(Material.DRAGON_HEAD);
                 result = itemManager.createDragonblade();
                 break;
             case "Mistblade":
-                // P W P
-                // W N W
-                // P W P
-                ingredients[0] = new ItemStack(Material.PRISMARINE_SHARD);
-                ingredients[1] = new ItemStack(Material.WATER_BUCKET);
-                ingredients[2] = new ItemStack(Material.PRISMARINE_SHARD);
-                ingredients[3] = new ItemStack(Material.WATER_BUCKET);
+                // T B T
+                // B W B
+                // T B T
+                ingredients[0] = new ItemStack(Material.TRIDENT);
+                ingredients[1] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[2] = new ItemStack(Material.TRIDENT);
+                ingredients[3] = new ItemStack(Material.NETHERITE_BLOCK);
                 ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
-                ingredients[5] = new ItemStack(Material.WATER_BUCKET);
-                ingredients[6] = new ItemStack(Material.PRISMARINE_SHARD);
-                ingredients[7] = new ItemStack(Material.WATER_BUCKET);
-                ingredients[8] = new ItemStack(Material.PRISMARINE_SHARD);
+                ingredients[5] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[6] = new ItemStack(Material.TRIDENT);
+                ingredients[7] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[8] = new ItemStack(Material.TRIDENT);
                 result = itemManager.createMistblade();
                 break;
             case "Soulblade":
-                // S C S
-                // C N C
-                // S C S
-                ingredients[0] = new ItemStack(Material.SOUL_SOIL);
-                ingredients[1] = new ItemStack(Material.CRYING_OBSIDIAN);
-                ingredients[2] = new ItemStack(Material.SOUL_SOIL);
-                ingredients[3] = new ItemStack(Material.CRYING_OBSIDIAN);
+                // X N B
+                // N S W
+                // B N X
+                ingredients[0] = new ItemStack(Material.WITHER_SKELETON_SKULL);
+                ingredients[1] = new ItemStack(Material.NETHERITE_INGOT);
+                ingredients[2] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[3] = new ItemStack(Material.NETHERITE_INGOT);
                 ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
-                ingredients[5] = new ItemStack(Material.CRYING_OBSIDIAN);
-                ingredients[6] = new ItemStack(Material.SOUL_SOIL);
-                ingredients[7] = new ItemStack(Material.CRYING_OBSIDIAN);
-                ingredients[8] = new ItemStack(Material.SOUL_SOIL);
+                ingredients[5] = new ItemStack(Material.WITHER_SKELETON_SKULL);
+                ingredients[6] = new ItemStack(Material.NETHERITE_BLOCK);
+                ingredients[7] = new ItemStack(Material.NETHERITE_INGOT);
+                ingredients[8] = new ItemStack(Material.WITHER_SKELETON_SKULL);
                 result = itemManager.createSoulblade();
                 break;
         }

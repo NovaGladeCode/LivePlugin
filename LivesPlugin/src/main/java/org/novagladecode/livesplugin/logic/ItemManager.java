@@ -102,10 +102,11 @@ public class ItemManager {
         ItemStack item = createGhostblade();
         NamespacedKey key = new NamespacedKey(plugin, "ghostblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("GSG", "SNS", "GSG");
-        recipe.setIngredient('G', Material.GHAST_TEAR);
+        recipe.shape("TNS", "SWS", "SNT");
+        recipe.setIngredient('T', Material.TOTEM_OF_UNDYING);
+        recipe.setIngredient('N', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.SOUL_SAND);
-        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        recipe.setIngredient('W', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
     }
 
@@ -113,10 +114,10 @@ public class ItemManager {
         ItemStack item = createDragonblade();
         NamespacedKey key = new NamespacedKey(plugin, "dragonblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("DFD", "FNF", "DFD");
-        recipe.setIngredient('D', Material.DRAGON_BREATH);
-        recipe.setIngredient('F', Material.FIRE_CHARGE);
-        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        recipe.shape("HBH", "BWB", "HBH");
+        recipe.setIngredient('H', Material.DRAGON_HEAD);
+        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
+        recipe.setIngredient('W', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
     }
 
@@ -124,10 +125,10 @@ public class ItemManager {
         ItemStack item = createMistblade();
         NamespacedKey key = new NamespacedKey(plugin, "mistblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("PWP", "WNW", "PWP");
-        recipe.setIngredient('P', Material.PRISMARINE_SHARD);
-        recipe.setIngredient('W', Material.WATER_BUCKET);
-        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        recipe.shape("TBT", "BWB", "TBT");
+        recipe.setIngredient('T', Material.TRIDENT);
+        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
+        recipe.setIngredient('W', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
     }
 
@@ -135,10 +136,17 @@ public class ItemManager {
         ItemStack item = createSoulblade();
         NamespacedKey key = new NamespacedKey(plugin, "soulblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("SCS", "CNC", "SCS");
-        recipe.setIngredient('S', Material.SOUL_SOIL);
-        recipe.setIngredient('C', Material.CRYING_OBSIDIAN);
-        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        recipe.shape("WBW", "BWB", "WBW");
+        recipe.setIngredient('W', Material.WITHER_SKELETON_SKULL);
+        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
+        // Using W again for the sword in the middle might be confusing in the shape
+        // string, let's use 'S' for sword and 'X' for skull
+        recipe.shape("XNB", "NSW", "BNX");
+        recipe.setIngredient('X', Material.WITHER_SKELETON_SKULL);
+        recipe.setIngredient('N', Material.NETHERITE_INGOT);
+        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
+        recipe.setIngredient('S', Material.NETHERITE_SWORD);
+        recipe.setIngredient('W', Material.WITHER_SKELETON_SKULL); // Duplicate to match shape
         Bukkit.addRecipe(recipe);
     }
 
