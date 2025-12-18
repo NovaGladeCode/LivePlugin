@@ -232,16 +232,29 @@ public class ItemManager {
     }
 
     public ItemStack createSacredForge() {
+        return createSacredForge(null);
+    }
+
+    public ItemStack createSacredForge(String weaponType) {
         ItemStack item = new ItemStack(Material.CRAFTING_TABLE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName("§6§lSacred Forge");
+        String name = weaponType == null ? "Sacred Forge"
+                : (weaponType.substring(0, 1).toUpperCase() + weaponType.substring(1) + " Forge");
+        meta.setDisplayName("§6§l" + name);
         List<String> lore = new ArrayList<>();
         lore.add("§7A station for forging legendary weapons.");
+        if (weaponType != null)
+            lore.add("§eSpecialized for: §b" + weaponType);
         lore.add("§7Place this in the world to allow rituals.");
         meta.setLore(lore);
 
         NamespacedKey key = new NamespacedKey(plugin, "sacred_forge");
         meta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+
+        if (weaponType != null) {
+            NamespacedKey typeKey = new NamespacedKey(plugin, "forge_type");
+            meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, weaponType.toLowerCase());
+        }
 
         item.setItemMeta(meta);
         return item;
@@ -252,6 +265,13 @@ public class ItemManager {
             return false;
         NamespacedKey key = new NamespacedKey(plugin, "sacred_forge");
         return item.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.BYTE);
+    }
+
+    public String getForgeType(ItemStack item) {
+        if (!isSacredForge(item))
+            return null;
+        NamespacedKey typeKey = new NamespacedKey(plugin, "forge_type");
+        return item.getItemMeta().getPersistentDataContainer().get(typeKey, PersistentDataType.STRING);
     }
 
     public ItemStack createLevelItem() {

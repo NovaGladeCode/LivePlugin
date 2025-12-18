@@ -214,8 +214,11 @@ public class MaceCommand implements CommandExecutor {
                     sender.sendMessage("§cOnly OPs can use this, and must be a player.");
                     return true;
                 }
-                p.getInventory().addItem(plugin.getItemManager().createSacredForge());
-                p.sendMessage("§aYou have been given a Sacred Forge!");
+                String type = args.length > 1 ? args[1].toLowerCase() : null;
+                p.getInventory().addItem(plugin.getItemManager().createSacredForge(type));
+                String forgeName = type == null ? "Sacred Forge"
+                        : (type.substring(0, 1).toUpperCase() + type.substring(1) + " Forge");
+                p.sendMessage("§aYou have been given a " + forgeName + "!");
                 return true;
 
             case "toggle":
@@ -372,14 +375,14 @@ public class MaceCommand implements CommandExecutor {
         }
         // Admin section - only visible to operators
         if (sender.isOp()) {
-            sender.sendMessage("§c=== Admin ===");
-            sender.sendMessage("§e/forge set §7- Get a Sacred Forge");
-            sender.sendMessage("§e/forge give <item> §7- Get a special item");
-            sender.sendMessage("§e/forge toggle <name> §7- Toggle ability globally");
+            sender.sendMessage("§6§lForgebound SMP Admin Commands:");
+            sender.sendMessage("§e/forge set [weapon] §7- Get a (specific) Sacred Forge item");
+            sender.sendMessage("§e/forge start §7- Start the event (Ignite Forges + Set Border)");
+            sender.sendMessage("§e/forge point set <player> <amount> §7- Set Forge Level");
+            sender.sendMessage("§e/forge give <player> <item> §7- Give custom items");
+            sender.sendMessage("§e/forge toggle <ability> §7- Global ability switch");
             sender.sendMessage("§e/forge reset <player|all> §7- Reset Forge Level to 2");
-            sender.sendMessage("§e/forge start §7- Start Border Countdown");
             sender.sendMessage("§e/forge recipe reset §7- Re-register all custom recipes");
-            sender.sendMessage("§e/forge point set <player> <amount> §7- Set player Forge Level");
         }
     }
 }
