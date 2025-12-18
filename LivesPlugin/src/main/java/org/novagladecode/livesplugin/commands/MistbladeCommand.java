@@ -81,6 +81,7 @@ public class MistbladeCommand implements CommandExecutor {
             Trident t = p.getWorld().spawn(p.getLocation().add(offset), Trident.class);
             t.setShooter(p);
             t.setVelocity(new Vector(0, -1, 0));
+            t.setPickupStatus(org.bukkit.entity.AbstractArrow.PickupStatus.DISALLOWED);
             // Particles for each trident
             p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, t.getLocation(), 20, 0.2, 0.2, 0.2, 0.05);
         }
