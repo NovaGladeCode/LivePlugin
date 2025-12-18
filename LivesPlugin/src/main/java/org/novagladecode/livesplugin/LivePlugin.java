@@ -16,6 +16,8 @@ public class LivePlugin extends JavaPlugin {
     private NetherMaceCommand netherMaceCommand;
     private EndMaceCommand endMaceCommand;
     private java.util.HashMap<java.util.UUID, Boolean> maceInteractMode = new java.util.HashMap<>();
+    private java.util.HashMap<String, Boolean> globalAbilityToggles = new java.util.HashMap<>();
+    private boolean forgeActive = false;
 
     @Override
     public void onEnable() {
@@ -82,6 +84,22 @@ public class LivePlugin extends JavaPlugin {
 
     public ItemManager getItemManager() {
         return itemManager;
+    }
+
+    public boolean isAbilityEnabled(String bladeName) {
+        return globalAbilityToggles.getOrDefault(bladeName.toLowerCase(), true);
+    }
+
+    public void setAbilityEnabled(String bladeName, boolean enabled) {
+        globalAbilityToggles.put(bladeName.toLowerCase(), enabled);
+    }
+
+    public boolean isForgeActive() {
+        return forgeActive;
+    }
+
+    public void setForgeActive(boolean active) {
+        this.forgeActive = active;
     }
 
     public PlayerDataManager getDataManager() {

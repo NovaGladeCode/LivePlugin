@@ -33,8 +33,11 @@ import java.util.UUID;
 
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.entity.Item;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.novagladecode.livesplugin.LivePlugin;
 
 import org.bukkit.Location;
 import java.util.List;
@@ -332,6 +335,25 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e) {
+        ItemStack item = e.getItemInHand();
+        if (itemManager.isSacredForge(item)) {
+            PersistentDataContainer data = e.getBlockPlaced().getChunk().getPersistentDataContainer(); // Not ideal, but
+                                                                                                       // let's use the
+                                                                                                       // block itself
+                                                                                                       // if possible?
+            // In Spigot 1.20.1+, blocks don't have PDC unless they are tile entities.
+            // Crafting Table is NOT a tile entity.
+            // I'll add metadata to the block instead or use a Map in the plugin to track
+            // Sacred Forge locations.
+            // Let's use metadata for simplicity in a session, but a Map is better for
+            // persistence.
+            e.getBlockPlaced().setMetadata("sacred_forge", new FixedMetadataValue(plugin, true));
+            e.getPlayer().sendMessage("§aYou have placed a Sacred Forge!");
+        }
+    }
+
+    @EventHandler
     public void onPrepareItemCraft(org.bukkit.event.inventory.PrepareItemCraftEvent e) {
         ItemStack result = e.getInventory().getResult();
         if (result == null)
@@ -442,9 +464,19 @@ public class GameListener implements Listener {
             p.sendMessage("§cYou must forge this in a Crafting Table!");
             return;
         }
+
+        if (!((LivePlugin) plugin).isForgeActive()) {
+            e.setCancelled(true);
+            p.sendMessage("§cThe Sacred Forge has not been ignited yet! Use /forge start if you are an admin.");
+            return;
+        }
+
         Location tableLoc = e.getInventory().getLocation();
-        if (tableLoc == null) {
-            tableLoc = p.getLocation().getBlock().getLocation();
+        if (tableLoc == null || tableLoc.getBlock().getType() != Material.CRAFTING_TABLE
+                || !tableLoc.getBlock().hasMetadata("sacred_forge")) {
+            e.setCancelled(true);
+            p.sendMessage("§cThis is a regular Crafting Table. You must use a §6§lSacred Forge §cto craft this!");
+            return;
         }
 
         // START RITUAL

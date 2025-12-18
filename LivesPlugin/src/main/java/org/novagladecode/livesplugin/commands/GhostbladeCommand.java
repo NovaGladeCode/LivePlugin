@@ -40,6 +40,11 @@ public class GhostbladeCommand implements CommandExecutor {
             return true;
         }
 
+        if (!plugin.isAbilityEnabled("ghostblade")) {
+            p.sendMessage("§cGhostblade abilities are currently disabled!");
+            return true;
+        }
+
         if (args.length == 0) {
             p.sendMessage("§cUsage: /ghostblade <1|2>");
             return true;

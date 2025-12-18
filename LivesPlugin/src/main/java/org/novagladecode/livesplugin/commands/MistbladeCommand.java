@@ -41,6 +41,11 @@ public class MistbladeCommand implements CommandExecutor {
             return true;
         }
 
+        if (!plugin.isAbilityEnabled("mistblade")) {
+            p.sendMessage("§cMistblade abilities are currently disabled!");
+            return true;
+        }
+
         if (args.length == 0) {
             p.sendMessage("§cUsage: /mistblade <1|2>");
             return true;

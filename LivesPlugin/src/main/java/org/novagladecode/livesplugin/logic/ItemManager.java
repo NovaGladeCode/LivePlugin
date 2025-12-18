@@ -10,6 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -228,6 +229,29 @@ public class ItemManager {
         meta.setUnbreakable(true);
         sword.setItemMeta(meta);
         return sword;
+    }
+
+    public ItemStack createSacredForge() {
+        ItemStack item = new ItemStack(Material.CRAFTING_TABLE);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("§6§lSacred Forge");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7A station for forging legendary weapons.");
+        lore.add("§7Place this in the world to allow rituals.");
+        meta.setLore(lore);
+
+        NamespacedKey key = new NamespacedKey(plugin, "sacred_forge");
+        meta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public boolean isSacredForge(ItemStack item) {
+        if (item == null || item.getType() != Material.CRAFTING_TABLE || !item.hasItemMeta())
+            return false;
+        NamespacedKey key = new NamespacedKey(plugin, "sacred_forge");
+        return item.getItemMeta().getPersistentDataContainer().has(key, PersistentDataType.BYTE);
     }
 
     public ItemStack createLevelItem() {

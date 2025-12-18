@@ -42,6 +42,11 @@ public class DragonbladeCommand implements CommandExecutor {
             return true;
         }
 
+        if (!plugin.isAbilityEnabled("dragonblade")) {
+            p.sendMessage("§cDragonblade abilities are currently disabled!");
+            return true;
+        }
+
         if (args.length == 0) {
             p.sendMessage("§cUsage: /dragonblade <1|2>");
             return true;

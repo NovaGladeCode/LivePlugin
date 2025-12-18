@@ -17,8 +17,10 @@ import org.novagladecode.livesplugin.logic.ItemManager;
 public class BladeListener implements Listener {
 
     private final ItemManager itemManager;
+    private final LivePlugin plugin;
 
     public BladeListener(LivePlugin plugin) {
+        this.plugin = plugin;
         this.itemManager = plugin.getItemManager();
 
         // Start a repeating task for passives
@@ -30,18 +32,17 @@ public class BladeListener implements Listener {
             ItemStack item = p.getInventory().getItemInMainHand();
 
             // Mistblade: Dolphin's Grace
-            if (itemManager.isMistblade(item)) {
+            if (itemManager.isMistblade(item) && plugin.isAbilityEnabled("mistblade")) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.DOLPHINS_GRACE, 40, 0, false, false, true));
             }
 
             // Soulblade: Strength I
-            if (itemManager.isSoulblade(item)) {
+            if (itemManager.isSoulblade(item) && plugin.isAbilityEnabled("soulblade")) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 40, 0, false, false, true));
             }
 
             // Ghostblade: Invisibility
-            // We'll handle this purely via potion effect here for simplicity
-            if (itemManager.isGhostblade(item)) {
+            if (itemManager.isGhostblade(item) && plugin.isAbilityEnabled("ghostblade")) {
                 p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 40, 0, false, false, true));
             }
         }
@@ -62,13 +63,17 @@ public class BladeListener implements Listener {
         String cmdArg = isShift ? "2" : "1";
 
         if (itemManager.isGhostblade(item)) {
-            p.performCommand("ghostblade " + cmdArg);
+            if (plugin.isAbilityEnabled("ghostblade"))
+                p.performCommand("ghostblade " + cmdArg);
         } else if (itemManager.isDragonblade(item)) {
-            p.performCommand("dragonblade " + cmdArg);
+            if (plugin.isAbilityEnabled("dragonblade"))
+                p.performCommand("dragonblade " + cmdArg);
         } else if (itemManager.isMistblade(item)) {
-            p.performCommand("mistblade " + cmdArg);
+            if (plugin.isAbilityEnabled("mistblade"))
+                p.performCommand("mistblade " + cmdArg);
         } else if (itemManager.isSoulblade(item)) {
-            p.performCommand("soulblade " + cmdArg);
+            if (plugin.isAbilityEnabled("soulblade"))
+                p.performCommand("soulblade " + cmdArg);
         }
     }
 
@@ -77,7 +82,8 @@ public class BladeListener implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
-                if (itemManager.isDragonblade(p.getInventory().getItemInMainHand())) {
+                if (itemManager.isDragonblade(p.getInventory().getItemInMainHand())
+                        && plugin.isAbilityEnabled("dragonblade")) {
                     e.setCancelled(true);
                 }
             }

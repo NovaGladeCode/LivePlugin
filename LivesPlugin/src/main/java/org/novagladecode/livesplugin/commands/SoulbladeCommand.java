@@ -40,6 +40,11 @@ public class SoulbladeCommand implements CommandExecutor {
             return true;
         }
 
+        if (!plugin.isAbilityEnabled("soulblade")) {
+            p.sendMessage("§cSoulblade abilities are currently disabled!");
+            return true;
+        }
+
         if (args.length == 0) {
             p.sendMessage("§cUsage: /soulblade <1|2>");
             return true;

@@ -138,9 +138,12 @@ public class MaceCommand implements CommandExecutor {
                 case "soulblade":
                     weapon = plugin.getItemManager().createSoulblade();
                     break;
+                case "forge":
+                    weapon = plugin.getItemManager().createSacredForge();
+                    break;
                 default:
                     target.sendMessage(
-                            "§cUnknown weapon. Usage: /forge give <warden|nether|end|chickenbow|ghostblade|dragonblade|mistblade|soulblade>");
+                            "§cUnknown weapon. Usage: /forge give <warden|nether|end|chickenbow|ghostblade|dragonblade|mistblade|soulblade|forge>");
                     return true;
             }
             if (weapon != null) {
@@ -207,32 +210,29 @@ public class MaceCommand implements CommandExecutor {
                 return true;
 
             case "set":
-                // /forge set <player> <amount>
+                if (!sender.isOp() || p == null) {
+                    sender.sendMessage("§cOnly OPs can use this, and must be a player.");
+                    return true;
+                }
+                p.getInventory().addItem(plugin.getItemManager().createSacredForge());
+                p.sendMessage("§aYou have been given a Sacred Forge!");
+                return true;
+
+            case "toggle":
                 if (!sender.isOp()) {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
-                if (args.length < 3) {
-                    sender.sendMessage("§cUsage: /forge set <player> <amount>");
+                if (args.length < 2) {
+                    sender.sendMessage("§cUsage: /forge toggle <name>");
                     return true;
                 }
-                Player target = Bukkit.getPlayer(args[1]);
-                if (target == null) {
-                    sender.sendMessage("§cPlayer not found.");
-                    return true;
-                }
-                try {
-                    int amount = Integer.parseInt(args[2]);
-                    if (amount < 0 || amount > 10) {
-                        sender.sendMessage("§cAmount must be between 0 and 10.");
-                        return true;
-                    }
-                    dataManager.setPoints(target.getUniqueId(), amount);
-                    sender.sendMessage("§aSet " + target.getName() + "'s Forge Level to " + amount);
-                    target.sendMessage("§aYour Forge Level was set to " + amount + " by an admin.");
-                } catch (NumberFormatException e) {
-                    sender.sendMessage("§cInvalid number.");
-                }
+                String name = args[1].toLowerCase();
+                boolean newState = !plugin.isAbilityEnabled(name);
+                plugin.setAbilityEnabled(name, newState);
+                String stateStr = newState ? "§aENABLED" : "§cDISABLED";
+                Bukkit.broadcastMessage(
+                        "§6§lForge Toggled: §b" + name + " §7is now " + stateStr + " §7for all players!");
                 return true;
 
             case "withdraw":
@@ -330,10 +330,12 @@ public class MaceCommand implements CommandExecutor {
                 plugin.getItemManager().registerNetherMaceRecipe();
                 plugin.getItemManager().registerEndMaceRecipe();
                 plugin.getItemManager().registerChickenBowRecipe();
-                plugin.getDataManager().setWardenMaceCrafted(false);
-                plugin.getDataManager().setNetherMaceCrafted(false);
                 plugin.getDataManager().setEndMaceCrafted(false);
-                sender.sendMessage("§aAll players' Forge Level reset and custom recipes re-registered for the event!");
+                plugin.setForgeActive(true);
+                sender.sendMessage(
+                        "§aAll players' Forge Level reset, custom recipes re-registered, and SACRED FORGE ACTIVATED!");
+                Bukkit.broadcastMessage(
+                        "§6§lThe Sacred Forge has been ignited! Rituals are now possible at local Sacred Forges.");
                 // The rest of original start logic (countdown etc.)
                 sender.sendMessage("§aStarting 10s countdown to Border Set...");
                 Bukkit.broadcastMessage("§c§lBorder will be set to 3000 in 10 seconds!");
@@ -371,8 +373,9 @@ public class MaceCommand implements CommandExecutor {
         // Admin section - only visible to operators
         if (sender.isOp()) {
             sender.sendMessage("§c=== Admin ===");
+            sender.sendMessage("§e/forge set §7- Get a Sacred Forge");
             sender.sendMessage("§e/forge give <item> §7- Get a special item");
-            sender.sendMessage("§e/forge set <player> <amount> §7- Set Forge Level");
+            sender.sendMessage("§e/forge toggle <name> §7- Toggle ability globally");
             sender.sendMessage("§e/forge reset <player|all> §7- Reset Forge Level to 2");
             sender.sendMessage("§e/forge start §7- Start Border Countdown");
             sender.sendMessage("§e/forge recipe reset §7- Re-register all custom recipes");
