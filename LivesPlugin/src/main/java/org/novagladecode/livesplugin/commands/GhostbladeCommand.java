@@ -104,32 +104,47 @@ public class GhostbladeCommand implements CommandExecutor {
         long now = System.currentTimeMillis();
         if (cooldown2.getOrDefault(p.getUniqueId(), 0L) > now) {
             long remaining = (cooldown2.get(p.getUniqueId()) - now) / 1000;
-            p.sendMessage("§cPhantom Slash is on cooldown! (" + remaining + "s)");
+            p.sendMessage("§cSpectral Pull is on cooldown! (" + remaining + "s)");
             return;
         }
 
-        // Phantom Slash: Damage enemies in a sweep
-        for (Entity e : p.getNearbyEntities(6, 6, 6)) {
+        // Spectral Pull: Pull enemies toward player and damage them
+        for (Entity e : p.getNearbyEntities(10, 10, 10)) {
             if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
                 org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
                 if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
 
-                target.damage(8.0, p);
-                target.sendMessage("§7§lYou have been slashed by the Ghostblade!");
-                target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 0.5f);
+                // Damage
+                target.damage(6.0, p);
+                target.sendMessage("§7§lYou are being pulled into the spirit realm!");
+                target.getWorld().playSound(target.getLocation(), Sound.ENTITY_VEX_CHARGE, 1.0f, 0.5f);
 
-                // Spawn particles around target
-                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 40, 0.5,
-                        0.5, 0.5, 0.1);
-                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, target.getLocation().add(0, 1, 0),
-                        20, 0.3, 0.3, 0.3, 0.05);
+                // Pull logic
+                org.bukkit.util.Vector pull = p.getLocation().toVector().subtract(target.getLocation().toVector())
+                        .normalize().multiply(1.2).setY(0.4);
+                target.setVelocity(pull);
+
+                // Particle Tether
+                org.bukkit.Location start = p.getLocation().add(0, 1, 0);
+                org.bukkit.Location end = target.getLocation().add(0, 1, 0);
+                org.bukkit.util.Vector vector = end.toVector().subtract(start.toVector());
+                double distance = start.distance(end);
+                for (double i = 0; i <= distance; i += 0.5) {
+                    org.bukkit.util.Vector current = vector.clone().multiply(i / distance);
+                    start.getWorld().spawnParticle(org.bukkit.Particle.SOUL, start.clone().add(current), 1, 0.02, 0.02,
+                            0.02, 0.01);
+                }
+
+                // Target particles
+                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 20, 0.3,
+                        0.3, 0.3, 0.05);
             }
         }
 
-        p.sendMessage("§7§lPhantom Slash!");
-        p.playSound(p.getLocation(), Sound.ENTITY_VEX_CHARGE, 1.0f, 1.5f);
-        p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, p.getLocation().add(0, 1, 0), 60, 3, 0.2, 3, 0.1);
+        p.sendMessage("§7§lSpectral Pull!");
+        p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.5f);
+        p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, p.getLocation().add(0, 1, 0), 100, 2, 1, 2, 0.1);
         cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }
 }

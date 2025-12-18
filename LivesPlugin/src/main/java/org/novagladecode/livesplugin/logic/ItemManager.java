@@ -172,7 +172,7 @@ public class ItemManager {
         lore.add("§f- Invisibility §7while holding");
         lore.add("§7Abilities:");
         lore.add("§7/ghostblade 1 (§fRight-Click§7) - Haunt");
-        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Phantom Slash");
+        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Spectral Pull");
         meta.setLore(lore);
         meta.setUnbreakable(true);
         sword.setItemMeta(meta);
