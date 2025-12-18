@@ -69,7 +69,8 @@ public class MistbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown1.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cTrident Storm is on cooldown!");
+            long remaining = (cooldown1.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cTrident Storm is on cooldown! (" + remaining + "s)");
             return;
         }
 
@@ -80,7 +81,12 @@ public class MistbladeCommand implements CommandExecutor {
             Trident t = p.getWorld().spawn(p.getLocation().add(offset), Trident.class);
             t.setShooter(p);
             t.setVelocity(new Vector(0, -1, 0));
+            // Particles for each trident
+            p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, t.getLocation(), 20, 0.2, 0.2, 0.2, 0.05);
         }
+
+        p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, p.getLocation().add(0, 1, 0), 100, 3, 1, 3, 0.1);
+        p.getWorld().spawnParticle(org.bukkit.Particle.BUBBLE, p.getLocation().add(0, 1, 0), 50, 2, 1, 2, 0.05);
 
         p.sendMessage("§bTrident Storm!");
         p.playSound(p.getLocation(), Sound.ITEM_TRIDENT_THROW, 1.0f, 0.5f);
@@ -96,30 +102,42 @@ public class MistbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown2.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cMistburst is on cooldown!");
+            long remaining = (cooldown2.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cTidal Surge is on cooldown! (" + remaining + "s)");
             return;
         }
 
-        // Mistburst: "Make water rain on people" - I'll implement as a localized
-        // weather effect/particles
-        for (Entity e : p.getNearbyEntities(12, 12, 12)) {
-            if (e instanceof Player && e != p) {
-                Player target = (Player) e;
-                if (dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
+        // Tidal Surge: Massive water blast and lightning
+        for (Entity e : p.getNearbyEntities(8, 8, 8)) {
+            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
+                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+                if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
-                target.setPlayerWeather(org.bukkit.WeatherType.DOWNFALL);
-                target.sendMessage("§9It's starting to pour... you feel cold.");
 
-                Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    if (target.isOnline()) {
-                        target.resetPlayerWeather();
-                    }
-                }, 200L); // 10s rain
+                target.damage(9.0, p);
+                target.setVelocity(target.getLocation().toVector().subtract(p.getLocation().toVector()).normalize()
+                        .multiply(1.5).setY(0.5));
+                target.sendMessage("§9§lYou have been swept away by the Tidal Surge!");
+
+                // Strike with lightning (visual only to avoid extra fire if possible, or real
+                // if wanted)
+                target.getWorld().strikeLightningEffect(target.getLocation());
+
+                // Target particles
+                target.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, target.getLocation().add(0, 1, 0), 60, 0.5,
+                        0.5, 0.5, 0.1);
+                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 20, 0.5,
+                        0.5, 0.5, 0.05);
             }
         }
 
-        p.sendMessage("§bYou have summoned a localized mist.");
-        p.playSound(p.getLocation(), Sound.WEATHER_RAIN, 1.0f, 1.0f);
-        cooldown2.put(p.getUniqueId(), now + 60000); // 1m
+        p.sendMessage("§b§lTidal Surge!");
+        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1.5f, 0.8f);
+        p.playSound(p.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.2f);
+
+        p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, p.getLocation().add(0, 1, 0), 200, 5, 1, 5, 0.2);
+        p.getWorld().spawnParticle(org.bukkit.Particle.CLOUD, p.getLocation().add(0, 1, 0), 100, 4, 1, 4, 0.1);
+
+        cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }
 }

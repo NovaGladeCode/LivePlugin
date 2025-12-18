@@ -68,22 +68,27 @@ public class GhostbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown1.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cAbility on cooldown!");
+            long remaining = (cooldown1.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cHaunt is on cooldown! (" + remaining + "s)");
             return;
         }
 
         // Haunt: Nausea + Blindness to nearby
         for (Entity e : p.getNearbyEntities(8, 8, 8)) {
-            if (e instanceof Player && e != p) {
-                Player target = (Player) e;
-                if (dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
+            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
+                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+                if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
                 target.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 160, 0));
                 target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 0));
                 target.sendMessage("§7§oYou feel a ghostly presence...");
-                target.playSound(target.getLocation(), Sound.ENTITY_GHAST_SCREAM, 1.0f, 0.5f);
+                target.getWorld().playSound(target.getLocation(), Sound.ENTITY_GHAST_SCREAM, 1.0f, 0.5f);
+
+                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 30, 0.5,
+                        0.5, 0.5, 0.02);
             }
         }
+        p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, p.getLocation().add(0, 1, 0), 100, 2, 2, 2, 0.05);
         p.sendMessage("§7You have haunted nearby souls.");
         p.playSound(p.getLocation(), Sound.ENTITY_VEX_AMBIENT, 1.0f, 0.5f);
         cooldown1.put(p.getUniqueId(), now + 30000); // 30s
@@ -98,30 +103,33 @@ public class GhostbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown2.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cAbility on cooldown!");
+            long remaining = (cooldown2.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cPhantom Slash is on cooldown! (" + remaining + "s)");
             return;
         }
 
-        // Spectral Tether: Hold enemies in place
-        for (Entity e : p.getNearbyEntities(10, 10, 10)) {
-            if (e instanceof Player && e != p) {
-                Player target = (Player) e;
-                if (dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
+        // Phantom Slash: Damage enemies in a sweep
+        for (Entity e : p.getNearbyEntities(6, 6, 6)) {
+            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
+                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+                if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
 
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 60, 6)); // Slowness VII for 3s
-                target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 0));
-                target.sendMessage("§7§lYou have been tethered by the Ghostblade!");
-                target.playSound(target.getLocation(), Sound.ENTITY_VEX_CHARGE, 1.0f, 0.5f);
+                target.damage(8.0, p);
+                target.sendMessage("§7§lYou have been slashed by the Ghostblade!");
+                target.getWorld().playSound(target.getLocation(), Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1.0f, 0.5f);
 
                 // Spawn particles around target
-                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 20, 0.5,
-                        0.5, 0.5, 0.05);
+                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 40, 0.5,
+                        0.5, 0.5, 0.1);
+                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, target.getLocation().add(0, 1, 0),
+                        20, 0.3, 0.3, 0.3, 0.05);
             }
         }
 
-        p.sendMessage("§7Spectral Tether activated.");
-        p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 0.5f);
-        cooldown2.put(p.getUniqueId(), now + 45000); // 45s
+        p.sendMessage("§7§lPhantom Slash!");
+        p.playSound(p.getLocation(), Sound.ENTITY_VEX_CHARGE, 1.0f, 1.5f);
+        p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, p.getLocation().add(0, 1, 0), 60, 3, 0.2, 3, 0.1);
+        cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }
 }

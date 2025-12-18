@@ -172,7 +172,7 @@ public class ItemManager {
         lore.add("§f- Invisibility §7while holding");
         lore.add("§7Abilities:");
         lore.add("§7/ghostblade 1 (§fRight-Click§7) - Haunt");
-        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Spectral Tether");
+        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Phantom Slash");
         meta.setLore(lore);
         meta.setUnbreakable(true);
         sword.setItemMeta(meta);
@@ -189,7 +189,7 @@ public class ItemManager {
         lore.add("§f- No Fall Damage §7while holding");
         lore.add("§7Abilities:");
         lore.add("§7/dragonblade 1 (§fRight-Click§7) - Dragon Leap");
-        lore.add("§7/dragonblade 2 (§fShift+Right-Click§7) - Frost Breath");
+        lore.add("§7/dragonblade 2 (§fShift+Right-Click§7) - Dragon Strike");
         meta.setLore(lore);
         meta.setUnbreakable(true);
         sword.setItemMeta(meta);
@@ -206,7 +206,7 @@ public class ItemManager {
         lore.add("§f- Dolphin's Grace §7while holding");
         lore.add("§7Abilities:");
         lore.add("§7/mistblade 1 (§fRight-Click§7) - Trident Storm");
-        lore.add("§7/mistblade 2 (§fShift+Right-Click§7) - Downpour");
+        lore.add("§7/mistblade 2 (§fShift+Right-Click§7) - Tidal Surge");
         meta.setLore(lore);
         meta.setUnbreakable(true);
         sword.setItemMeta(meta);
@@ -223,8 +223,7 @@ public class ItemManager {
         lore.add("§f- Strength I §7while holding");
         lore.add("§7Abilities:");
         lore.add("§7/soulblade 1 (§fRight-Click§7) - Soul Beam");
-        lore.add("§7/soulblade 2 (§fShift+Right-Click§7) - Divine Protection");
-        lore.add("§cSide Effect: §7Down to 7 HP after Protection.");
+        lore.add("§7/soulblade 2 (§fShift+Right-Click§7) - Soul Devour");
         meta.setLore(lore);
         meta.setUnbreakable(true);
         sword.setItemMeta(meta);

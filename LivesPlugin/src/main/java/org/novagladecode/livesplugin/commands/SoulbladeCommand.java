@@ -1,6 +1,5 @@
 package org.novagladecode.livesplugin.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -68,7 +67,8 @@ public class SoulbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown1.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cSoul Beam is on cooldown!");
+            long remaining = (cooldown1.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cSoul Beam is on cooldown! (" + remaining + "s)");
             return;
         }
 
@@ -79,8 +79,9 @@ public class SoulbladeCommand implements CommandExecutor {
         org.bukkit.util.Vector dir = p.getLocation().getDirection();
         for (double i = 1; i < 20; i += 0.5) {
             org.bukkit.Location loc = p.getEyeLocation().add(dir.clone().multiply(i));
-            p.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, loc, 3, 0.1, 0.1, 0.1, 0.05);
-            p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, loc, 1, 0, 0, 0, 0);
+            p.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, loc, 10, 0.2, 0.2, 0.2, 0.05);
+            p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, loc, 5, 0.1, 0.1, 0.1, 0.02);
+            p.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, loc, 2, 0.1, 0.1, 0.1, 0.01);
         }
 
         // Damage logic in a raytrace
@@ -91,8 +92,10 @@ public class SoulbladeCommand implements CommandExecutor {
             target.damage(15.0, p);
             target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5s
             target.sendMessage("§8§oYour soul has been scorched...");
-            target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 10, 0.5, 0.5,
+            target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 50, 0.5, 0.5,
                     0.5, 0.1);
+            target.getWorld().spawnParticle(org.bukkit.Particle.FLASH, target.getLocation().add(0, 1, 0), 1, 0, 0, 0,
+                    0);
         }
 
         p.sendMessage("§8Soul Beam fired!");
@@ -108,25 +111,41 @@ public class SoulbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown2.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cDivine Protection is on cooldown!");
+            long remaining = (cooldown2.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cSoul Devour is on cooldown! (" + remaining + "s)");
             return;
         }
 
-        // Divine Protection: Invulnerability (10s)
-        p.setInvulnerable(true);
-        p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 200, 0));
-        p.sendMessage("§e§lDIVINE PROTECTION ACTIVATED!");
-        p.playSound(p.getLocation(), Sound.ITEM_TOTEM_USE, 1.0f, 1.0f);
+        // Soul Devour: Area Life Drain
+        int targetsHit = 0;
+        for (org.bukkit.entity.Entity e : p.getNearbyEntities(6, 6, 6)) {
+            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
+                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+                if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
+                    continue;
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (p.isOnline()) {
-                p.setInvulnerable(false);
-                p.setHealth(Math.min(p.getHealth(), 7.0)); // Down to 7 HP (3.5 hearts)
-                p.sendMessage("§cDivine Protection has faded. You feel weak.");
-                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 0.5f);
+                target.damage(8.0, p);
+                target.sendMessage("§8§lYour essence is being drained!");
+                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 40, 0.5,
+                        0.5, 0.5, 0.1);
+                targetsHit++;
             }
-        }, 200L); // 10s
+        }
 
-        cooldown2.put(p.getUniqueId(), now + 120000); // 2m
+        if (targetsHit > 0) {
+            double healAmount = targetsHit * 2.0; // 1 heart per target
+            @SuppressWarnings("deprecation")
+            double maxHealth = p.getMaxHealth();
+            p.setHealth(Math.min(maxHealth, p.getHealth() + healAmount));
+            p.sendMessage("§8§lSoul Devour! §7Healed by " + (healAmount / 2.0) + " hearts.");
+        } else {
+            p.sendMessage("§8Soul Devour activated but no souls were found.");
+        }
+
+        p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.8f, 1.5f);
+        p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, p.getLocation().add(0, 1, 0), 200, 5, 1, 5, 0.2);
+        p.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, p.getLocation().add(0, 1, 0), 100, 4, 1, 4, 0.1);
+
+        cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }
 }

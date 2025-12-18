@@ -70,7 +70,8 @@ public class DragonbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown1.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cLeap is on cooldown!");
+            long remaining = (cooldown1.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cDragon Leap is on cooldown! (" + remaining + "s)");
             return;
         }
 
@@ -79,6 +80,10 @@ public class DragonbladeCommand implements CommandExecutor {
         p.setVelocity(dir);
         p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_FLAP, 1.0f, 1.0f);
         p.sendMessage("§6Dragon Leap!");
+
+        // More particles
+        p.getWorld().spawnParticle(org.bukkit.Particle.FLAME, p.getLocation(), 50, 0.5, 0.5, 0.5, 0.1);
+        p.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, p.getLocation(), 30, 0.5, 0.5, 0.5, 0.05);
 
         cooldown1.put(p.getUniqueId(), now + 10000); // 10s
     }
@@ -92,23 +97,37 @@ public class DragonbladeCommand implements CommandExecutor {
 
         long now = System.currentTimeMillis();
         if (cooldown2.getOrDefault(p.getUniqueId(), 0L) > now) {
-            p.sendMessage("§cFrost Breath is on cooldown!");
+            long remaining = (cooldown2.get(p.getUniqueId()) - now) / 1000;
+            p.sendMessage("§cDragon Strike is on cooldown! (" + remaining + "s)");
             return;
         }
 
-        // Frost Breath: Freeze opponents (Slowness VI + Freeze ticks)
-        for (Entity e : p.getNearbyEntities(6, 6, 6)) {
+        // Dragon Strike: Explosion of fire and ice
+        for (Entity e : p.getNearbyEntities(7, 7, 7)) {
             if (e instanceof LivingEntity && e != p) {
                 if (e instanceof Player && dataManager.isTrusted(p.getUniqueId(), e.getUniqueId()))
                     continue;
                 LivingEntity target = (LivingEntity) e;
-                target.setFreezeTicks(200); // 10s
-                target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 100, 5));
-                target.sendMessage("§bYou have been frozen by the Dragonblade!");
+                target.damage(10.0, p);
+                target.setFireTicks(60);
+                target.setFreezeTicks(100);
+                target.sendMessage("§c§lYou have been struck by the Dragonblade's Fury!");
+
+                // Target particles
+                target.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH, target.getLocation().add(0, 1, 0),
+                        40, 0.5, 0.5, 0.5, 0.1);
+                target.getWorld().spawnParticle(org.bukkit.Particle.FLAME, target.getLocation().add(0, 1, 0), 30, 0.4,
+                        0.4, 0.4, 0.05);
             }
         }
-        p.sendMessage("§bFrost Breath released!");
-        p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 1.5f);
-        cooldown2.put(p.getUniqueId(), now + 40000); // 40s
+        p.sendMessage("§6§lDragon Strike!");
+        p.playSound(p.getLocation(), Sound.ENTITY_ENDER_DRAGON_GROWL, 1.0f, 0.8f);
+        p.playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.2f);
+
+        // Large blast of particles from player
+        p.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH, p.getLocation().add(0, 1, 0), 150, 4, 1, 4, 0.1);
+        p.getWorld().spawnParticle(org.bukkit.Particle.FLAME, p.getLocation().add(0, 1, 0), 100, 3, 1, 3, 0.05);
+
+        cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }
 }
