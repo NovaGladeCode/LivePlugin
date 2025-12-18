@@ -23,7 +23,7 @@ public class RecipeGUI implements Listener {
     }
 
     public void openMainMenu(Player p) {
-        Inventory inv = Bukkit.createInventory(null, 9, "§8Custom Recipes");
+        Inventory inv = Bukkit.createInventory(null, 18, "§8Custom Recipes");
 
         inv.setItem(0, createNamedGuiItem(itemManager.createWardenMace(), "§3Warden Mace Recipe",
                 "§7Click to view usage & crafting"));
@@ -33,7 +33,14 @@ public class RecipeGUI implements Listener {
                 "§7Click to view usage & crafting"));
         inv.setItem(3, createNamedGuiItem(itemManager.createChickenBow(), "§eChicken Bow Recipe",
                 "§7Click to view usage & crafting"));
-        // inv.setItem(4, createNamedGuiItem(itemManager.createUnbanItem(), "§5Unban Token Recipe", "§7Click to view usage & crafting")); // Removed from GUI
+        inv.setItem(4, createNamedGuiItem(itemManager.createGhostblade(), "§7Ghostblade Recipe",
+                "§7Click to view usage & crafting"));
+        inv.setItem(5, createNamedGuiItem(itemManager.createDragonblade(), "§6Dragonblade Recipe",
+                "§7Click to view usage & crafting"));
+        inv.setItem(6, createNamedGuiItem(itemManager.createMistblade(), "§bMistblade Recipe",
+                "§7Click to view usage & crafting"));
+        inv.setItem(7, createNamedGuiItem(itemManager.createSoulblade(), "§8Soulblade Recipe",
+                "§7Click to view usage & crafting"));
 
         p.openInventory(inv);
     }
@@ -127,8 +134,65 @@ public class RecipeGUI implements Listener {
                 ingredients[8] = new ItemStack(DIAMOND);
                 result = itemManager.createChickenBow();
                 break;
-            case "Unban Token":
-                // (do nothing -- unban token removed)
+            case "Ghostblade":
+                // G S G
+                // S N S
+                // G S G
+                ingredients[0] = new ItemStack(Material.GHAST_TEAR);
+                ingredients[1] = new ItemStack(Material.SOUL_SAND);
+                ingredients[2] = new ItemStack(Material.GHAST_TEAR);
+                ingredients[3] = new ItemStack(Material.SOUL_SAND);
+                ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
+                ingredients[5] = new ItemStack(Material.SOUL_SAND);
+                ingredients[6] = new ItemStack(Material.GHAST_TEAR);
+                ingredients[7] = new ItemStack(Material.SOUL_SAND);
+                ingredients[8] = new ItemStack(Material.GHAST_TEAR);
+                result = itemManager.createGhostblade();
+                break;
+            case "Dragonblade":
+                // D F D
+                // F N F
+                // D F D
+                ingredients[0] = new ItemStack(Material.DRAGON_BREATH);
+                ingredients[1] = new ItemStack(Material.FIRE_CHARGE);
+                ingredients[2] = new ItemStack(Material.DRAGON_BREATH);
+                ingredients[3] = new ItemStack(Material.FIRE_CHARGE);
+                ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
+                ingredients[5] = new ItemStack(Material.FIRE_CHARGE);
+                ingredients[6] = new ItemStack(Material.DRAGON_BREATH);
+                ingredients[7] = new ItemStack(Material.FIRE_CHARGE);
+                ingredients[8] = new ItemStack(Material.DRAGON_BREATH);
+                result = itemManager.createDragonblade();
+                break;
+            case "Mistblade":
+                // P W P
+                // W N W
+                // P W P
+                ingredients[0] = new ItemStack(Material.PRISMARINE_SHARD);
+                ingredients[1] = new ItemStack(Material.WATER_BUCKET);
+                ingredients[2] = new ItemStack(Material.PRISMARINE_SHARD);
+                ingredients[3] = new ItemStack(Material.WATER_BUCKET);
+                ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
+                ingredients[5] = new ItemStack(Material.WATER_BUCKET);
+                ingredients[6] = new ItemStack(Material.PRISMARINE_SHARD);
+                ingredients[7] = new ItemStack(Material.WATER_BUCKET);
+                ingredients[8] = new ItemStack(Material.PRISMARINE_SHARD);
+                result = itemManager.createMistblade();
+                break;
+            case "Soulblade":
+                // S C S
+                // C N C
+                // S C S
+                ingredients[0] = new ItemStack(Material.SOUL_SOIL);
+                ingredients[1] = new ItemStack(Material.CRYING_OBSIDIAN);
+                ingredients[2] = new ItemStack(Material.SOUL_SOIL);
+                ingredients[3] = new ItemStack(Material.CRYING_OBSIDIAN);
+                ingredients[4] = new ItemStack(Material.NETHERITE_SWORD);
+                ingredients[5] = new ItemStack(Material.CRYING_OBSIDIAN);
+                ingredients[6] = new ItemStack(Material.SOUL_SOIL);
+                ingredients[7] = new ItemStack(Material.CRYING_OBSIDIAN);
+                ingredients[8] = new ItemStack(Material.SOUL_SOIL);
+                result = itemManager.createSoulblade();
                 break;
         }
 
@@ -179,8 +243,14 @@ public class RecipeGUI implements Listener {
                 openRecipeView(p, "End Mace");
             else if (name != null && name.contains("Chicken Bow"))
                 openRecipeView(p, "Chicken Bow");
-            else if (name != null && name.contains("Unban Token"))
-                openRecipeView(p, "Unban Token");
+            else if (name != null && name.contains("Ghostblade"))
+                openRecipeView(p, "Ghostblade");
+            else if (name != null && name.contains("Dragonblade"))
+                openRecipeView(p, "Dragonblade");
+            else if (name != null && name.contains("Mistblade"))
+                openRecipeView(p, "Mistblade");
+            else if (name != null && name.contains("Soulblade"))
+                openRecipeView(p, "Soulblade");
         } else if (title.startsWith("§8Recipe: ")) {
             e.setCancelled(true);
             Player p = (Player) e.getWhoClicked();

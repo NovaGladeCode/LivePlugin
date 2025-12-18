@@ -29,6 +29,11 @@ public class ItemManager {
     public void init() {
         createNetherMace();
         createEndMace();
+
+        registerGhostbladeRecipe();
+        registerDragonbladeRecipe();
+        registerMistbladeRecipe();
+        registerSoulbladeRecipe();
     }
 
     public void registerUnbanRecipe() {
@@ -90,6 +95,50 @@ public class ItemManager {
         recipe.setIngredient('D', Material.DIAMOND);
         recipe.setIngredient('F', Material.FEATHER);
         recipe.setIngredient('B', Material.BOW);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerGhostbladeRecipe() {
+        ItemStack item = createGhostblade();
+        NamespacedKey key = new NamespacedKey(plugin, "ghostblade");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("GSG", "SNS", "GSG");
+        recipe.setIngredient('G', Material.GHAST_TEAR);
+        recipe.setIngredient('S', Material.SOUL_SAND);
+        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerDragonbladeRecipe() {
+        ItemStack item = createDragonblade();
+        NamespacedKey key = new NamespacedKey(plugin, "dragonblade");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("DFD", "FNF", "DFD");
+        recipe.setIngredient('D', Material.DRAGON_BREATH);
+        recipe.setIngredient('F', Material.FIRE_CHARGE);
+        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerMistbladeRecipe() {
+        ItemStack item = createMistblade();
+        NamespacedKey key = new NamespacedKey(plugin, "mistblade");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("PWP", "WNW", "PWP");
+        recipe.setIngredient('P', Material.PRISMARINE_SHARD);
+        recipe.setIngredient('W', Material.WATER_BUCKET);
+        recipe.setIngredient('N', Material.NETHERITE_SWORD);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerSoulbladeRecipe() {
+        ItemStack item = createSoulblade();
+        NamespacedKey key = new NamespacedKey(plugin, "soulblade");
+        ShapedRecipe recipe = new ShapedRecipe(key, item);
+        recipe.shape("SCS", "CNC", "SCS");
+        recipe.setIngredient('S', Material.SOUL_SOIL);
+        recipe.setIngredient('C', Material.CRYING_OBSIDIAN);
+        recipe.setIngredient('N', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
     }
 

@@ -73,7 +73,11 @@ public class MaceCommand implements CommandExecutor {
                         new NamespacedKey(javaPlugin, "warden_mace"),
                         new NamespacedKey(javaPlugin, "nether_mace"),
                         new NamespacedKey(javaPlugin, "end_mace"),
-                        new NamespacedKey(javaPlugin, "chicken_bow")
+                        new NamespacedKey(javaPlugin, "chicken_bow"),
+                        new NamespacedKey(javaPlugin, "ghostblade"),
+                        new NamespacedKey(javaPlugin, "dragonblade"),
+                        new NamespacedKey(javaPlugin, "mistblade"),
+                        new NamespacedKey(javaPlugin, "soulblade")
                 };
                 for (NamespacedKey key : keys) {
                     Bukkit.removeRecipe(key);
@@ -83,6 +87,10 @@ public class MaceCommand implements CommandExecutor {
                 plugin.getItemManager().registerNetherMaceRecipe();
                 plugin.getItemManager().registerEndMaceRecipe();
                 plugin.getItemManager().registerChickenBowRecipe();
+                plugin.getItemManager().registerGhostbladeRecipe();
+                plugin.getItemManager().registerDragonbladeRecipe();
+                plugin.getItemManager().registerMistbladeRecipe();
+                plugin.getItemManager().registerSoulbladeRecipe();
                 sender.sendMessage("§aCustom recipes re-registered!");
                 // Reset the lockout flags so all can be crafted again
                 plugin.getDataManager().setWardenMaceCrafted(false);
@@ -405,7 +413,11 @@ public class MaceCommand implements CommandExecutor {
                         new NamespacedKey(javaPlugin, "warden_mace"),
                         new NamespacedKey(javaPlugin, "nether_mace"),
                         new NamespacedKey(javaPlugin, "end_mace"),
-                        new NamespacedKey(javaPlugin, "chicken_bow")
+                        new NamespacedKey(javaPlugin, "chicken_bow"),
+                        new NamespacedKey(javaPlugin, "ghostblade"),
+                        new NamespacedKey(javaPlugin, "dragonblade"),
+                        new NamespacedKey(javaPlugin, "mistblade"),
+                        new NamespacedKey(javaPlugin, "soulblade")
                 };
                 for (NamespacedKey key : keys) {
                     Bukkit.removeRecipe(key);
@@ -414,6 +426,10 @@ public class MaceCommand implements CommandExecutor {
                 plugin.getItemManager().registerNetherMaceRecipe();
                 plugin.getItemManager().registerEndMaceRecipe();
                 plugin.getItemManager().registerChickenBowRecipe();
+                plugin.getItemManager().registerGhostbladeRecipe();
+                plugin.getItemManager().registerDragonbladeRecipe();
+                plugin.getItemManager().registerMistbladeRecipe();
+                plugin.getItemManager().registerSoulbladeRecipe();
                 plugin.getDataManager().setEndMaceCrafted(false);
                 plugin.setForgeActive(true);
                 sender.sendMessage(

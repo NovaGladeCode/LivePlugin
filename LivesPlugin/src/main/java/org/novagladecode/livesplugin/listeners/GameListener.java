@@ -387,7 +387,8 @@ public class GameListener implements Listener {
         Player p = (Player) e.getWhoClicked();
 
         ItemStack result = e.getCurrentItem();
-        if (result == null || result.getType() != Material.MACE || !result.hasItemMeta()) {
+        if (result == null || (result.getType() != Material.MACE && result.getType() != Material.NETHERITE_SWORD)
+                || !result.hasItemMeta()) {
             return;
         }
 
