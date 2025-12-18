@@ -97,30 +97,53 @@ public class MaceCommand implements CommandExecutor {
             return true;
         }
 
-        // --- /forge give <item> ---
         if (sub.equals("give")) {
-            if (!(sender instanceof Player)) {
-                sender.sendMessage("§cOnly players can use this command.");
-                return true;
-            }
-            Player target = (Player) sender;
-            if (!target.isOp()) {
-                target.sendMessage("§cYou do not have permission to use this command.");
+            if (!sender.isOp()) {
+                sender.sendMessage("§cYou do not have permission to use this command.");
                 return true;
             }
             if (args.length < 2) {
-                target.sendMessage("§cUsage: /forge give <warden|nether|end|chickenbow>");
+                sender.sendMessage("§cUsage: /forge give <item> [player]");
                 return true;
             }
+
+            String itemName = args[1];
+            Player target = p;
+
+            if (args.length >= 3) {
+                Player potentialTarget = Bukkit.getPlayer(args[1]);
+                if (potentialTarget != null) {
+                    target = potentialTarget;
+                    itemName = args[2].toLowerCase();
+                } else {
+                    potentialTarget = Bukkit.getPlayer(args[2]);
+                    if (potentialTarget != null) {
+                        target = potentialTarget;
+                        itemName = args[1].toLowerCase();
+                    } else {
+                        sender.sendMessage("§cPlayer " + args[1] + " or " + args[2] + " not found.");
+                        return true;
+                    }
+                }
+            }
+
+            if (target == null) {
+                sender.sendMessage("§cConsole must specify a player: /forge give <item> <player>");
+                return true;
+            }
+
             ItemStack weapon = null;
-            switch (args[1].toLowerCase()) {
+            switch (itemName.toLowerCase()) {
                 case "warden":
+                case "wardenmace":
                     weapon = plugin.getItemManager().createWardenMace();
                     break;
                 case "nether":
+                case "nethermace":
                     weapon = plugin.getItemManager().createNetherMace();
                     break;
                 case "end":
+                case "endmace":
                     weapon = plugin.getItemManager().createEndMace();
                     break;
                 case "chickenbow":
@@ -139,16 +162,56 @@ public class MaceCommand implements CommandExecutor {
                     weapon = plugin.getItemManager().createSoulblade();
                     break;
                 case "forge":
+                case "sacredforge":
                     weapon = plugin.getItemManager().createSacredForge();
                     break;
+                case "wardenheart":
+                    weapon = plugin.getItemManager().createWardenHeart();
+                    break;
+                case "witherheart":
+                    weapon = plugin.getItemManager().createWitherHeart();
+                    break;
+                case "dragonheart":
+                    weapon = plugin.getItemManager().createDragonHeart();
+                    break;
+                case "unban":
+                    weapon = plugin.getItemManager().createUnbanItem();
+                    break;
+                case "level":
+                    weapon = plugin.getItemManager().createLevelItem();
+                    break;
+                case "wardenforge":
+                    weapon = plugin.getItemManager().createSacredForge("warden");
+                    break;
+                case "netherforge":
+                    weapon = plugin.getItemManager().createSacredForge("nether");
+                    break;
+                case "endforge":
+                    weapon = plugin.getItemManager().createSacredForge("end");
+                    break;
+                case "ghostbladeforge":
+                    weapon = plugin.getItemManager().createSacredForge("ghostblade");
+                    break;
+                case "dragonbladeforge":
+                    weapon = plugin.getItemManager().createSacredForge("dragonblade");
+                    break;
+                case "mistbladeforge":
+                    weapon = plugin.getItemManager().createSacredForge("mistblade");
+                    break;
+                case "soulbladeforge":
+                    weapon = plugin.getItemManager().createSacredForge("soulblade");
+                    break;
                 default:
-                    target.sendMessage(
-                            "§cUnknown weapon. Usage: /forge give <warden|nether|end|chickenbow|ghostblade|dragonblade|mistblade|soulblade|forge>");
+                    sender.sendMessage(
+                            "§cUnknown item. Try: warden, nether, end, ghostblade, dragonblade, mistblade, soulblade, chickenbow, hearts, unban, level, forge, [type]forge");
                     return true;
             }
             if (weapon != null) {
                 target.getInventory().addItem(weapon);
-                target.sendMessage("§aGiven " + args[1] + " to your inventory.");
+                target.sendMessage("§aGiven " + itemName + " to your inventory.");
+                if (sender != target) {
+                    sender.sendMessage("§aGiven " + itemName + " to " + target.getName() + ".");
+                }
             }
             return true;
         }
