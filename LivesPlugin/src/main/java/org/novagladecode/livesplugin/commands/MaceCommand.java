@@ -161,10 +161,7 @@ public class MaceCommand implements CommandExecutor {
                 case "soulblade":
                     weapon = plugin.getItemManager().createSoulblade();
                     break;
-                case "forge":
-                case "sacredforge":
-                    weapon = plugin.getItemManager().createSacredForge();
-                    break;
+
                 case "wardenheart":
                     weapon = plugin.getItemManager().createWardenHeart();
                     break;
@@ -201,9 +198,22 @@ public class MaceCommand implements CommandExecutor {
                 case "soulbladeforge":
                     weapon = plugin.getItemManager().createSacredForge("soulblade");
                     break;
+                case "allforges":
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("warden"));
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("nether"));
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("end"));
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("ghostblade"));
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("dragonblade"));
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("mistblade"));
+                    target.getInventory().addItem(plugin.getItemManager().createSacredForge("soulblade"));
+                    target.sendMessage("§aYou have been given one of every Sacred Forge type!");
+                    if (sender != target) {
+                        sender.sendMessage("§aGiven all Sacred Forge types to " + target.getName() + ".");
+                    }
+                    return true;
                 default:
                     sender.sendMessage(
-                            "§cUnknown item. Try: warden, nether, end, ghostblade, dragonblade, mistblade, soulblade, chickenbow, hearts, unban, level, forge, [type]forge");
+                            "§cUnknown item. Try: warden, nether, end, ghostblade, dragonblade, mistblade, soulblade, chickenbow, hearts, unban, level, [type]forge, allforges");
                     return true;
             }
             if (weapon != null) {
@@ -277,11 +287,19 @@ public class MaceCommand implements CommandExecutor {
                     sender.sendMessage("§cOnly OPs can use this, and must be a player.");
                     return true;
                 }
-                String type = args.length > 1 ? args[1].toLowerCase() : null;
-                p.getInventory().addItem(plugin.getItemManager().createSacredForge(type));
-                String forgeName = type == null ? "Sacred Forge"
-                        : (type.substring(0, 1).toUpperCase() + type.substring(1) + " Forge");
-                p.sendMessage("§aYou have been given a " + forgeName + "!");
+                if (args.length < 2) {
+                    p.sendMessage("§cUsage: /forge set <type>");
+                    p.sendMessage("§7Types: warden, nether, end, ghostblade, dragonblade, mistblade, soulblade");
+                    return true;
+                }
+                String type = args[1].toLowerCase();
+                ItemStack forgeItem = plugin.getItemManager().createSacredForge(type);
+                if (forgeItem == null) {
+                    p.sendMessage("§cInvalid forge type.");
+                    return true;
+                }
+                p.getInventory().addItem(forgeItem);
+                p.sendMessage("§aYou have been given a §b" + type + " Forge§a!");
                 return true;
 
             case "toggle":
@@ -439,8 +457,8 @@ public class MaceCommand implements CommandExecutor {
         // Admin section - only visible to operators
         if (sender.isOp()) {
             sender.sendMessage("§6§lForgebound SMP Admin Commands:");
-            sender.sendMessage("§e/forge set [weapon] §7- Get a (specific) Sacred Forge item");
-            sender.sendMessage("§e/forge start §7- Start the event (Ignite Forges + Set Border)");
+            sender.sendMessage("§e/forge set <type> §7- Get a specialized Forge item");
+            sender.sendMessage("§e/forge start §7- Start the event (Set Border + Prep Forges)");
             sender.sendMessage("§e/forge point set <player> <amount> §7- Set Forge Level");
             sender.sendMessage("§e/forge give <player> <item> §7- Give custom items");
             sender.sendMessage("§e/forge toggle <ability> §7- Global ability switch");

@@ -424,19 +424,23 @@ public class GameListener implements Listener {
             return;
         }
 
-        // Specific Forge Check
-        if (tableLoc.getBlock().hasMetadata("forge_type")) {
-            String forgeType = tableLoc.getBlock().getMetadata("forge_type").get(0).asString();
-            String ritualType = isWarden ? "warden"
-                    : isNether ? "nether"
-                            : isEnd ? "end"
-                                    : isGhost ? "ghostblade"
-                                            : isDragon ? "dragonblade" : isMist ? "mistblade" : "soulblade";
-            if (!forgeType.equalsIgnoreCase(ritualType)) {
-                e.setCancelled(true);
-                p.sendMessage("§cThis forge is specialized for §b" + forgeType + "§c, not §e" + ritualType + "§c!");
-                return;
-            }
+        // Specific Forge Check - Mandatory
+        if (!tableLoc.getBlock().hasMetadata("forge_type")) {
+            e.setCancelled(true);
+            p.sendMessage("§cThis is an unspecialized forge. You MUST use a specialized Forge (e.g. Warden Forge)!");
+            return;
+        }
+
+        String forgeType = tableLoc.getBlock().getMetadata("forge_type").get(0).asString();
+        String ritualType = isWarden ? "warden"
+                : isNether ? "nether"
+                        : isEnd ? "end"
+                                : isGhost ? "ghostblade"
+                                        : isDragon ? "dragonblade" : isMist ? "mistblade" : "soulblade";
+        if (!forgeType.equalsIgnoreCase(ritualType)) {
+            e.setCancelled(true);
+            p.sendMessage("§cThis forge is specialized for §b" + forgeType + "§c, not §e" + ritualType + "§c!");
+            return;
         }
 
         // START RITUAL

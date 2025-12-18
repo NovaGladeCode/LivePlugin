@@ -230,15 +230,12 @@ public class ItemManager {
         return sword;
     }
 
-    public ItemStack createSacredForge() {
-        return createSacredForge(null);
-    }
-
     public ItemStack createSacredForge(String weaponType) {
+        if (weaponType == null)
+            return null;
         ItemStack item = new ItemStack(Material.CRAFTING_TABLE);
         ItemMeta meta = item.getItemMeta();
-        String name = weaponType == null ? "Sacred Forge"
-                : (weaponType.substring(0, 1).toUpperCase() + weaponType.substring(1) + " Forge");
+        String name = (weaponType.substring(0, 1).toUpperCase() + weaponType.substring(1).toLowerCase() + " Forge");
         meta.setDisplayName("§6§l" + name);
         List<String> lore = new ArrayList<>();
         lore.add("§7A station for forging legendary weapons.");
