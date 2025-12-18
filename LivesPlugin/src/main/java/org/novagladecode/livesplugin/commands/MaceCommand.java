@@ -47,13 +47,20 @@ public class MaceCommand implements CommandExecutor {
         Player p = (sender instanceof Player) ? (Player) sender : null;
 
         if (args.length == 0) {
-            sendHelp(sender);
+            if (p != null) {
+                int points = dataManager.getPoints(p.getUniqueId());
+                p.sendMessage("§6§lForge Details:");
+                p.sendMessage("§eCurrent Forge Level: §b" + points);
+                p.sendMessage("§7Use /forge help to see all commands.");
+            } else {
+                sendHelp(sender);
+            }
             return true;
         }
 
         String sub = args[0].toLowerCase();
 
-        // --- /might recipe [reset] ---
+        // --- /forge recipe [reset] ---
         if (sub.equals("recipe")) {
             if (args.length > 1 && args[1].equalsIgnoreCase("reset")) {
                 if (!sender.isOp()) {
@@ -63,10 +70,10 @@ public class MaceCommand implements CommandExecutor {
                 // Remove old custom recipes first
                 JavaPlugin javaPlugin = plugin;
                 NamespacedKey[] keys = new NamespacedKey[] {
-                    new NamespacedKey(javaPlugin, "warden_mace"),
-                    new NamespacedKey(javaPlugin, "nether_mace"),
-                    new NamespacedKey(javaPlugin, "end_mace"),
-                    new NamespacedKey(javaPlugin, "chicken_bow")
+                        new NamespacedKey(javaPlugin, "warden_mace"),
+                        new NamespacedKey(javaPlugin, "nether_mace"),
+                        new NamespacedKey(javaPlugin, "end_mace"),
+                        new NamespacedKey(javaPlugin, "chicken_bow")
                 };
                 for (NamespacedKey key : keys) {
                     Bukkit.removeRecipe(key);
@@ -90,7 +97,7 @@ public class MaceCommand implements CommandExecutor {
             return true;
         }
 
-        // --- /might give <item> ---
+        // --- /forge give <item> ---
         if (sub.equals("give")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage("§cOnly players can use this command.");
@@ -102,7 +109,7 @@ public class MaceCommand implements CommandExecutor {
                 return true;
             }
             if (args.length < 2) {
-                target.sendMessage("§cUsage: /might give <warden|nether|end|chickenbow>");
+                target.sendMessage("§cUsage: /forge give <warden|nether|end|chickenbow>");
                 return true;
             }
             ItemStack weapon = null;
@@ -119,8 +126,21 @@ public class MaceCommand implements CommandExecutor {
                 case "chickenbow":
                     weapon = plugin.getItemManager().createChickenBow();
                     break;
+                case "ghostblade":
+                    weapon = plugin.getItemManager().createGhostblade();
+                    break;
+                case "dragonblade":
+                    weapon = plugin.getItemManager().createDragonblade();
+                    break;
+                case "mistblade":
+                    weapon = plugin.getItemManager().createMistblade();
+                    break;
+                case "soulblade":
+                    weapon = plugin.getItemManager().createSoulblade();
+                    break;
                 default:
-                    target.sendMessage("§cUnknown weapon. Usage: /might give <warden|nether|end|chickenbow>");
+                    target.sendMessage(
+                            "§cUnknown weapon. Usage: /forge give <warden|nether|end|chickenbow|ghostblade|dragonblade|mistblade|soulblade>");
                     return true;
             }
             if (weapon != null) {
@@ -130,14 +150,14 @@ public class MaceCommand implements CommandExecutor {
             return true;
         }
 
-        // --- /might point set <player> <amount> ---
+        // --- /forge point set <player> <amount> ---
         if (sub.equals("point")) {
             if (!sender.isOp()) {
                 sender.sendMessage("§cYou do not have permission.");
                 return true;
             }
             if (args.length < 4 || !args[1].equalsIgnoreCase("set")) {
-                sender.sendMessage("§cUsage: /might point set <player> <amount>");
+                sender.sendMessage("§cUsage: /forge point set <player> <amount>");
                 return true;
             }
             Player target = Bukkit.getPlayer(args[2]);
@@ -152,14 +172,22 @@ public class MaceCommand implements CommandExecutor {
                     return true;
                 }
                 dataManager.setPoints(target.getUniqueId(), amount);
-                sender.sendMessage("§aSet " + target.getName() + "'s Might to " + amount);
-                target.sendMessage("§aYour Might was set to " + amount + " by an admin.");
+                sender.sendMessage("§aSet " + target.getName() + "'s Forge Level to " + amount);
+                target.sendMessage("§aYour Forge Level was set to " + amount + " by an admin.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("§cInvalid number.");
             }
             return true;
         }
-
+        if (sub.equals("level")) {
+            if (p != null) {
+                int points = dataManager.getPoints(p.getUniqueId());
+                p.sendMessage("§eYour current Forge Level is: §b" + points);
+            } else {
+                sender.sendMessage("§cOnly players have a Forge Level.");
+            }
+            return true;
+        }
         switch (sub) {
             case "help":
                 sendHelp(sender);
@@ -179,13 +207,13 @@ public class MaceCommand implements CommandExecutor {
                 return true;
 
             case "set":
-                // /might set <player> <amount>
+                // /forge set <player> <amount>
                 if (!sender.isOp()) {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
                 if (args.length < 3) {
-                    sender.sendMessage("§cUsage: /might set <player> <amount>");
+                    sender.sendMessage("§cUsage: /forge set <player> <amount>");
                     return true;
                 }
                 Player target = Bukkit.getPlayer(args[1]);
@@ -200,21 +228,21 @@ public class MaceCommand implements CommandExecutor {
                         return true;
                     }
                     dataManager.setPoints(target.getUniqueId(), amount);
-                    sender.sendMessage("§aSet " + target.getName() + "'s Might to " + amount);
-                    target.sendMessage("§aYour Might was set to " + amount + " by an admin.");
+                    sender.sendMessage("§aSet " + target.getName() + "'s Forge Level to " + amount);
+                    target.sendMessage("§aYour Forge Level was set to " + amount + " by an admin.");
                 } catch (NumberFormatException e) {
                     sender.sendMessage("§cInvalid number.");
                 }
                 return true;
 
             case "withdraw":
-                // /might withdraw <amount>
+                // /forge withdraw <amount>
                 if (p == null) {
                     sender.sendMessage("§cConsole cannot withdraw.");
                     return true;
                 }
                 if (args.length < 2) {
-                    p.sendMessage("§cUsage: /might withdraw <amount>");
+                    p.sendMessage("§cUsage: /forge withdraw <amount>");
                     return true;
                 }
                 try {
@@ -225,7 +253,7 @@ public class MaceCommand implements CommandExecutor {
                     }
                     int currentPoints = dataManager.getPoints(p.getUniqueId());
                     if (currentPoints < amount) {
-                        p.sendMessage("§cNot enough Might! You have " + currentPoints + ".");
+                        p.sendMessage("§cNot enough Forge Points! You have " + currentPoints + ".");
                         return true;
                     }
 
@@ -235,25 +263,25 @@ public class MaceCommand implements CommandExecutor {
                     // Give items
                     ItemStack item = new ItemStack(Material.NETHER_STAR, amount);
                     ItemMeta meta = item.getItemMeta();
-                    meta.setDisplayName("§6Might Token");
-                    meta.setLore(Collections.singletonList("§7Right-click to reclaim 1 Might"));
+                    meta.setDisplayName("§6Forge Token");
+                    meta.setLore(Collections.singletonList("§7Right-click to reclaim 1 Forge Point"));
                     item.setItemMeta(meta);
 
                     p.getInventory().addItem(item);
-                    p.sendMessage("§aWithdrew " + amount + " Might!");
+                    p.sendMessage("§aWithdrew " + amount + " Forge Points!");
                 } catch (NumberFormatException e) {
                     p.sendMessage("§cInvalid number.");
                 }
                 return true;
 
             case "reset":
-                // /might reset <target|@a>
+                // /forge reset <target|@a>
                 if (!sender.isOp()) {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
                 if (args.length < 2) {
-                    sender.sendMessage("§cUsage: /might reset <player|all>");
+                    sender.sendMessage("§cUsage: /forge reset <player|all>");
                     return true;
                 }
 
@@ -261,9 +289,9 @@ public class MaceCommand implements CommandExecutor {
                 if (targetStr.equalsIgnoreCase("all") || targetStr.equalsIgnoreCase("@a")) {
                     for (Player online : Bukkit.getOnlinePlayers()) {
                         dataManager.setPoints(online.getUniqueId(), 2); // Reset to starting 2
-                        online.sendMessage("§eYour Might has been reset to 2 by an admin.");
+                        online.sendMessage("§eYour Forge Level has been reset to 2 by an admin.");
                     }
-                    sender.sendMessage("§aReset Might for all players to 2.");
+                    sender.sendMessage("§aReset Forge Level for all players to 2.");
                 } else {
                     Player resetTarget = Bukkit.getPlayer(targetStr);
                     if (resetTarget == null) {
@@ -271,29 +299,29 @@ public class MaceCommand implements CommandExecutor {
                         return true;
                     }
                     dataManager.setPoints(resetTarget.getUniqueId(), 2);
-                    resetTarget.sendMessage("§eYour Might has been reset to 2 by an admin.");
-                    sender.sendMessage("§aReset " + resetTarget.getName() + "'s Might to 2.");
+                    resetTarget.sendMessage("§eYour Forge Level has been reset to 2 by an admin.");
+                    sender.sendMessage("§aReset " + resetTarget.getName() + "'s Forge Level to 2.");
                 }
                 return true;
 
             case "start":
-                // /might start
+                // /forge start
                 if (!sender.isOp()) {
                     sender.sendMessage("§cYou do not have permission.");
                     return true;
                 }
-                // Reset Might for all players
+                // Reset Forge for all players
                 for (Player online : Bukkit.getOnlinePlayers()) {
                     dataManager.setPoints(online.getUniqueId(), 2);
-                    online.sendMessage("§eYour Might has been reset to 2 by an admin (event start)!");
+                    online.sendMessage("§eYour Forge Level has been reset to 2 by an admin (event start)!");
                 }
                 // Reset recipes and unique flags just like recipe reset
                 JavaPlugin javaPlugin = plugin;
                 NamespacedKey[] keys = new NamespacedKey[] {
-                    new NamespacedKey(javaPlugin, "warden_mace"),
-                    new NamespacedKey(javaPlugin, "nether_mace"),
-                    new NamespacedKey(javaPlugin, "end_mace"),
-                    new NamespacedKey(javaPlugin, "chicken_bow")
+                        new NamespacedKey(javaPlugin, "warden_mace"),
+                        new NamespacedKey(javaPlugin, "nether_mace"),
+                        new NamespacedKey(javaPlugin, "end_mace"),
+                        new NamespacedKey(javaPlugin, "chicken_bow")
                 };
                 for (NamespacedKey key : keys) {
                     Bukkit.removeRecipe(key);
@@ -305,7 +333,7 @@ public class MaceCommand implements CommandExecutor {
                 plugin.getDataManager().setWardenMaceCrafted(false);
                 plugin.getDataManager().setNetherMaceCrafted(false);
                 plugin.getDataManager().setEndMaceCrafted(false);
-                sender.sendMessage("§aAll players' Might reset and custom recipes re-registered for the event!");
+                sender.sendMessage("§aAll players' Forge Level reset and custom recipes re-registered for the event!");
                 // The rest of original start logic (countdown etc.)
                 sender.sendMessage("§aStarting 10s countdown to Border Set...");
                 Bukkit.broadcastMessage("§c§lBorder will be set to 3000 in 10 seconds!");
@@ -333,21 +361,22 @@ public class MaceCommand implements CommandExecutor {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage("§6=== Mace & Might Commands ===");
+        sender.sendMessage("§6=== Forgebound SMP Commands ===");
         if (sender instanceof Player) {
-            sender.sendMessage("§e/might togglecontrol §7- Toggle click-to-cast");
-            sender.sendMessage("§e/might withdraw <amount> §7- Convert Might to item");
-            sender.sendMessage("§e/might recipe §7- Show custom recipe menu");
+            sender.sendMessage("§e/forge level §7- Check your current Forge Level");
+            sender.sendMessage("§e/forge togglecontrol §7- Toggle click-to-cast");
+            sender.sendMessage("§e/forge withdraw <amount> §7- Convert Forge Points to items");
+            sender.sendMessage("§e/forge recipe §7- Show custom recipe menu");
         }
         // Admin section - only visible to operators
         if (sender.isOp()) {
             sender.sendMessage("§c=== Admin ===");
-            sender.sendMessage("§e/might give <item> §7- Get a special item");
-            sender.sendMessage("§e/might set <player> <amount> §7- Set Might");
-            sender.sendMessage("§e/might reset <player|all> §7- Reset Might to 2");
-            sender.sendMessage("§e/might start §7- Start Border Countdown");
-            sender.sendMessage("§e/might recipe reset §7- Re-register all custom recipes");
-            sender.sendMessage("§e/might point set <player> <amount> §7- Set player Might");
+            sender.sendMessage("§e/forge give <item> §7- Get a special item");
+            sender.sendMessage("§e/forge set <player> <amount> §7- Set Forge Level");
+            sender.sendMessage("§e/forge reset <player|all> §7- Reset Forge Level to 2");
+            sender.sendMessage("§e/forge start §7- Start Border Countdown");
+            sender.sendMessage("§e/forge recipe reset §7- Re-register all custom recipes");
+            sender.sendMessage("§e/forge point set <player> <amount> §7- Set player Forge Level");
         }
     }
 }

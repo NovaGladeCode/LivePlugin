@@ -37,18 +37,31 @@ public class LivePlugin extends JavaPlugin {
         endMaceCommand = new org.novagladecode.livesplugin.commands.EndMaceCommand(this, dataManager);
         getCommand("endmace").setExecutor(endMaceCommand);
 
-        getCommand("might").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this, dataManager));
+        getCommand("forge").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this, dataManager));
 
-        // getCommand("weapon").setExecutor(new org.novagladecode.livesplugin.commands.WeaponCommand(itemManager, recipeGUI, dataManager)); // Weapon command is now obsolete
+        // getCommand("weapon").setExecutor(new
+        // org.novagladecode.livesplugin.commands.WeaponCommand(itemManager, recipeGUI,
+        // dataManager)); // Weapon command is now obsolete
 
         getCommand("trust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
         getCommand("untrust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
+
+        getCommand("ghostblade")
+                .setExecutor(new org.novagladecode.livesplugin.commands.GhostbladeCommand(this, dataManager));
+        getCommand("dragonblade")
+                .setExecutor(new org.novagladecode.livesplugin.commands.DragonbladeCommand(this, dataManager));
+        getCommand("mistblade")
+                .setExecutor(new org.novagladecode.livesplugin.commands.MistbladeCommand(this, dataManager));
+        getCommand("soulblade")
+                .setExecutor(new org.novagladecode.livesplugin.commands.SoulbladeCommand(this, dataManager));
 
         // Register Listeners
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.GameListener(this,
                 dataManager, itemManager), this);
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.MaceListener(this,
                 wardenMaceCommand, netherMaceCommand, endMaceCommand), this);
+        getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.BladeListener(this),
+                this);
 
         // Register Recipes (Duplicates removed, kept one set)
         itemManager.registerWardenMaceRecipe();

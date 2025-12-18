@@ -1,14 +1,14 @@
-name: MaceAndMight
+name: ForgeboundSMP
 version: 2.0
 main: org.novagladecode.livesplugin.LivePlugin
 api-version: 1.21
 author: YourName
-description: Mace & Might SMP Plugin
+description: Forgebound SMP Plugin
 
 commands:
-  might:
-    description: Main plugin command (Mace Controls)
-    usage: /might <subcommand>
+  forge:
+    description: Main plugin command (Forge Controls)
+    usage: /forge <subcommand>
     aliases: [mace]
   wardenmace:
     description: Warden Mace abilities
@@ -19,6 +19,18 @@ commands:
   endmace:
     description: End Mace abilities
     usage: /endmace <1/2>
+  ghostblade:
+    description: Ghostblade abilities
+    usage: /ghostblade <1/2>
+  dragonblade:
+    description: Dragonblade abilities
+    usage: /dragonblade <1/2>
+  mistblade:
+    description: Mistblade abilities
+    usage: /mistblade <1/2>
+  soulblade:
+    description: Soulblade abilities
+    usage: /soulblade <1/2>
   trust:
     description: Trust a player to avoid friendly fire from maces
     usage: /trust <player>

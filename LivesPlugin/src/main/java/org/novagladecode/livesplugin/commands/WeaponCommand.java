@@ -68,8 +68,8 @@ public class WeaponCommand implements CommandExecutor {
                     return true;
                 }
                 dataManager.setPoints(target.getUniqueId(), amount);
-                sender.sendMessage("§aSet " + target.getName() + "'s Might to " + amount);
-                target.sendMessage("§aYour Might was set to " + amount + " by an admin.");
+                sender.sendMessage("§aSet " + target.getName() + "'s Forge Level to " + amount);
+                target.sendMessage("§aYour Forge Level was set to " + amount + " by an admin.");
             } catch (NumberFormatException e) {
                 sender.sendMessage("§cInvalid number.");
             }

@@ -161,6 +161,75 @@ public class ItemManager {
         return bow;
     }
 
+    public ItemStack createGhostblade() {
+        ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+        ItemMeta meta = sword.getItemMeta();
+        meta.setDisplayName("§7Ghostblade");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7A spectral blade from the beyond.");
+        lore.add("§7Passives:");
+        lore.add("§f- Invisibility §7while holding");
+        lore.add("§7Abilities:");
+        lore.add("§7/ghostblade 1 (§fRight-Click§7) - Haunt");
+        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Spectral Tether");
+        meta.setLore(lore);
+        meta.setUnbreakable(true);
+        sword.setItemMeta(meta);
+        return sword;
+    }
+
+    public ItemStack createDragonblade() {
+        ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+        ItemMeta meta = sword.getItemMeta();
+        meta.setDisplayName("§6Dragonblade");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Forged in the breath of a dragon.");
+        lore.add("§7Passives:");
+        lore.add("§f- No Fall Damage §7while holding");
+        lore.add("§7Abilities:");
+        lore.add("§7/dragonblade 1 (§fRight-Click§7) - Dragon Leap");
+        lore.add("§7/dragonblade 2 (§fShift+Right-Click§7) - Frost Breath");
+        meta.setLore(lore);
+        meta.setUnbreakable(true);
+        sword.setItemMeta(meta);
+        return sword;
+    }
+
+    public ItemStack createMistblade() {
+        ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+        ItemMeta meta = sword.getItemMeta();
+        meta.setDisplayName("§bMistblade");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7A blade of pure condensation.");
+        lore.add("§7Passives:");
+        lore.add("§f- Dolphin's Grace §7while holding");
+        lore.add("§7Abilities:");
+        lore.add("§7/mistblade 1 (§fRight-Click§7) - Trident Storm");
+        lore.add("§7/mistblade 2 (§fShift+Right-Click§7) - Downpour");
+        meta.setLore(lore);
+        meta.setUnbreakable(true);
+        sword.setItemMeta(meta);
+        return sword;
+    }
+
+    public ItemStack createSoulblade() {
+        ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
+        ItemMeta meta = sword.getItemMeta();
+        meta.setDisplayName("§8Soulblade");
+        List<String> lore = new ArrayList<>();
+        lore.add("§7Consumes the very essence of the wielder.");
+        lore.add("§7Passives:");
+        lore.add("§f- Strength I §7while holding");
+        lore.add("§7Abilities:");
+        lore.add("§7/soulblade 1 (§fRight-Click§7) - Soul Beam");
+        lore.add("§7/soulblade 2 (§fShift+Right-Click§7) - Divine Protection");
+        lore.add("§cSide Effect: §7Down to 7 HP after Protection.");
+        meta.setLore(lore);
+        meta.setUnbreakable(true);
+        sword.setItemMeta(meta);
+        return sword;
+    }
+
     public ItemStack createLevelItem() {
         ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = item.getItemMeta();
@@ -241,31 +310,59 @@ public class ItemManager {
     public boolean isWardenMaceAnywhere() {
         return isMaceWithNameAnywhere("§3Warden Mace");
     }
+
     public boolean isNetherMaceAnywhere() {
         return isMaceWithNameAnywhere("§cNether Mace");
     }
+
     public boolean isEndMaceAnywhere() {
         return isMaceWithNameAnywhere("§5End Mace");
     }
+
     private boolean isMaceWithNameAnywhere(String name) {
         // Check all players
         for (Player p : Bukkit.getOnlinePlayers()) {
             for (ItemStack item : p.getInventory()) {
-                if (isMaceWithDisplayName(item, name)) return true;
+                if (isMaceWithDisplayName(item, name))
+                    return true;
             }
             for (ItemStack item : p.getEnderChest()) {
-                if (isMaceWithDisplayName(item, name)) return true;
+                if (isMaceWithDisplayName(item, name))
+                    return true;
             }
         }
         // Check dropped items
         for (World w : Bukkit.getWorlds()) {
             for (Item entity : w.getEntitiesByClass(Item.class)) {
-                if (isMaceWithDisplayName(entity.getItemStack(), name)) return true;
+                if (isMaceWithDisplayName(entity.getItemStack(), name))
+                    return true;
             }
         }
         return false;
     }
+
     private boolean isMaceWithDisplayName(ItemStack item, String name) {
-        return item != null && item.getType() == Material.MACE && item.hasItemMeta() && name.equals(item.getItemMeta().getDisplayName());
+        return item != null && item.getType() == Material.MACE && item.hasItemMeta()
+                && name.equals(item.getItemMeta().getDisplayName());
+    }
+
+    public boolean isGhostblade(ItemStack item) {
+        return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
+                && "§7Ghostblade".equals(item.getItemMeta().getDisplayName());
+    }
+
+    public boolean isDragonblade(ItemStack item) {
+        return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
+                && "§6Dragonblade".equals(item.getItemMeta().getDisplayName());
+    }
+
+    public boolean isMistblade(ItemStack item) {
+        return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
+                && "§bMistblade".equals(item.getItemMeta().getDisplayName());
+    }
+
+    public boolean isSoulblade(ItemStack item) {
+        return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
+                && "§8Soulblade".equals(item.getItemMeta().getDisplayName());
     }
 }

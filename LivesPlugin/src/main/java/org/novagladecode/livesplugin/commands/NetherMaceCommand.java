@@ -67,7 +67,7 @@ public class NetherMaceCommand implements CommandExecutor {
     public void useAbility1(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
         if (points < 5) {
-            p.sendMessage("§cYou need 5 Might to use this! (Current: " + points + "/5)");
+            p.sendMessage("§cYou need Forge Level 5 to use this! (Current: " + points + "/5)");
             return;
         }
 
@@ -88,7 +88,7 @@ public class NetherMaceCommand implements CommandExecutor {
     public void useAbility2(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
         if (points < 10) {
-            p.sendMessage("§cYou need 10 Might to use this! (Current: " + points + "/10)");
+            p.sendMessage("§cYou need Forge Level 10 to use this! (Current: " + points + "/10)");
             return;
         }
 

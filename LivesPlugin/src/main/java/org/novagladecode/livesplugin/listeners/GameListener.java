@@ -20,6 +20,8 @@ import org.novagladecode.livesplugin.logic.ItemManager;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Chicken;
@@ -101,11 +103,11 @@ public class GameListener implements Listener {
         Player victim = e.getEntity();
         Player killer = victim.getKiller();
 
-        // Deduct 1 Might on death
+        // Deduct 1 Forge Point on death
         dataManager.removePoint(victim.getUniqueId());
         int currentP = dataManager.getPoints(victim.getUniqueId());
         if (victim.isOnline()) {
-            victim.sendMessage("§cYou died! -1 Might. (Current: " + currentP + ")");
+            victim.sendMessage("§cYou died! -1 Forge Point. (Current Level: " + currentP + ")");
         }
 
         // Give killer a point
@@ -113,12 +115,12 @@ public class GameListener implements Listener {
             dataManager.addPoint(killer.getUniqueId());
             int points = dataManager.getPoints(killer.getUniqueId());
 
-            killer.sendMessage("§a+1 Might. Total: " + points);
+            killer.sendMessage("§a+1 Forge Point. Total Level: " + points);
             if (points == 5) {
-                killer.sendMessage("§b§lTIER 1 ABILITIES UNLOCKED! §e(5 Might)");
+                killer.sendMessage("§b§lTIER 1 ABILITIES UNLOCKED! §e(Forge Level 5)");
             }
             if (points == 10) {
-                killer.sendMessage("§e§lTIER 2 ABILITIES UNLOCKED! §e(10 Might - MAX)");
+                killer.sendMessage("§e§lTIER 2 ABILITIES UNLOCKED! §e(Forge Level 10 - MAX)");
             }
         }
     }
@@ -131,22 +133,22 @@ public class GameListener implements Listener {
         if (item == null)
             return;
 
-        // Might Token Redemption
+        // Forge Token Redemption
         if ((e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK)
                 && item.getType() == Material.NETHER_STAR
                 && item.hasItemMeta()
-                && "§6Might Token".equals(item.getItemMeta().getDisplayName())) {
+                && "§6Forge Token".equals(item.getItemMeta().getDisplayName())) {
 
             e.setCancelled(true);
             int points = dataManager.getPoints(p.getUniqueId());
             if (points >= 10) {
-                p.sendMessage("§cYou have max (10) Might!");
+                p.sendMessage("§cYou have reached the maximum Forge Level (10)!");
                 return;
             }
 
             // Add point
             dataManager.setPoints(p.getUniqueId(), points + 1);
-            p.sendMessage("§aRedeemed 1 Might! (Total: " + (points + 1) + ")");
+            p.sendMessage("§aRedeemed 1 Forge Point! (Current Level: " + (points + 1) + ")");
 
             // Remove item
             item.setAmount(item.getAmount() - 1);
@@ -305,9 +307,19 @@ public class GameListener implements Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (ritualLocations.containsKey(e.getBlock().getLocation())) {
-            e.getPlayer().sendMessage("§cRitual Table broken! The ritual is disrupted.");
-            // Task will detect table absence and fail
+            e.setCancelled(true);
+            e.getPlayer().sendMessage("§cThis Crafting Table is unbreakable during the ritual!");
         }
+    }
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent e) {
+        e.blockList().removeIf(block -> ritualLocations.containsKey(block.getLocation()));
+    }
+
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent e) {
+        e.blockList().removeIf(block -> ritualLocations.containsKey(block.getLocation()));
     }
 
     @EventHandler
@@ -328,12 +340,16 @@ public class GameListener implements Listener {
         if (result.getType() == Material.MACE && result.hasItemMeta()) {
             String displayName = result.getItemMeta().getDisplayName();
 
-            boolean isCustom = "§3Warden Mace".equals(displayName) || "§cNether Mace".equals(displayName) || "§5End Mace".equals(displayName);
+            boolean isCustom = "§3Warden Mace".equals(displayName) || "§cNether Mace".equals(displayName)
+                    || "§5End Mace".equals(displayName);
             if (isCustom) {
                 boolean alreadyCrafted = false;
-                if (displayName.equals("§3Warden Mace") && dataManager.isWardenMaceCrafted()) alreadyCrafted = true;
-                if (displayName.equals("§cNether Mace") && dataManager.isNetherMaceCrafted()) alreadyCrafted = true;
-                if (displayName.equals("§5End Mace") && dataManager.isEndMaceCrafted()) alreadyCrafted = true;
+                if (displayName.equals("§3Warden Mace") && dataManager.isWardenMaceCrafted())
+                    alreadyCrafted = true;
+                if (displayName.equals("§cNether Mace") && dataManager.isNetherMaceCrafted())
+                    alreadyCrafted = true;
+                if (displayName.equals("§5End Mace") && dataManager.isEndMaceCrafted())
+                    alreadyCrafted = true;
 
                 // Validate custom hearts like before (keep logic)
                 boolean crafted = false;
@@ -470,21 +486,21 @@ public class GameListener implements Listener {
             Bukkit.broadcastMessage("§6§lTHE NETHER MACE RITUAL HAS BEGUN!");
             Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
             Bukkit.broadcastMessage("§cLocation: " + coordMsg);
-            Bukkit.broadcastMessage("§cThe mace will appear in §61 MINUTE§c!");
+            Bukkit.broadcastMessage("§cThe mace will appear in §63 MINUTES§c!");
             Bukkit.broadcastMessage("§6§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 1 minute.");
+            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
 
-            startRitualTask(p, tableLoc, 60, 2, visualItems);
+            startRitualTask(p, tableLoc, 180, 2, visualItems);
         } else if (isEnd) {
             Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             Bukkit.broadcastMessage("§5§lTHE END MACE RITUAL HAS BEGUN!");
             Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual!");
             Bukkit.broadcastMessage("§cLocation: " + coordMsg);
-            Bukkit.broadcastMessage("§cThe mace will appear in §52 MINUTES§c!");
+            Bukkit.broadcastMessage("§cThe mace will appear in §53 MINUTES§c!");
             Bukkit.broadcastMessage("§5§l━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 2 minutes.");
+            p.sendMessage("§e§lSURVIVE! §7Stay close to this location for 3 minutes.");
 
-            startRitualTask(p, tableLoc, 120, 3, visualItems);
+            startRitualTask(p, tableLoc, 180, 3, visualItems);
         }
     }
 
@@ -602,7 +618,8 @@ public class GameListener implements Listener {
 
             private void giveItem(ItemStack item) {
                 // Drop mace on top of crafting table
-                origin.getWorld().dropItem(origin.clone().add(0.5, 1.2, 0.5), item);
+                Item dropped = origin.getWorld().dropItem(origin.clone().add(0.5, 1.1, 0.5), item);
+                dropped.setVelocity(new Vector(0, 0, 0));
             }
         }.runTaskTimer(plugin, 0L, 20L);
     }
@@ -717,7 +734,7 @@ public class GameListener implements Listener {
                     // Check Points (Must be > 0)
                     if (dataManager.getPoints(attackerUUID) <= 0) {
                         e.setCancelled(true);
-                        attacker.sendMessage("§cYou need at least 1 Might to use this mace!");
+                        attacker.sendMessage("§cYou need at least Forge Level 1 to use this mace!");
                         return;
                     }
 
@@ -921,7 +938,7 @@ public class GameListener implements Listener {
             }
 
             String displayName = meta.getDisplayName();
-            
+
             // End Mace: Only Density 2, remove all other enchants
             if (displayName != null && displayName.equals("§5End Mace")) {
                 // Remove all enchants first
@@ -979,7 +996,7 @@ public class GameListener implements Listener {
                 }
             }
         }
-        
+
         // Remove Fire Aspect from all non-mace items
         if (item.getType() != Material.MACE && meta.hasEnchant(Enchantment.FIRE_ASPECT)) {
             meta.removeEnchant(Enchantment.FIRE_ASPECT);
@@ -996,12 +1013,17 @@ public class GameListener implements Listener {
 
         // Remove Thorns from all armor
         Material type = item.getType();
-        if ((type == Material.LEATHER_HELMET || type == Material.LEATHER_CHESTPLATE || type == Material.LEATHER_LEGGINGS || type == Material.LEATHER_BOOTS ||
-             type == Material.IRON_HELMET || type == Material.IRON_CHESTPLATE || type == Material.IRON_LEGGINGS || type == Material.IRON_BOOTS ||
-             type == Material.GOLDEN_HELMET || type == Material.GOLDEN_CHESTPLATE || type == Material.GOLDEN_LEGGINGS || type == Material.GOLDEN_BOOTS ||
-             type == Material.DIAMOND_HELMET || type == Material.DIAMOND_CHESTPLATE || type == Material.DIAMOND_LEGGINGS || type == Material.DIAMOND_BOOTS ||
-             type == Material.CHAINMAIL_HELMET || type == Material.CHAINMAIL_CHESTPLATE || type == Material.CHAINMAIL_LEGGINGS || type == Material.CHAINMAIL_BOOTS) &&
-            meta.hasEnchant(Enchantment.THORNS)) {
+        if ((type == Material.LEATHER_HELMET || type == Material.LEATHER_CHESTPLATE || type == Material.LEATHER_LEGGINGS
+                || type == Material.LEATHER_BOOTS ||
+                type == Material.IRON_HELMET || type == Material.IRON_CHESTPLATE || type == Material.IRON_LEGGINGS
+                || type == Material.IRON_BOOTS ||
+                type == Material.GOLDEN_HELMET || type == Material.GOLDEN_CHESTPLATE || type == Material.GOLDEN_LEGGINGS
+                || type == Material.GOLDEN_BOOTS ||
+                type == Material.DIAMOND_HELMET || type == Material.DIAMOND_CHESTPLATE
+                || type == Material.DIAMOND_LEGGINGS || type == Material.DIAMOND_BOOTS ||
+                type == Material.CHAINMAIL_HELMET || type == Material.CHAINMAIL_CHESTPLATE
+                || type == Material.CHAINMAIL_LEGGINGS || type == Material.CHAINMAIL_BOOTS) &&
+                meta.hasEnchant(Enchantment.THORNS)) {
             meta.removeEnchant(Enchantment.THORNS);
             changed = true;
         }

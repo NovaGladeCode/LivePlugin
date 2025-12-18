@@ -77,7 +77,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
     public void useAbility1(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
         if (points < 5) {
-            p.sendMessage("§cYou need 5 Might to use this! (Current: " + points + "/5)");
+            p.sendMessage("§cYou need Forge Level 5 to use this! (Current: " + points + "/5)");
             return;
         }
 
@@ -98,7 +98,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
     public void useAbility2(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
         if (points < 10) {
-            p.sendMessage("§cYou need 10 Might to use this! (Current: " + points + "/10)");
+            p.sendMessage("§cYou need Forge Level 10 to use this! (Current: " + points + "/10)");
             return;
         }
 
@@ -193,7 +193,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
         p.sendMessage("§5§lVOID PULL INITIATED!");
         p.getWorld().playSound(startLoc, Sound.ENTITY_ENDERMAN_TELEPORT, 1.5f, 0.3f);
         p.getWorld().playSound(startLoc, Sound.ENTITY_WITHER_SPAWN, 0.8f, 0.5f);
-        
+
         // Initial burst effect at player location
         for (int i = 0; i < 50; i++) {
             double angle = (2 * Math.PI * i) / 50;
@@ -221,16 +221,16 @@ public class EndMaceCommand implements CommandExecutor, Listener {
                 }
 
                 Location playerLoc = p.getLocation().add(0, 1, 0);
-                
+
                 // Pull all targets and create visual effects
                 for (LivingEntity target : new ArrayList<>(targets)) {
                     if (!target.isValid() || target.isDead()) {
                         continue;
                     }
-                    
+
                     Location targetLoc = target.getLocation().add(0, 1, 0);
                     double distance = targetLoc.distance(playerLoc);
-                    
+
                     // Pull target toward player
                     if (distance > 1.5) {
                         Vector pullDirection = playerLoc.toVector().subtract(targetLoc.toVector()).normalize();
@@ -240,14 +240,14 @@ public class EndMaceCommand implements CommandExecutor, Listener {
                         // Target is close enough, apply damage
                         target.damage(20.0, p);
                         damaged.put(target, true);
-                        
+
                         // Impact effects
                         p.getWorld().playSound(targetLoc, Sound.ENTITY_PLAYER_ATTACK_CRIT, 1.5f, 0.8f);
                         p.getWorld().playSound(targetLoc, Sound.ENTITY_ENDERMAN_SCREAM, 1.0f, 1.2f);
                         p.getWorld().spawnParticle(Particle.EXPLOSION, targetLoc, 5, 0.5, 0.5, 0.5, 0.1);
                         p.getWorld().spawnParticle(Particle.SWEEP_ATTACK, targetLoc, 10, 0.8, 0.8, 0.8, 0.1);
                     }
-                    
+
                     // Continuous visual effects on target
                     // Swirling void particles around target
                     double angle = (ticks * 0.2) % (2 * Math.PI);
@@ -260,22 +260,22 @@ public class EndMaceCommand implements CommandExecutor, Listener {
                         p.getWorld().spawnParticle(Particle.END_ROD, swirlLoc, 1, 0, 0, 0, 0);
                         p.getWorld().spawnParticle(Particle.ASH, swirlLoc, 2, 0.1, 0.1, 0.1, 0.02);
                     }
-                    
+
                     // Pull line effect between player and target
                     Vector direction = playerLoc.toVector().subtract(targetLoc.toVector()).normalize();
-                    for (int i = 0; i < (int)distance; i++) {
+                    for (int i = 0; i < (int) distance; i++) {
                         Location lineLoc = targetLoc.clone().add(direction.clone().multiply(i));
                         p.getWorld().spawnParticle(Particle.END_ROD, lineLoc, 1, 0, 0, 0, 0);
                         if (i % 2 == 0) {
                             p.getWorld().spawnParticle(Particle.ASH, lineLoc, 1, 0.05, 0.05, 0.05, 0.01);
                         }
                     }
-                    
+
                     // Target location effects
                     p.getWorld().spawnParticle(Particle.CRIT, targetLoc, 5, 0.3, 0.3, 0.3, 0.05);
                     p.getWorld().spawnParticle(Particle.END_ROD, targetLoc, 3, 0.2, 0.2, 0.2, 0.02);
                 }
-                
+
                 // Player location effects
                 for (int i = 0; i < 20; i++) {
                     double angle = (2 * Math.PI * i) / 20 + (ticks * 0.1);
@@ -286,7 +286,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
                     p.getWorld().spawnParticle(Particle.END_ROD, orbitLoc, 1, 0, 0, 0, 0);
                     p.getWorld().spawnParticle(Particle.ASH, orbitLoc, 1, 0.05, 0.05, 0.05, 0.01);
                 }
-                
+
                 ticks++;
             }
         }.runTaskTimer(plugin, 0L, 1L); // Every tick for smooth pulling

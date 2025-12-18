@@ -67,7 +67,7 @@ public class WardenMaceCommand implements CommandExecutor {
     public void useAbility1(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
         if (points < 5) {
-            p.sendMessage("§cYou need 5 Might to use this! (Current: " + points + "/5)");
+            p.sendMessage("§cYou need Forge Level 5 to use this! (Current: " + points + "/5)");
             return;
         }
 
@@ -89,7 +89,7 @@ public class WardenMaceCommand implements CommandExecutor {
     public void useAbility2(Player p) {
         int points = dataManager.getPoints(p.getUniqueId());
         if (points < 10) {
-            p.sendMessage("§cYou need 10 Might to use this! (Current: " + points + "/10)");
+            p.sendMessage("§cYou need Forge Level 10 to use this! (Current: " + points + "/10)");
             return;
         }
 
@@ -174,7 +174,8 @@ public class WardenMaceCommand implements CommandExecutor {
         for (Entity e : p.getNearbyEntities(20, 20, 20)) {
             if (e instanceof Player && e != p) {
                 Player test = (Player) e;
-                if (dataManager.isTrusted(p.getUniqueId(), test.getUniqueId())) continue;
+                if (dataManager.isTrusted(p.getUniqueId(), test.getUniqueId()))
+                    continue;
                 double d = test.getLocation().distance(p.getLocation());
                 if (d < minDist) {
                     minDist = d;
@@ -198,7 +199,8 @@ public class WardenMaceCommand implements CommandExecutor {
                     Location bLoc = trapLoc.clone().add(x, y, z);
                     if (bLoc.distance(trapLoc) <= radius && bLoc.getBlock().getType().isSolid()) {
                         p.sendBlockChange(bLoc, Material.SCULK.createBlockData());
-                        bLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, bLoc.clone().add(0, 1, 0), 1, 0.2, 0.2, 0.2, 0.05);
+                        bLoc.getWorld().spawnParticle(Particle.SCULK_CHARGE_POP, bLoc.clone().add(0, 1, 0), 1, 0.2, 0.2,
+                                0.2, 0.05);
                     }
                 }
             }
@@ -209,6 +211,7 @@ public class WardenMaceCommand implements CommandExecutor {
         new org.bukkit.scheduler.BukkitRunnable() {
             int ticks = 0;
             final int MAX_TICKS = 40;
+
             @Override
             public void run() {
                 if (ticks >= MAX_TICKS) {
@@ -220,16 +223,18 @@ public class WardenMaceCommand implements CommandExecutor {
                     // Fangs/track effect at target
                     closestFinal.getWorld().spawn(closestFinal.getLocation(), org.bukkit.entity.EvokerFangs.class);
                     // Pull toward center (optional: slight force)
-                    Vector pull = trapLoc.toVector().subtract(closestFinal.getLocation().toVector()).normalize().multiply(1.2);
+                    Vector pull = trapLoc.toVector().subtract(closestFinal.getLocation().toVector()).normalize()
+                            .multiply(1.2);
                     closestFinal.setVelocity(pull);
-                    
+
                     // Grasp debuffs (reapply)
                     closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 40, 3));
                     closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, 40, 0));
                     closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 40, 1));
                     closestFinal.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 40, 0));
                     closestFinal.damage(4.0, p); // Lighter damage since less time
-                    closestFinal.getWorld().playSound(closestFinal.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT, 0.5f, 1.0f);
+                    closestFinal.getWorld().playSound(closestFinal.getLocation(), Sound.ENTITY_WARDEN_ATTACK_IMPACT,
+                            0.5f, 1.0f);
                     if (ticks == 0) {
                         closestFinal.sendMessage("§3§lTHE WARDEN TRACKS YOU!");
                     }

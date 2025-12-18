@@ -58,7 +58,7 @@ public class PlayerDataManager {
 
     public void addPoint(UUID uuid) {
         int current = getPoints(uuid);
-        if (current < 10) { // Max Might is 10
+        if (current < 10) { // Max Forge Level is 10
             setPoints(uuid, current + 1);
         }
     }
