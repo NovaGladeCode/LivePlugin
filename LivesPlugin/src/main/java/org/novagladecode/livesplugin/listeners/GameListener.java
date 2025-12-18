@@ -913,32 +913,103 @@ public class GameListener implements Listener {
         ItemMeta meta = item.getItemMeta();
         boolean changed = false;
 
-        // Make maces unbreakable and remove forbidden enchants
+        // Make maces unbreakable and handle specific mace enchants
         if (item.getType() == Material.MACE) {
             if (!meta.isUnbreakable()) {
                 meta.setUnbreakable(true);
                 changed = true;
             }
 
-            // Remove density, breach, fire aspect
-            if (meta.hasEnchant(Enchantment.DENSITY)) {
-                meta.removeEnchant(Enchantment.DENSITY);
-                changed = true;
+            String displayName = meta.getDisplayName();
+            
+            // End Mace: Only Density 2, remove all other enchants
+            if (displayName != null && displayName.equals("§5End Mace")) {
+                // Remove all enchants first
+                for (org.bukkit.enchantments.Enchantment enchant : meta.getEnchants().keySet()) {
+                    meta.removeEnchant(enchant);
+                    changed = true;
+                }
+                // Add Density 2
+                if (!meta.hasEnchant(Enchantment.DENSITY) || meta.getEnchantLevel(Enchantment.DENSITY) != 2) {
+                    meta.addEnchant(Enchantment.DENSITY, 2, true);
+                    changed = true;
+                }
             }
-            if (meta.hasEnchant(Enchantment.BREACH)) {
-                meta.removeEnchant(Enchantment.BREACH);
-                changed = true;
+            // Warden Mace: Only Breach 2, remove all other enchants
+            else if (displayName != null && displayName.equals("§3Warden Mace")) {
+                // Remove all enchants first
+                for (org.bukkit.enchantments.Enchantment enchant : meta.getEnchants().keySet()) {
+                    meta.removeEnchant(enchant);
+                    changed = true;
+                }
+                // Add Breach 2
+                if (!meta.hasEnchant(Enchantment.BREACH) || meta.getEnchantLevel(Enchantment.BREACH) != 2) {
+                    meta.addEnchant(Enchantment.BREACH, 2, true);
+                    changed = true;
+                }
             }
-            if (meta.hasEnchant(Enchantment.FIRE_ASPECT)) {
-                meta.removeEnchant(Enchantment.FIRE_ASPECT);
-                changed = true;
+            // Nether Mace: Only Fire Aspect 2, remove all other enchants
+            else if (displayName != null && displayName.equals("§cNether Mace")) {
+                // Remove all enchants except Fire Aspect
+                for (org.bukkit.enchantments.Enchantment enchant : meta.getEnchants().keySet()) {
+                    if (enchant != Enchantment.FIRE_ASPECT) {
+                        meta.removeEnchant(enchant);
+                        changed = true;
+                    }
+                }
+                // Ensure Fire Aspect 2
+                if (!meta.hasEnchant(Enchantment.FIRE_ASPECT) || meta.getEnchantLevel(Enchantment.FIRE_ASPECT) != 2) {
+                    meta.addEnchant(Enchantment.FIRE_ASPECT, 2, true);
+                    changed = true;
+                }
             }
+            // Other maces: Remove density, breach, fire aspect
+            else {
+                if (meta.hasEnchant(Enchantment.DENSITY)) {
+                    meta.removeEnchant(Enchantment.DENSITY);
+                    changed = true;
+                }
+                if (meta.hasEnchant(Enchantment.BREACH)) {
+                    meta.removeEnchant(Enchantment.BREACH);
+                    changed = true;
+                }
+                if (meta.hasEnchant(Enchantment.FIRE_ASPECT)) {
+                    meta.removeEnchant(Enchantment.FIRE_ASPECT);
+                    changed = true;
+                }
+            }
+        }
+        
+        // Remove Fire Aspect from all non-mace items
+        if (item.getType() != Material.MACE && meta.hasEnchant(Enchantment.FIRE_ASPECT)) {
+            meta.removeEnchant(Enchantment.FIRE_ASPECT);
+            changed = true;
         }
 
         // Downgrade Protection 4 to Protection 3
         if (meta.hasEnchant(Enchantment.PROTECTION)) {
             if (meta.getEnchantLevel(Enchantment.PROTECTION) > 3) {
                 meta.addEnchant(Enchantment.PROTECTION, 3, true);
+                changed = true;
+            }
+        }
+
+        // Remove Thorns from all armor
+        Material type = item.getType();
+        if ((type == Material.LEATHER_HELMET || type == Material.LEATHER_CHESTPLATE || type == Material.LEATHER_LEGGINGS || type == Material.LEATHER_BOOTS ||
+             type == Material.IRON_HELMET || type == Material.IRON_CHESTPLATE || type == Material.IRON_LEGGINGS || type == Material.IRON_BOOTS ||
+             type == Material.GOLDEN_HELMET || type == Material.GOLDEN_CHESTPLATE || type == Material.GOLDEN_LEGGINGS || type == Material.GOLDEN_BOOTS ||
+             type == Material.DIAMOND_HELMET || type == Material.DIAMOND_CHESTPLATE || type == Material.DIAMOND_LEGGINGS || type == Material.DIAMOND_BOOTS ||
+             type == Material.CHAINMAIL_HELMET || type == Material.CHAINMAIL_CHESTPLATE || type == Material.CHAINMAIL_LEGGINGS || type == Material.CHAINMAIL_BOOTS) &&
+            meta.hasEnchant(Enchantment.THORNS)) {
+            meta.removeEnchant(Enchantment.THORNS);
+            changed = true;
+        }
+
+        // Downgrade Sharpness 5 to Sharpness 4
+        if (meta.hasEnchant(Enchantment.SHARPNESS)) {
+            if (meta.getEnchantLevel(Enchantment.SHARPNESS) > 4) {
+                meta.addEnchant(Enchantment.SHARPNESS, 4, true);
                 changed = true;
             }
         }
