@@ -43,7 +43,7 @@ public class WardenMaceCommand implements CommandExecutor {
         ItemStack item = p.getInventory().getItemInMainHand();
 
         if (item.getType() != Material.MACE || !item.hasItemMeta()
-                || !item.getItemMeta().getDisplayName().equals("§3Warden Mace")) {
+                || !item.getItemMeta().getDisplayName().equals("§3§lWarden Mace")) {
             p.sendMessage("§cYou must hold the Warden Mace to use this command!");
             return true;
         }

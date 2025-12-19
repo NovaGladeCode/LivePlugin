@@ -20,7 +20,6 @@ import org.bukkit.block.Block;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import org.bukkit.metadata.MetadataValue;
 
 public class MaceCommand implements CommandExecutor {
 
@@ -73,7 +72,7 @@ public class MaceCommand implements CommandExecutor {
                 // Remove old custom recipes first
                 JavaPlugin javaPlugin = plugin;
                 String[] types = { "warden", "nether", "end", "ghostblade", "dragonblade", "mistblade", "soulblade" };
-                java.util.List<NamespacedKey> keyList = new java.util.ArrayList<>();
+                List<NamespacedKey> keyList = new java.util.ArrayList<>();
                 keyList.add(new NamespacedKey(javaPlugin, "warden_mace"));
                 keyList.add(new NamespacedKey(javaPlugin, "nether_mace"));
                 keyList.add(new NamespacedKey(javaPlugin, "end_mace"));
@@ -450,7 +449,7 @@ public class MaceCommand implements CommandExecutor {
                 // Reset recipes and unique flags just like recipe reset
                 JavaPlugin javaPlugin = plugin;
                 String[] types = { "warden", "nether", "end", "ghostblade", "dragonblade", "mistblade", "soulblade" };
-                java.util.List<NamespacedKey> keyList = new java.util.ArrayList<>();
+                List<NamespacedKey> keyList = new java.util.ArrayList<>();
                 keyList.add(new NamespacedKey(javaPlugin, "warden_mace"));
                 keyList.add(new NamespacedKey(javaPlugin, "nether_mace"));
                 keyList.add(new NamespacedKey(javaPlugin, "end_mace"));

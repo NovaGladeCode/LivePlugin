@@ -45,6 +45,8 @@ import java.util.Map;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class GameListener implements Listener {
 
@@ -373,10 +375,10 @@ public class GameListener implements Listener {
                 return;
             String displayName = result.getItemMeta().getDisplayName();
 
-            boolean isRitualItem = displayName.equals("§3Warden Mace") || displayName.equals("§cNether Mace")
-                    || displayName.equals("§5End Mace") || displayName.equals("§7Ghostblade")
-                    || displayName.equals("§6Dragonblade") || displayName.equals("§bMistblade")
-                    || displayName.equals("§8Soulblade");
+            boolean isRitualItem = displayName.equals("§3§lWarden Mace") || displayName.equals("§c§lNether Mace")
+                    || displayName.equals("§5§lEnd Mace") || displayName.equals("§7§lGhostblade")
+                    || displayName.equals("§6§lDragonblade") || displayName.equals("§b§lMistblade")
+                    || displayName.equals("§8§lSoulblade");
 
             if (isRitualItem) {
                 // Set result to dummy, not real item
@@ -405,13 +407,13 @@ public class GameListener implements Listener {
         }
 
         String displayName = result.getItemMeta().getDisplayName();
-        boolean isWarden = "§3Warden Mace".equals(displayName);
-        boolean isNether = "§cNether Mace".equals(displayName);
-        boolean isEnd = "§5End Mace".equals(displayName);
-        boolean isGhost = "§7Ghostblade".equals(displayName);
-        boolean isDragon = "§6Dragonblade".equals(displayName);
-        boolean isMist = "§bMistblade".equals(displayName);
-        boolean isSoul = "§8Soulblade".equals(displayName);
+        boolean isWarden = "§3§lWarden Mace".equals(displayName);
+        boolean isNether = "§c§lNether Mace".equals(displayName);
+        boolean isEnd = "§5§lEnd Mace".equals(displayName);
+        boolean isGhost = "§7§lGhostblade".equals(displayName);
+        boolean isDragon = "§6§lDragonblade".equals(displayName);
+        boolean isMist = "§b§lMistblade".equals(displayName);
+        boolean isSoul = "§8§lSoulblade".equals(displayName);
 
         if (!isWarden && !isNether && !isEnd && !isGhost && !isDragon && !isMist && !isSoul)
             return;
@@ -568,8 +570,8 @@ public class GameListener implements Listener {
                         origin.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME,
                                 origin.clone().add(0.5, 1, 0.5), 20, 0.5, 0.5, 0.5, 0.05);
                     }
-                    p.spigot().sendMessage(net.md_5.bungee.api.ChatMessageType.ACTION_BAR,
-                            new net.md_5.bungee.api.chat.TextComponent(
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                            new TextComponent(
                                     "§bRitual Progress: " + (ticks / 20) + "s / " + durationSeconds + "s"));
                 }
 
@@ -581,8 +583,9 @@ public class GameListener implements Listener {
             }
 
             private void failRitual(String reason) {
-                String name = (maceType == 1) ? "Warden" : (maceType == 2) ? "Nether" : "End";
-                Bukkit.broadcastMessage("§cThe " + name + " Mace ritual FAILED! " + reason);
+                String name = (maceType == 1) ? "Warden"
+                        : (maceType == 2) ? "Nether" : (maceType == 3) ? "End" : "Blade";
+                Bukkit.broadcastMessage("§cThe " + name + " ritual FAILED! " + reason);
                 cleanup();
                 this.cancel();
             }

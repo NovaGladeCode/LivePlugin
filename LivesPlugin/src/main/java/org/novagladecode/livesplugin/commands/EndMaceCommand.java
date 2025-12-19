@@ -53,7 +53,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
         ItemStack item = p.getInventory().getItemInMainHand();
 
         if (item.getType() != Material.MACE || !item.hasItemMeta()
-                || !item.getItemMeta().getDisplayName().equals("§5End Mace")) {
+                || !item.getItemMeta().getDisplayName().equals("§5§lEnd Mace")) {
             p.sendMessage("§cYou must hold the End Mace to use this command!");
             return true;
         }

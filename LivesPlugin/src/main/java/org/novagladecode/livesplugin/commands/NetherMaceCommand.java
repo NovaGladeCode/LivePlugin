@@ -41,7 +41,7 @@ public class NetherMaceCommand implements CommandExecutor {
         ItemStack item = p.getInventory().getItemInMainHand();
 
         if (item.getType() != Material.MACE || !item.hasItemMeta()
-                || !item.getItemMeta().getDisplayName().equals("§cNether Mace")) {
+                || !item.getItemMeta().getDisplayName().equals("§c§lNether Mace")) {
             p.sendMessage("§cYou must hold the Nether Mace to use this command!");
             return true;
         }
