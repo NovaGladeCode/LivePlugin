@@ -18,7 +18,9 @@ import org.novagladecode.livesplugin.gui.RecipeGUI;
 import org.bukkit.block.Block;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import org.bukkit.metadata.MetadataValue;
 
 public class MaceCommand implements CommandExecutor {
 
