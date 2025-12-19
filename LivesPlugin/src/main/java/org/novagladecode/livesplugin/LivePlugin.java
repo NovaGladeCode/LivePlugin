@@ -16,13 +16,16 @@ public class LivePlugin extends JavaPlugin {
     private NetherMaceCommand netherMaceCommand;
     private EndMaceCommand endMaceCommand;
     private java.util.HashMap<java.util.UUID, Boolean> maceInteractMode = new java.util.HashMap<>();
-    private java.util.HashMap<String, Boolean> globalAbilityToggles = new java.util.HashMap<>();
+    private org.novagladecode.livesplugin.data.ForgeDataManager forgeDataManager;
+    private org.novagladecode.livesplugin.logic.ForgeStructureManager forgeStructureManager;
     private boolean forgeActive = false;
 
     @Override
     public void onEnable() {
         // Initialize Managers
         this.dataManager = new PlayerDataManager(this);
+        this.forgeDataManager = new org.novagladecode.livesplugin.data.ForgeDataManager(this);
+        this.forgeStructureManager = new org.novagladecode.livesplugin.logic.ForgeStructureManager(this);
         this.itemManager = new ItemManager(this);
         org.novagladecode.livesplugin.gui.RecipeGUI recipeGUI = new org.novagladecode.livesplugin.gui.RecipeGUI(
                 itemManager);
@@ -106,10 +109,21 @@ public class LivePlugin extends JavaPlugin {
         return dataManager;
     }
 
+    public org.novagladecode.livesplugin.data.ForgeDataManager getForgeDataManager() {
+        return forgeDataManager;
+    }
+
+    public org.novagladecode.livesplugin.logic.ForgeStructureManager getForgeStructureManager() {
+        return forgeStructureManager;
+    }
+
     @Override
     public void onDisable() {
         if (dataManager != null) {
             dataManager.saveData();
+        }
+        if (forgeDataManager != null) {
+            forgeDataManager.saveData();
         }
         getLogger().info("Lives Plugin has been disabled!");
     }

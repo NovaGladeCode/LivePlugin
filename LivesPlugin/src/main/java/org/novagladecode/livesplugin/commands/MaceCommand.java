@@ -296,18 +296,30 @@ public class MaceCommand implements CommandExecutor {
                     return true;
                 }
                 if (args.length < 2) {
-                    p.sendMessage("§cUsage: /forge set <type>");
+                    p.sendMessage("§cUsage: /forge set <type|all>");
                     p.sendMessage("§7Types: warden, nether, end, ghostblade, dragonblade, mistblade, soulblade");
                     return true;
                 }
                 String type = args[1].toLowerCase();
-                ItemStack forgeItem = plugin.getItemManager().createSacredForge(type);
-                if (forgeItem == null) {
+                if (type.equals("all")) {
+                    String[] types = { "warden", "nether", "end", "ghostblade", "dragonblade", "mistblade",
+                            "soulblade" };
+                    org.bukkit.Location start = p.getLocation();
+                    for (int i = 0; i < types.length; i++) {
+                        org.bukkit.Location loc = start.clone().add(i * 7, 0, 0);
+                        plugin.getForgeStructureManager().buildForge(loc, types[i]);
+                    }
+                    p.sendMessage("§aGenerated all Forge structures in a line!");
+                    return true;
+                }
+
+                if (plugin.getItemManager().createSacredForge(type) == null) {
                     p.sendMessage("§cInvalid forge type.");
                     return true;
                 }
-                p.getInventory().addItem(forgeItem);
-                p.sendMessage("§aYou have been given a §b" + type + " Forge§a!");
+
+                plugin.getForgeStructureManager().buildForge(p.getLocation(), type);
+                p.sendMessage("§aGenerated a §b" + type + " Forge §astructure at your location!");
                 return true;
 
             case "toggle":

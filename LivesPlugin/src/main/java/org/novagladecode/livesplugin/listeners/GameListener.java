@@ -339,14 +339,23 @@ public class GameListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        ItemStack item = e.getItemInHand();
+        ItemStack item = e.getItemInMainHand();
         if (itemManager.isSacredForge(item)) {
             String type = itemManager.getForgeType(item);
             e.getBlockPlaced().setMetadata("sacred_forge", new FixedMetadataValue(plugin, true));
             if (type != null) {
                 e.getBlockPlaced().setMetadata("forge_type", new FixedMetadataValue(plugin, type));
             }
+            // Logic for persistent tracking
+            ((LivePlugin) plugin).getForgeDataManager().addForge(e.getBlockPlaced().getLocation());
             e.getPlayer().sendMessage("§aYou have placed a " + (type == null ? "Sacred Forge" : type + " Forge") + "!");
+        }
+    }
+
+    @EventHandler
+    public void onBlockBreakForge(BlockBreakEvent e) {
+        if (e.getBlock().getType() == Material.CRAFTING_TABLE) {
+            ((LivePlugin) plugin).getForgeDataManager().removeForge(e.getBlock().getLocation());
         }
     }
 
@@ -1092,16 +1101,20 @@ public class GameListener implements Listener {
     // Riptide logic: PlayerRiptideEvent is not cancellable in some versions.
     // We check Interact for Trident w/ Riptide while tagged.
     @EventHandler
-    public void onRiptideInteract(PlayerInteractEvent e) {
+    public void onForgeCompassInteract(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (e.getItem() != null && e.getItem().getType() == Material.TRIDENT) {
-                if (e.getItem().getItemMeta().hasEnchant(Enchantment.RIPTIDE)) {
-                    // Check if conditions for riptide (wet or rain) are met?
-                    // Actually, just blocking the attempt if tagged is safer.
-                    if (isCombatTagged(e.getPlayer().getUniqueId())) {
-                        e.setCancelled(true);
-                        e.getPlayer().sendMessage("§cCannot use Riptide while in combat!");
+            ItemStack item = e.getItem();
+            if (item != null && item.getType() == Material.COMPASS && item.hasItemMeta()) {
+                if (item.getItemMeta().getDisplayName().equals("§6§lForge Compass")) {
+                    Player p = e.getPlayer();
+                    org.bukkit.Location target = ((LivePlugin) plugin).getForgeDataManager().getRandomForge();
+                    if (target == null) {
+                        p.sendMessage("§cNo Sacred Forges found in the world!");
+                        return;
                     }
+                    p.setCompassTarget(target);
+                    p.sendMessage("§aCompass is now pointing to a random Sacred Forge!");
+                    p.sendMessage("§7Target Location: " + target.getBlockX() + ", " + target.getBlockZ());
                 }
             }
         }
