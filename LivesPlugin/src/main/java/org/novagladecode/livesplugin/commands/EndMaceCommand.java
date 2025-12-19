@@ -15,28 +15,30 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import org.novagladecode.livesplugin.LivePlugin;
+import org.novagladecode.livesplugin.data.PlayerDataManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.List;
-import java.util.ArrayList;
-import org.bukkit.scheduler.BukkitRunnable;
 
 public class EndMaceCommand implements CommandExecutor, Listener {
 
-    private final JavaPlugin plugin;
-    private final org.novagladecode.livesplugin.data.PlayerDataManager dataManager;
-    private final Map<UUID, Long> cooldown1 = new HashMap<>();
-    private final Map<UUID, Long> cooldown2 = new HashMap<>();
+    private final LivePlugin plugin;
+    private final PlayerDataManager dataManager;
+    private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
+    private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
 
     // Invis tracking
     private final Map<UUID, BukkitTask> invisTasks = new HashMap<>();
 
-    public EndMaceCommand(JavaPlugin plugin, org.novagladecode.livesplugin.data.PlayerDataManager dataManager) {
+    public EndMaceCommand(LivePlugin plugin, PlayerDataManager dataManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);

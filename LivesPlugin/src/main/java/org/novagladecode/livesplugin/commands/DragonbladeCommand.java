@@ -1,5 +1,6 @@
 package org.novagladecode.livesplugin.commands;
 
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,8 +9,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
@@ -82,8 +81,8 @@ public class DragonbladeCommand implements CommandExecutor {
         p.sendMessage("§6Dragon Leap!");
 
         // More particles
-        p.getWorld().spawnParticle(org.bukkit.Particle.FLAME, p.getLocation(), 50, 0.5, 0.5, 0.5, 0.1);
-        p.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, p.getLocation(), 30, 0.5, 0.5, 0.5, 0.05);
+        p.getWorld().spawnParticle(Particle.FLAME, p.getLocation(), 50, 0.5, 0.5, 0.5, 0.1);
+        p.getWorld().spawnParticle(Particle.LARGE_SMOKE, p.getLocation(), 30, 0.5, 0.5, 0.5, 0.05);
 
         cooldown1.put(p.getUniqueId(), now + 10000); // 10s
     }
@@ -114,9 +113,9 @@ public class DragonbladeCommand implements CommandExecutor {
                 target.sendMessage("§c§lYou have been struck by the Dragonblade's Fury!");
 
                 // Target particles
-                target.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH, target.getLocation().add(0, 1, 0),
+                target.getWorld().spawnParticle(Particle.DRAGON_BREATH, target.getLocation().add(0, 1, 0),
                         40, 0.5, 0.5, 0.5, 0.1);
-                target.getWorld().spawnParticle(org.bukkit.Particle.FLAME, target.getLocation().add(0, 1, 0), 30, 0.4,
+                target.getWorld().spawnParticle(Particle.FLAME, target.getLocation().add(0, 1, 0), 30, 0.4,
                         0.4, 0.4, 0.05);
             }
         }

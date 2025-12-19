@@ -1,11 +1,13 @@
 package org.novagladecode.livesplugin.commands;
 
-import org.bukkit.Bukkit;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
@@ -81,13 +83,13 @@ public class MistbladeCommand implements CommandExecutor {
             Trident t = p.getWorld().spawn(p.getLocation().add(offset), Trident.class);
             t.setShooter(p);
             t.setVelocity(new Vector(0, -1, 0));
-            t.setPickupStatus(org.bukkit.entity.AbstractArrow.PickupStatus.DISALLOWED);
+            t.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
             // Particles for each trident
-            p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, t.getLocation(), 20, 0.2, 0.2, 0.2, 0.05);
+            p.getWorld().spawnParticle(Particle.SPLASH, t.getLocation(), 20, 0.2, 0.2, 0.2, 0.05);
         }
 
-        p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, p.getLocation().add(0, 1, 0), 100, 3, 1, 3, 0.1);
-        p.getWorld().spawnParticle(org.bukkit.Particle.BUBBLE, p.getLocation().add(0, 1, 0), 50, 2, 1, 2, 0.05);
+        p.getWorld().spawnParticle(Particle.SPLASH, p.getLocation().add(0, 1, 0), 100, 3, 1, 3, 0.1);
+        p.getWorld().spawnParticle(Particle.BUBBLE, p.getLocation().add(0, 1, 0), 50, 2, 1, 2, 0.05);
 
         p.sendMessage("§bTrident Storm!");
         p.playSound(p.getLocation(), Sound.ITEM_TRIDENT_THROW, 1.0f, 0.5f);
@@ -110,8 +112,8 @@ public class MistbladeCommand implements CommandExecutor {
 
         // Tidal Surge: Massive water blast and lightning
         for (Entity e : p.getNearbyEntities(8, 8, 8)) {
-            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
-                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+            if (e instanceof LivingEntity && e != p) {
+                LivingEntity target = (LivingEntity) e;
                 if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
 
@@ -125,9 +127,9 @@ public class MistbladeCommand implements CommandExecutor {
                 target.getWorld().strikeLightningEffect(target.getLocation());
 
                 // Target particles
-                target.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, target.getLocation().add(0, 1, 0), 60, 0.5,
+                target.getWorld().spawnParticle(Particle.SPLASH, target.getLocation().add(0, 1, 0), 60, 0.5,
                         0.5, 0.5, 0.1);
-                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 20, 0.5,
+                target.getWorld().spawnParticle(Particle.SOUL, target.getLocation().add(0, 1, 0), 20, 0.5,
                         0.5, 0.5, 0.05);
             }
         }
@@ -136,8 +138,8 @@ public class MistbladeCommand implements CommandExecutor {
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_SPLASH_HIGH_SPEED, 1.5f, 0.8f);
         p.playSound(p.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1.0f, 1.2f);
 
-        p.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, p.getLocation().add(0, 1, 0), 200, 5, 1, 5, 0.2);
-        p.getWorld().spawnParticle(org.bukkit.Particle.CLOUD, p.getLocation().add(0, 1, 0), 100, 4, 1, 4, 0.1);
+        p.getWorld().spawnParticle(Particle.SPLASH, p.getLocation().add(0, 1, 0), 200, 5, 1, 5, 0.2);
+        p.getWorld().spawnParticle(Particle.CLOUD, p.getLocation().add(0, 1, 0), 100, 4, 1, 4, 0.1);
 
         cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }

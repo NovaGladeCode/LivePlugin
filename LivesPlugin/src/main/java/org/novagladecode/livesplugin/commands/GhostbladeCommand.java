@@ -1,27 +1,34 @@
 package org.novagladecode.livesplugin.commands;
 
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 public class GhostbladeCommand implements CommandExecutor {
 
     private final LivePlugin plugin;
     private final PlayerDataManager dataManager;
-    private final Map<UUID, Long> cooldown1 = new HashMap<>();
-    private final Map<UUID, Long> cooldown2 = new HashMap<>();
+    private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
+    private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
 
     public GhostbladeCommand(LivePlugin plugin, PlayerDataManager dataManager) {
         this.plugin = plugin;
@@ -75,8 +82,8 @@ public class GhostbladeCommand implements CommandExecutor {
 
         // Haunt: Nausea + Blindness to nearby
         for (Entity e : p.getNearbyEntities(8, 8, 8)) {
-            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
-                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+            if (e instanceof LivingEntity && e != p) {
+                LivingEntity target = (LivingEntity) e;
                 if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
                 target.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 160, 0));

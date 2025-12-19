@@ -12,10 +12,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.Vector;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.entity.EvokerFangs;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.Vector;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.novagladecode.livesplugin.LivePlugin;
+import org.novagladecode.livesplugin.data.PlayerDataManager;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -23,11 +27,11 @@ import java.util.UUID;
 public class WardenMaceCommand implements CommandExecutor {
 
     private final JavaPlugin plugin;
-    private final org.novagladecode.livesplugin.data.PlayerDataManager dataManager;
+    private final PlayerDataManager dataManager;
     private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
     private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
 
-    public WardenMaceCommand(JavaPlugin plugin, org.novagladecode.livesplugin.data.PlayerDataManager dataManager) {
+    public WardenMaceCommand(LivePlugin plugin, PlayerDataManager dataManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
     }
@@ -208,7 +212,7 @@ public class WardenMaceCommand implements CommandExecutor {
 
         // Continuous tracking (2 seconds: 40 ticks)
         final Player closestFinal = closest;
-        new org.bukkit.scheduler.BukkitRunnable() {
+        new BukkitRunnable() {
             int ticks = 0;
             final int MAX_TICKS = 40;
 
@@ -221,7 +225,7 @@ public class WardenMaceCommand implements CommandExecutor {
                 // Only affects the closest target
                 if (closestFinal.isOnline() && closestFinal.getWorld().equals(trapLoc.getWorld())) {
                     // Fangs/track effect at target
-                    closestFinal.getWorld().spawn(closestFinal.getLocation(), org.bukkit.entity.EvokerFangs.class);
+                    closestFinal.getWorld().spawn(closestFinal.getLocation(), EvokerFangs.class);
                     // Pull toward center (optional: slight force)
                     Vector pull = trapLoc.toVector().subtract(closestFinal.getLocation().toVector()).normalize()
                             .multiply(1.2);

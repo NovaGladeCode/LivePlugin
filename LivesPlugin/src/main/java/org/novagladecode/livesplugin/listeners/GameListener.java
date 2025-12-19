@@ -1,50 +1,61 @@
 package org.novagladecode.livesplugin.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Chicken;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemFrame;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
+import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Chicken;
 
-import org.bukkit.entity.EntityType;
-
-import java.util.HashMap;
-import java.util.UUID;
-
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.entity.Item;
-import org.bukkit.event.inventory.InventoryType;
-import org.novagladecode.livesplugin.LivePlugin;
-
-import org.bukkit.Location;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.entity.Entity;
-import org.bukkit.util.Vector;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -197,12 +208,12 @@ public class GameListener implements Listener {
             if (arrow.hasMetadata("chicken_arrow")) {
                 arrow.remove(); // Remove the arrow
 
-                org.bukkit.Location hitLoc = arrow.getLocation();
+                Location hitLoc = arrow.getLocation();
 
                 // 50% chance for Slow Falling (15 seconds) for shooter
                 if (Math.random() < 0.5 && arrow.getShooter() instanceof Player) {
                     Player shooter = (Player) arrow.getShooter();
-                    shooter.addPotionEffect(new org.bukkit.potion.PotionEffect(
+                    shooter.addPotionEffect(new PotionEffect(
                             PotionEffectType.SLOW_FALLING, 300, 0));
                     shooter.sendMessage("§eChicken Bow Effect: Slow Falling!");
                 }
@@ -217,7 +228,7 @@ public class GameListener implements Listener {
                         chicken.setCustomNameVisible(true);
                         chicken.setAdult();
                         chicken.addPotionEffect(
-                                new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SPEED, 6000, 4));
+                                new PotionEffect(PotionEffectType.SPEED, 6000, 4));
 
                         // Angry AI Task
                         new BukkitRunnable() {
@@ -264,8 +275,8 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDeath(org.bukkit.event.entity.EntityDeathEvent e) {
-        if (e.getEntityType() == org.bukkit.entity.EntityType.WARDEN) {
+    public void onEntityDeath(EntityDeathEvent e) {
+        if (e.getEntityType() == EntityType.WARDEN) {
             e.getDrops().add(itemManager.createWardenHeart());
             return;
         }
@@ -297,7 +308,7 @@ public class GameListener implements Listener {
             // Item Frame on top of the first corner
             Location frameLoc = corners[0].clone().add(0, 2, 0);
 
-            org.bukkit.entity.ItemFrame frame = (org.bukkit.entity.ItemFrame) frameLoc.getWorld().spawnEntity(frameLoc,
+            ItemFrame frame = (ItemFrame) frameLoc.getWorld().spawnEntity(frameLoc,
                     EntityType.ITEM_FRAME);
             frame.setItem(itemManager.createDragonHeart());
             frame.setFacingDirection(org.bukkit.block.BlockFace.UP);
@@ -335,7 +346,7 @@ public class GameListener implements Listener {
         if (ritualLocations.containsKey(e.getBlock().getLocation())) {
             // Apply Mining Fatigue I to simulate slower mining
             e.getPlayer().addPotionEffect(
-                    new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.MINING_FATIGUE, 200, 0));
+                    new PotionEffect(PotionEffectType.MINING_FATIGUE, 200, 0));
         }
     }
 
@@ -347,7 +358,7 @@ public class GameListener implements Listener {
             if (type == null)
                 type = "default";
 
-            org.bukkit.block.Block block = e.getBlockPlaced();
+            Block block = e.getBlockPlaced();
             block.setMetadata("sacred_forge", new FixedMetadataValue(plugin, true));
             block.setMetadata("forge_type", new FixedMetadataValue(plugin, type));
             block.setMetadata("needs_build", new FixedMetadataValue(plugin, true));
@@ -469,7 +480,7 @@ public class GameListener implements Listener {
                 Item itemEntity = tableLoc.getWorld().dropItem(spawnLoc, ingredient.clone());
                 itemEntity.setPickupDelay(32767); // Infinite pickup delay
                 itemEntity.setInvulnerable(true);
-                itemEntity.setVelocity(new org.bukkit.util.Vector(0, 0, 0));
+                itemEntity.setVelocity(new Vector(0, 0, 0));
                 itemEntity.setGravity(false);
                 itemEntity.setGlowing(true);
                 visualItems.add(itemEntity);
@@ -483,13 +494,16 @@ public class GameListener implements Listener {
                 tableLoc.getBlockZ());
 
         if (isWarden) {
-            // ... (keep original msg)
+            Bukkit.broadcastMessage("§3§lTHE WARDEN MACE RITUAL HAS BEGUN!");
+            Bukkit.broadcastMessage("§e" + p.getName() + " §3is attempting the ritual at " + coordMsg);
             startRitualTask(p, tableLoc, 180, 1, visualItems);
         } else if (isNether) {
-            // ... (keep original msg)
+            Bukkit.broadcastMessage("§c§lTHE NETHER MACE RITUAL HAS BEGUN!");
+            Bukkit.broadcastMessage("§e" + p.getName() + " §cis attempting the ritual at " + coordMsg);
             startRitualTask(p, tableLoc, 180, 2, visualItems);
         } else if (isEnd) {
-            // ... (keep original msg)
+            Bukkit.broadcastMessage("§5§lTHE END MACE RITUAL HAS BEGUN!");
+            Bukkit.broadcastMessage("§e" + p.getName() + " §5is attempting the ritual at " + coordMsg);
             startRitualTask(p, tableLoc, 180, 3, visualItems);
         } else if (isGhost) {
             Bukkit.broadcastMessage("§7§lTHE GHOSTBLADE RITUAL HAS BEGUN!");
@@ -516,7 +530,7 @@ public class GameListener implements Listener {
         ritualLocations.put(origin, p.getUniqueId());
         ritualVisuals.put(p.getUniqueId(), visualItems);
 
-        new org.bukkit.scheduler.BukkitRunnable() {
+        new BukkitRunnable() {
             int ticks = 0;
             final int MAX_TICKS = 20 * durationSeconds;
 
@@ -540,17 +554,14 @@ public class GameListener implements Listener {
                 // Effects
                 if (ticks % 20 == 0) {
                     if (maceType == 1) { // Warden
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, origin.clone().add(0.5, 1, 0.5),
+                        origin.getWorld().playSound(origin, Sound.BLOCK_SCULK_SHRIEKER_SHRIEK, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(Particle.SCULK_SOUL, origin.clone().add(0.5, 1, 0.5),
                                 20, 0.5, 0.5, 0.5, 0.05);
                     } else if (maceType == 2) { // Nether
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_LAVA_POP, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.FLAME, origin.clone().add(0.5, 1, 0.5), 20,
+                        origin.getWorld().playSound(origin, Sound.BLOCK_LAVA_POP, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(Particle.FLAME, origin.clone().add(0.5, 1, 0.5), 20,
                                 0.5, 0.5, 0.5, 0.05);
                     } else if (maceType == 3) { // End
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.PORTAL, origin.clone().add(0.5, 1, 0.5), 20,
-                                0.5, 0.5, 0.5, 0.05);
                         origin.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH,
                                 origin.clone().add(0.5, 1, 0.5), 10, 0.2, 0.2, 0.2, 0.01);
                     } else if (maceType == 4) { // Ghost
@@ -660,7 +671,7 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDamage(org.bukkit.event.entity.EntityDamageEvent e) {
+    public void onEntityDamage(EntityDamageEvent e) {
         if (!(e.getEntity() instanceof Player))
             return;
         Player p = (Player) e.getEntity();
@@ -683,27 +694,27 @@ public class GameListener implements Listener {
         if (hasNetherMace) {
             // "Gets fire resistance and takes no damage to effect"
             // Block Fire types
-            if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FIRE
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FIRE_TICK
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.LAVA
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.HOT_FLOOR) {
+            if (e.getCause() == DamageCause.FIRE
+                    || e.getCause() == DamageCause.FIRE_TICK
+                    || e.getCause() == DamageCause.LAVA
+                    || e.getCause() == DamageCause.HOT_FLOOR) {
                 e.setCancelled(true);
                 // Ensure they have Fire Res effect too (visual + logic)
                 p.addPotionEffect(
-                        new org.bukkit.potion.PotionEffect(PotionEffectType.FIRE_RESISTANCE, 200, 0, false, false));
+                        new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 200, 0, false, false));
             }
             // Block Effects (Wither/Poison/Magic)
-            if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.WITHER
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.POISON
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.MAGIC) {
+            if (e.getCause() == DamageCause.WITHER
+                    || e.getCause() == DamageCause.POISON
+                    || e.getCause() == DamageCause.MAGIC) {
                 e.setCancelled(true);
             }
         }
 
         if (hasEndMace) {
-            if (e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FALL
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.DRAGON_BREATH
-                    || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.FLY_INTO_WALL) {
+            if (e.getCause() == DamageCause.FALL
+                    || e.getCause() == DamageCause.DRAGON_BREATH
+                    || e.getCause() == DamageCause.FLY_INTO_WALL) {
                 e.setCancelled(true);
             }
         }
@@ -711,7 +722,7 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDamageByEntity(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
 
         // Chicken Bow Logic
         if (e.getDamager() instanceof Arrow) {
@@ -720,13 +731,13 @@ public class GameListener implements Listener {
                 if (e.getEntity() instanceof org.bukkit.entity.LivingEntity) {
                     org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e.getEntity();
                     // 50% Slow Falling
-                    if (java.util.concurrent.ThreadLocalRandom.current().nextBoolean()) {
+                    if (ThreadLocalRandom.current().nextBoolean()) {
                         target.addPotionEffect(
-                                new org.bukkit.potion.PotionEffect(PotionEffectType.SLOW_FALLING, 300, 0));
+                                new PotionEffect(PotionEffectType.SLOW_FALLING, 300, 0));
                     }
                     // 40% Chance Angry Chicken
-                    if (java.util.concurrent.ThreadLocalRandom.current().nextInt(10) < 4) {
-                        org.bukkit.Location loc = target.getLocation();
+                    if (ThreadLocalRandom.current().nextInt(10) < 4) {
+                        Location loc = target.getLocation();
                         Chicken chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
                         chicken.setAdult();
                         // Angry Speed (Speed V)
@@ -1072,7 +1083,7 @@ public class GameListener implements Listener {
     private final Map<UUID, Long> combatTags = new HashMap<>();
 
     @EventHandler
-    public void onCombatDamage(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+    public void onCombatDamage(EntityDamageByEntityEvent e) {
         // Only player-vs-player combat triggers tag
         if (e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
             Player victim = (Player) e.getEntity();

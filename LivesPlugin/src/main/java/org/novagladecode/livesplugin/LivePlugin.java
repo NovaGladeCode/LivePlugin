@@ -2,15 +2,26 @@ package org.novagladecode.livesplugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-import org.novagladecode.livesplugin.commands.NetherMaceCommand;
-import org.novagladecode.livesplugin.commands.WardenMaceCommand;
-import org.novagladecode.livesplugin.commands.EndMaceCommand;
-import org.novagladecode.livesplugin.data.PlayerDataManager;
-import org.novagladecode.livesplugin.logic.ItemManager;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import org.novagladecode.livesplugin.logic.ItemManager;
+import org.novagladecode.livesplugin.data.PlayerDataManager;
+import org.novagladecode.livesplugin.commands.NetherMaceCommand;
+import org.novagladecode.livesplugin.commands.WardenMaceCommand;
+import org.novagladecode.livesplugin.commands.EndMaceCommand;
+import org.novagladecode.livesplugin.commands.MaceCommand;
+import org.novagladecode.livesplugin.commands.TrustCommand;
+import org.novagladecode.livesplugin.commands.GhostbladeCommand;
+import org.novagladecode.livesplugin.commands.DragonbladeCommand;
+import org.novagladecode.livesplugin.commands.MistbladeCommand;
+import org.novagladecode.livesplugin.commands.SoulbladeCommand;
+import org.novagladecode.livesplugin.data.ForgeDataManager;
+import org.novagladecode.livesplugin.logic.ForgeStructureManager;
+import org.novagladecode.livesplugin.listeners.GameListener;
+import org.novagladecode.livesplugin.listeners.MaceListener;
+import org.novagladecode.livesplugin.listeners.BladeListener;
+import org.novagladecode.livesplugin.gui.RecipeGUI;
 
 public class LivePlugin extends JavaPlugin {
 
@@ -20,8 +31,8 @@ public class LivePlugin extends JavaPlugin {
     private NetherMaceCommand netherMaceCommand;
     private EndMaceCommand endMaceCommand;
     private HashMap<UUID, Boolean> maceInteractMode = new HashMap<>();
-    private org.novagladecode.livesplugin.data.ForgeDataManager forgeDataManager;
-    private org.novagladecode.livesplugin.logic.ForgeStructureManager forgeStructureManager;
+    private ForgeDataManager forgeDataManager;
+    private ForgeStructureManager forgeStructureManager;
     private boolean forgeActive = false;
     private Map<String, Boolean> globalAbilityToggles = new HashMap<>();
 
@@ -29,11 +40,10 @@ public class LivePlugin extends JavaPlugin {
     public void onEnable() {
         // Initialize Managers
         this.dataManager = new PlayerDataManager(this);
-        this.forgeDataManager = new org.novagladecode.livesplugin.data.ForgeDataManager(this);
-        this.forgeStructureManager = new org.novagladecode.livesplugin.logic.ForgeStructureManager(this);
+        this.forgeDataManager = new ForgeDataManager(this);
+        this.forgeStructureManager = new ForgeStructureManager(this);
         this.itemManager = new ItemManager(this);
-        org.novagladecode.livesplugin.gui.RecipeGUI recipeGUI = new org.novagladecode.livesplugin.gui.RecipeGUI(
-                itemManager);
+        RecipeGUI recipeGUI = new RecipeGUI(itemManager);
         getServer().getPluginManager().registerEvents(recipeGUI, this);
 
         // Register Commands
@@ -47,30 +57,30 @@ public class LivePlugin extends JavaPlugin {
         endMaceCommand = new org.novagladecode.livesplugin.commands.EndMaceCommand(this, dataManager);
         getCommand("endmace").setExecutor(endMaceCommand);
 
-        getCommand("forge").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this, dataManager));
+        getCommand("forge").setExecutor(new MaceCommand(this, dataManager));
 
         // getCommand("weapon").setExecutor(new
         // org.novagladecode.livesplugin.commands.WeaponCommand(itemManager, recipeGUI,
         // dataManager)); // Weapon command is now obsolete
 
-        getCommand("trust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
-        getCommand("untrust").setExecutor(new org.novagladecode.livesplugin.commands.TrustCommand(dataManager));
+        getCommand("trust").setExecutor(new TrustCommand(dataManager));
+        getCommand("untrust").setExecutor(new TrustCommand(dataManager));
 
         getCommand("ghostblade")
-                .setExecutor(new org.novagladecode.livesplugin.commands.GhostbladeCommand(this, dataManager));
+                .setExecutor(new GhostbladeCommand(this, dataManager));
         getCommand("dragonblade")
-                .setExecutor(new org.novagladecode.livesplugin.commands.DragonbladeCommand(this, dataManager));
+                .setExecutor(new DragonbladeCommand(this, dataManager));
         getCommand("mistblade")
-                .setExecutor(new org.novagladecode.livesplugin.commands.MistbladeCommand(this, dataManager));
+                .setExecutor(new MistbladeCommand(this, dataManager));
         getCommand("soulblade")
-                .setExecutor(new org.novagladecode.livesplugin.commands.SoulbladeCommand(this, dataManager));
+                .setExecutor(new SoulbladeCommand(this, dataManager));
 
         // Register Listeners
-        getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.GameListener(this,
+        getServer().getPluginManager().registerEvents(new GameListener(this,
                 dataManager, itemManager), this);
-        getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.MaceListener(this,
+        getServer().getPluginManager().registerEvents(new MaceListener(this,
                 wardenMaceCommand, netherMaceCommand, endMaceCommand), this);
-        getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.BladeListener(this),
+        getServer().getPluginManager().registerEvents(new BladeListener(this),
                 this);
 
         // Register Recipes
@@ -111,11 +121,11 @@ public class LivePlugin extends JavaPlugin {
         return dataManager;
     }
 
-    public org.novagladecode.livesplugin.data.ForgeDataManager getForgeDataManager() {
+    public ForgeDataManager getForgeDataManager() {
         return forgeDataManager;
     }
 
-    public org.novagladecode.livesplugin.logic.ForgeStructureManager getForgeStructureManager() {
+    public ForgeStructureManager getForgeStructureManager() {
         return forgeStructureManager;
     }
 

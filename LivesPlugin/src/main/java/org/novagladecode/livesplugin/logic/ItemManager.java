@@ -481,19 +481,19 @@ public class ItemManager {
     public boolean isEndMace(ItemStack item) {
         if (item == null || item.getType() != Material.MACE || !item.hasItemMeta())
             return false;
-        return "§5End Mace".equals(item.getItemMeta().getDisplayName());
+        return "§5§lEnd Mace".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isWardenMaceAnywhere() {
-        return isMaceWithNameAnywhere("§3Warden Mace");
+        return isMaceWithNameAnywhere("§3§lWarden Mace");
     }
 
     public boolean isNetherMaceAnywhere() {
-        return isMaceWithNameAnywhere("§cNether Mace");
+        return isMaceWithNameAnywhere("§c§lNether Mace");
     }
 
     public boolean isEndMaceAnywhere() {
-        return isMaceWithNameAnywhere("§5End Mace");
+        return isMaceWithNameAnywhere("§5§lEnd Mace");
     }
 
     private boolean isMaceWithNameAnywhere(String name) {
@@ -525,21 +525,21 @@ public class ItemManager {
 
     public boolean isGhostblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§7Ghostblade".equals(item.getItemMeta().getDisplayName());
+                && "§f§lGhostblade".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isDragonblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§6Dragonblade".equals(item.getItemMeta().getDisplayName());
+                && "§6§lDragonblade".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isMistblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§bMistblade".equals(item.getItemMeta().getDisplayName());
+                && "§b§lMistblade".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isSoulblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§8Soulblade".equals(item.getItemMeta().getDisplayName());
+                && "§8§lSoulblade".equals(item.getItemMeta().getDisplayName());
     }
 }

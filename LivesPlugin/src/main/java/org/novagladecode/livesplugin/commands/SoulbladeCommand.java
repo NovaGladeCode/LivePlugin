@@ -1,13 +1,19 @@
 package org.novagladecode.livesplugin.commands;
 
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 
@@ -76,25 +82,25 @@ public class SoulbladeCommand implements CommandExecutor {
         p.getWorld().playSound(p.getLocation(), Sound.ENTITY_VEX_CHARGE, 1.0f, 0.5f);
 
         // Shoot particles in a line
-        org.bukkit.util.Vector dir = p.getLocation().getDirection();
+        Vector dir = p.getLocation().getDirection();
         for (double i = 1; i < 20; i += 0.5) {
-            org.bukkit.Location loc = p.getEyeLocation().add(dir.clone().multiply(i));
-            p.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME, loc, 10, 0.2, 0.2, 0.2, 0.05);
-            p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, loc, 5, 0.1, 0.1, 0.1, 0.02);
-            p.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, loc, 2, 0.1, 0.1, 0.1, 0.01);
+            Location loc = p.getEyeLocation().add(dir.clone().multiply(i));
+            p.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, loc, 10, 0.2, 0.2, 0.2, 0.05);
+            p.getWorld().spawnParticle(Particle.SOUL, loc, 5, 0.1, 0.1, 0.1, 0.02);
+            p.getWorld().spawnParticle(Particle.SCULK_SOUL, loc, 2, 0.1, 0.1, 0.1, 0.01);
         }
 
         // Damage logic in a raytrace
-        org.bukkit.util.RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
-                dir, 20, 1.0, (e) -> e != p && e instanceof org.bukkit.entity.LivingEntity);
+        RayTraceResult result = p.getWorld().rayTraceEntities(p.getEyeLocation(),
+                dir, 20, 1.0, (e) -> e != p && e instanceof LivingEntity);
         if (result != null && result.getHitEntity() != null) {
-            org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) result.getHitEntity();
+            LivingEntity target = (LivingEntity) result.getHitEntity();
             target.damage(15.0, p);
             target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, 100, 1)); // Wither II for 5s
             target.sendMessage("§8§oYour soul has been scorched...");
-            target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 50, 0.5, 0.5,
+            target.getWorld().spawnParticle(Particle.SOUL, target.getLocation().add(0, 1, 0), 50, 0.5, 0.5,
                     0.5, 0.1);
-            target.getWorld().spawnParticle(org.bukkit.Particle.FLASH, target.getLocation().add(0, 1, 0), 1, 0, 0, 0,
+            target.getWorld().spawnParticle(Particle.FLASH, target.getLocation().add(0, 1, 0), 1, 0, 0, 0,
                     0);
         }
 
@@ -118,15 +124,15 @@ public class SoulbladeCommand implements CommandExecutor {
 
         // Soul Devour: Area Life Drain
         int targetsHit = 0;
-        for (org.bukkit.entity.Entity e : p.getNearbyEntities(6, 6, 6)) {
-            if (e instanceof org.bukkit.entity.LivingEntity && e != p) {
-                org.bukkit.entity.LivingEntity target = (org.bukkit.entity.LivingEntity) e;
+        for (Entity e : p.getNearbyEntities(6, 6, 6)) {
+            if (e instanceof LivingEntity && e != p) {
+                LivingEntity target = (LivingEntity) e;
                 if (target instanceof Player && dataManager.isTrusted(p.getUniqueId(), target.getUniqueId()))
                     continue;
 
                 target.damage(8.0, p);
                 target.sendMessage("§8§lYour essence is being drained!");
-                target.getWorld().spawnParticle(org.bukkit.Particle.SOUL, target.getLocation().add(0, 1, 0), 40, 0.5,
+                target.getWorld().spawnParticle(Particle.SOUL, target.getLocation().add(0, 1, 0), 40, 0.5,
                         0.5, 0.5, 0.1);
                 targetsHit++;
             }
@@ -143,8 +149,8 @@ public class SoulbladeCommand implements CommandExecutor {
         }
 
         p.playSound(p.getLocation(), Sound.ENTITY_WITHER_SPAWN, 0.8f, 1.5f);
-        p.getWorld().spawnParticle(org.bukkit.Particle.SOUL, p.getLocation().add(0, 1, 0), 200, 5, 1, 5, 0.2);
-        p.getWorld().spawnParticle(org.bukkit.Particle.LARGE_SMOKE, p.getLocation().add(0, 1, 0), 100, 4, 1, 4, 0.1);
+        p.getWorld().spawnParticle(Particle.SOUL, p.getLocation().add(0, 1, 0), 200, 5, 1, 5, 0.2);
+        p.getWorld().spawnParticle(Particle.LARGE_SMOKE, p.getLocation().add(0, 1, 0), 100, 4, 1, 4, 0.1);
 
         cooldown2.put(p.getUniqueId(), now + 30000); // 30s
     }

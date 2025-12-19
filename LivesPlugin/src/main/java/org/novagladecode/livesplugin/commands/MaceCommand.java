@@ -1,22 +1,23 @@
 package org.novagladecode.livesplugin.commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.NamespacedKey;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.inventory.Recipe;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.RecipeGUI;
-import org.bukkit.block.Block;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -72,7 +73,7 @@ public class MaceCommand implements CommandExecutor {
                 // Remove old custom recipes first
                 JavaPlugin javaPlugin = plugin;
                 String[] types = { "warden", "nether", "end", "ghostblade", "dragonblade", "mistblade", "soulblade" };
-                List<NamespacedKey> keyList = new java.util.ArrayList<>();
+                List<NamespacedKey> keyList = new ArrayList<>();
                 keyList.add(new NamespacedKey(javaPlugin, "warden_mace"));
                 keyList.add(new NamespacedKey(javaPlugin, "nether_mace"));
                 keyList.add(new NamespacedKey(javaPlugin, "end_mace"));
@@ -331,9 +332,9 @@ public class MaceCommand implements CommandExecutor {
                 if (type.equals("all")) {
                     String[] types = { "warden", "nether", "end", "ghostblade", "dragonblade", "mistblade",
                             "soulblade" };
-                    org.bukkit.Location start = p.getLocation();
+                    Location start = p.getLocation();
                     for (int i = 0; i < types.length; i++) {
-                        org.bukkit.Location loc = start.clone().add(i * 7, 0, 0);
+                        Location loc = start.clone().add(i * 7, 0, 0);
                         plugin.getForgeStructureManager().buildForge(loc, types[i]);
                     }
                     p.sendMessage("§aGenerated all Forge structures in a line!");

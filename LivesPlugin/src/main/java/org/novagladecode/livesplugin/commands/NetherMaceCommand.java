@@ -12,8 +12,14 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.novagladecode.livesplugin.LivePlugin;
+import org.novagladecode.livesplugin.data.PlayerDataManager;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.SmallFireball;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.Color;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -21,11 +27,11 @@ import java.util.UUID;
 public class NetherMaceCommand implements CommandExecutor {
 
     private final JavaPlugin plugin;
-    private final org.novagladecode.livesplugin.data.PlayerDataManager dataManager;
+    private final PlayerDataManager dataManager;
     private final HashMap<UUID, Long> cooldown1 = new HashMap<>();
     private final HashMap<UUID, Long> cooldown2 = new HashMap<>();
 
-    public NetherMaceCommand(JavaPlugin plugin, org.novagladecode.livesplugin.data.PlayerDataManager dataManager) {
+    public NetherMaceCommand(LivePlugin plugin, PlayerDataManager dataManager) {
         this.plugin = plugin;
         this.dataManager = dataManager;
     }
@@ -159,8 +165,8 @@ public class NetherMaceCommand implements CommandExecutor {
 
                 // Add a fireball entity for extra visibility
                 if (step % 4 == 0) {
-                    org.bukkit.entity.Fireball fireball = current.getWorld().spawn(current,
-                            org.bukkit.entity.SmallFireball.class);
+                    Fireball fireball = current.getWorld().spawn(current,
+                            SmallFireball.class);
                     fireball.setVelocity(new Vector(0, -1, 0));
                     fireball.setYield(2.0f); // Higher yield for damage (careful with griefing - set gamerule if needed)
                     fireball.setIsIncendiary(true);
@@ -187,7 +193,7 @@ public class NetherMaceCommand implements CommandExecutor {
 
                             if (type != Material.AIR && type != Material.BEDROCK && type != Material.BARRIER
                                     && type != Material.LAVA && type != Material.WATER) {
-                                org.bukkit.entity.FallingBlock fb = end.getWorld()
+                                FallingBlock fb = end.getWorld()
                                         .spawnFallingBlock(end.clone().add(x, 0.5, z), type.createBlockData());
                                 Vector velocity = new Vector(x * 0.3, 0.6 + Math.random() * 0.4, z * 0.3);
                                 fb.setVelocity(velocity);
@@ -263,12 +269,12 @@ public class NetherMaceCommand implements CommandExecutor {
             double height = 15;
 
             // Color options for dramatic effect
-            org.bukkit.Particle.DustOptions redDust = new org.bukkit.Particle.DustOptions(
-                    org.bukkit.Color.fromRGB(255, 50, 0), 2.0f);
-            org.bukkit.Particle.DustOptions orangeDust = new org.bukkit.Particle.DustOptions(
-                    org.bukkit.Color.fromRGB(255, 165, 0), 2.0f);
-            org.bukkit.Particle.DustOptions yellowDust = new org.bukkit.Particle.DustOptions(
-                    org.bukkit.Color.fromRGB(255, 255, 0), 1.5f);
+            Particle.DustOptions redDust = new Particle.DustOptions(
+                    Color.fromRGB(255, 50, 0), 2.0f);
+            Particle.DustOptions orangeDust = new Particle.DustOptions(
+                    Color.fromRGB(255, 165, 0), 2.0f);
+            Particle.DustOptions yellowDust = new Particle.DustOptions(
+                    Color.fromRGB(255, 255, 0), 1.5f);
 
             for (double y = 0; y < height; y += 0.15) {
                 // Funnel shape: Starts thin, gets wider at top
@@ -350,8 +356,8 @@ public class NetherMaceCommand implements CommandExecutor {
                     double fireZ = Math.sin(angle) * 5;
 
                     Location fireLoc = center.clone().add(fireX, 2, fireZ);
-                    org.bukkit.entity.Fireball fireball = center.getWorld().spawn(fireLoc,
-                            org.bukkit.entity.SmallFireball.class);
+                    Fireball fireball = center.getWorld().spawn(fireLoc,
+                            SmallFireball.class);
                     Vector direction = center.toVector().subtract(fireLoc.toVector()).normalize();
                     fireball.setDirection(direction);
                     fireball.setShooter(p);
