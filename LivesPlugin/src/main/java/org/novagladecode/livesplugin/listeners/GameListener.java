@@ -345,10 +345,13 @@ public class GameListener implements Listener {
             if (type == null)
                 type = "default";
 
-            // Build the aesthetic structure centered on the placed block
-            ((LivePlugin) plugin).getForgeStructureManager().buildForge(e.getBlockPlaced().getLocation(), type);
+            org.bukkit.block.Block block = e.getBlockPlaced();
+            block.setMetadata("sacred_forge", new FixedMetadataValue(plugin, true));
+            block.setMetadata("forge_type", new FixedMetadataValue(plugin, type));
+            block.setMetadata("needs_build", new FixedMetadataValue(plugin, true));
 
-            e.getPlayer().sendMessage("§aYou have placed a §b" + type.toUpperCase() + " Forge§a structure!");
+            e.getPlayer().sendMessage("§aYou have placed a §b" + type.toUpperCase() + " Forge§a block!");
+            e.getPlayer().sendMessage("§eLook at it or stand on it and type §b/forge place §eto build the structure!");
         }
     }
 

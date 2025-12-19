@@ -19,6 +19,7 @@ public class LivePlugin extends JavaPlugin {
     private org.novagladecode.livesplugin.data.ForgeDataManager forgeDataManager;
     private org.novagladecode.livesplugin.logic.ForgeStructureManager forgeStructureManager;
     private boolean forgeActive = false;
+    private java.util.Map<String, Boolean> globalAbilityToggles = new java.util.HashMap<>();
 
     @Override
     public void onEnable() {

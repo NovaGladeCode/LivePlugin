@@ -15,6 +15,7 @@ import org.bukkit.inventory.Recipe;
 import org.novagladecode.livesplugin.LivePlugin;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.gui.RecipeGUI;
+import org.bukkit.block.Block;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -292,6 +293,29 @@ public class MaceCommand implements CommandExecutor {
                 }
                 return true;
 
+            case "place":
+                if (p == null)
+                    return true;
+                Block tb = p.getTargetBlockExact(5);
+                if (tb == null || tb.getType() != Material.CRAFTING_TABLE || !tb.hasMetadata("needs_build")) {
+                    // Try standing on it or block below
+                    tb = p.getLocation().getBlock();
+                    if (tb.getType() != Material.CRAFTING_TABLE || !tb.hasMetadata("needs_build")) {
+                        tb = p.getLocation().clone().subtract(0, 1, 0).getBlock();
+                    }
+                }
+
+                if (tb != null && tb.getType() == Material.CRAFTING_TABLE && tb.hasMetadata("needs_build")) {
+                    String forgeType = tb.getMetadata("forge_type").get(0).asString();
+                    plugin.getForgeStructureManager().buildForge(tb.getLocation(), forgeType);
+                    tb.removeMetadata("needs_build", plugin);
+                    p.sendMessage("§aSacred Forge structure generated!");
+                } else {
+                    p.sendMessage("§cYou must be looking at or standing on an unbuilt Sacred Forge block!");
+                    p.sendMessage("§7(Place a Sacred Forge item first)");
+                }
+                return true;
+
             case "set":
                 if (!sender.isOp() || p == null) {
                     sender.sendMessage("§cOnly OPs can use this, and must be a player.");
@@ -480,6 +504,7 @@ public class MaceCommand implements CommandExecutor {
             sender.sendMessage("§e/forge level §7- Check your current Forge Level");
             sender.sendMessage("§e/forge togglecontrol §7- Toggle click-to-cast");
             sender.sendMessage("§e/forge withdraw <amount> §7- Convert Forge Points to items");
+            sender.sendMessage("§e/forge place §7- Form the structure of a placed Forge");
             sender.sendMessage("§e/forge recipe §7- Show custom recipe menu");
         }
         // Admin section - only visible to operators
