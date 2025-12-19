@@ -342,13 +342,13 @@ public class GameListener implements Listener {
         ItemStack item = e.getItemInMainHand();
         if (itemManager.isSacredForge(item)) {
             String type = itemManager.getForgeType(item);
-            e.getBlockPlaced().setMetadata("sacred_forge", new FixedMetadataValue(plugin, true));
-            if (type != null) {
-                e.getBlockPlaced().setMetadata("forge_type", new FixedMetadataValue(plugin, type));
-            }
-            // Logic for persistent tracking
-            ((LivePlugin) plugin).getForgeDataManager().addForge(e.getBlockPlaced().getLocation());
-            e.getPlayer().sendMessage("§aYou have placed a " + (type == null ? "Sacred Forge" : type + " Forge") + "!");
+            if (type == null)
+                type = "default";
+
+            // Build the aesthetic structure centered on the placed block
+            ((LivePlugin) plugin).getForgeStructureManager().buildForge(e.getBlockPlaced().getLocation(), type);
+
+            e.getPlayer().sendMessage("§aYou have placed a §b" + type.toUpperCase() + " Forge§a structure!");
         }
     }
 
