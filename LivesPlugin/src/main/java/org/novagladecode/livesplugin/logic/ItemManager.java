@@ -30,10 +30,15 @@ public class ItemManager {
         createNetherMace();
         createEndMace();
 
+        registerWardenMaceRecipe();
+        registerNetherMaceRecipe();
+        registerEndMaceRecipe();
+        registerChickenBowRecipe();
         registerGhostbladeRecipe();
         registerDragonbladeRecipe();
         registerMistbladeRecipe();
         registerSoulbladeRecipe();
+        registerForgeCompassRecipe();
     }
 
     public void registerUnbanRecipe() {
@@ -53,46 +58,50 @@ public class ItemManager {
         ItemStack wardenMace = createWardenMace();
         NamespacedKey key = new NamespacedKey(plugin, "warden_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, wardenMace);
-        recipe.shape("CSC", "SHS", "CMC");
-        recipe.setIngredient('C', Material.SCULK_CATALYST);
-        recipe.setIngredient('S', Material.SCULK_SENSOR);
-        recipe.setIngredient('H', Material.ECHO_SHARD); // Warden Heart
+        recipe.shape("LHL", "CMC", "LSL");
+        recipe.setIngredient('L', Material.SCULK_CATALYST);
+        recipe.setIngredient('H', Material.ECHO_SHARD); // Warden Heart substitute
+        recipe.setIngredient('C', Material.SCULK_SENSOR);
         recipe.setIngredient('M', Material.HEAVY_CORE);
+        recipe.setIngredient('S', Material.NETHERITE_SWORD); // Shaft/Handle requirement
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("warden", Material.SCULK_CATALYST);
     }
 
     public void registerNetherMaceRecipe() {
         ItemStack netherMace = createNetherMace();
         NamespacedKey key = new NamespacedKey(plugin, "nether_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, netherMace);
-        recipe.shape("ISI", "SHS", "BMB");
-        recipe.setIngredient('I', Material.NETHERITE_INGOT);
-        recipe.setIngredient('S', Material.NETHERITE_SCRAP);
-        recipe.setIngredient('H', Material.NAUTILUS_SHELL); // Wither Heart now
+        recipe.shape("BSB", "NMN", "BIB");
         recipe.setIngredient('B', Material.BLAZE_ROD);
+        recipe.setIngredient('S', Material.NAUTILUS_SHELL); // Wither Heart
+        recipe.setIngredient('N', Material.NETHERITE_INGOT);
         recipe.setIngredient('M', Material.HEAVY_CORE);
+        recipe.setIngredient('I', Material.NETHERITE_BLOCK);
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("nether", Material.CRYING_OBSIDIAN);
     }
 
     public void registerEndMaceRecipe() {
         createEndMace();
         NamespacedKey key = new NamespacedKey(plugin, "end_mace");
         ShapedRecipe recipe = new ShapedRecipe(key, customEndMace);
-        recipe.shape("PCP", "CHC", "BMB");
-        recipe.setIngredient('P', Material.POPPED_CHORUS_FRUIT);
-        recipe.setIngredient('C', Material.DRAGON_HEAD);
+        recipe.shape("DHD", "EME", "DSD");
+        recipe.setIngredient('D', Material.DRAGON_BREATH);
         recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Dragon Heart
-        recipe.setIngredient('B', Material.BREEZE_ROD);
+        recipe.setIngredient('E', Material.DRAGON_HEAD);
         recipe.setIngredient('M', Material.HEAVY_CORE);
+        recipe.setIngredient('S', Material.BREEZE_ROD);
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("end", Material.PURPUR_BLOCK);
     }
 
     public void registerChickenBowRecipe() {
         ItemStack item = createChickenBow();
         NamespacedKey key = new NamespacedKey(plugin, "chicken_bow");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("DFD", "FBF", "DFD");
-        recipe.setIngredient('D', Material.DIAMOND);
+        recipe.shape("EFF", "EBF", "EFF");
+        recipe.setIngredient('E', Material.EGG);
         recipe.setIngredient('F', Material.FEATHER);
         recipe.setIngredient('B', Material.BOW);
         Bukkit.addRecipe(recipe);
@@ -102,52 +111,83 @@ public class ItemManager {
         ItemStack item = createGhostblade();
         NamespacedKey key = new NamespacedKey(plugin, "ghostblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("TNS", "SWS", "SNT");
+        recipe.shape("TNT", "SWS", "TNT");
         recipe.setIngredient('T', Material.TOTEM_OF_UNDYING);
         recipe.setIngredient('N', Material.NETHERITE_INGOT);
         recipe.setIngredient('S', Material.SOUL_SAND);
         recipe.setIngredient('W', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("ghostblade", Material.SOUL_SAND);
     }
 
     public void registerDragonbladeRecipe() {
         ItemStack item = createDragonblade();
         NamespacedKey key = new NamespacedKey(plugin, "dragonblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("HBH", "BWB", "HBH");
-        recipe.setIngredient('H', Material.DRAGON_HEAD);
-        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
+        recipe.shape("EHE", "NWN", "EBE");
+        recipe.setIngredient('E', Material.DRAGON_HEAD);
+        recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Dragon Heart
+        recipe.setIngredient('N', Material.NETHERITE_INGOT);
         recipe.setIngredient('W', Material.NETHERITE_SWORD);
+        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("dragonblade", Material.OBSIDIAN);
     }
 
     public void registerMistbladeRecipe() {
         ItemStack item = createMistblade();
         NamespacedKey key = new NamespacedKey(plugin, "mistblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("TBT", "BWB", "TBT");
+        recipe.shape("TBT", "PWP", "TBT");
         recipe.setIngredient('T', Material.TRIDENT);
         recipe.setIngredient('B', Material.NETHERITE_BLOCK);
+        recipe.setIngredient('P', Material.PRISMARINE_BRICKS);
         recipe.setIngredient('W', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("mistblade", Material.PRISMARINE_BRICKS);
     }
 
     public void registerSoulbladeRecipe() {
         ItemStack item = createSoulblade();
         NamespacedKey key = new NamespacedKey(plugin, "soulblade");
         ShapedRecipe recipe = new ShapedRecipe(key, item);
-        recipe.shape("WBW", "BWB", "WBW");
-        recipe.setIngredient('W', Material.WITHER_SKELETON_SKULL);
-        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
-        // Using W again for the sword in the middle might be confusing in the shape
-        // string, let's use 'S' for sword and 'X' for skull
-        recipe.shape("XNB", "NSW", "BNX");
+        recipe.shape("XHX", "NWS", "XNX");
         recipe.setIngredient('X', Material.WITHER_SKELETON_SKULL);
-        recipe.setIngredient('N', Material.NETHERITE_INGOT);
-        recipe.setIngredient('B', Material.NETHERITE_BLOCK);
-        recipe.setIngredient('S', Material.NETHERITE_SWORD);
-        recipe.setIngredient('W', Material.WITHER_SKELETON_SKULL); // Duplicate to match shape
+        recipe.setIngredient('H', Material.NAUTILUS_SHELL); // Wither Heart
+        recipe.setIngredient('N', Material.NETHERITE_BLOCK);
+        recipe.setIngredient('S', Material.SOUL_SAND);
+        recipe.setIngredient('W', Material.NETHERITE_SWORD);
         Bukkit.addRecipe(recipe);
+        registerSacredForgeRecipe("soulblade", Material.BLACKSTONE);
+    }
+
+    private void registerSacredForgeRecipe(String type, Material thematicMaterial) {
+        ItemStack forge = createSacredForge(type);
+        NamespacedKey key = new NamespacedKey(plugin, type + "_forge");
+        ShapedRecipe recipe = new ShapedRecipe(key, forge);
+        recipe.shape("MMM", "MCM", "MMM");
+        recipe.setIngredient('M', thematicMaterial);
+        recipe.setIngredient('C', Material.CRAFTING_TABLE);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerForgeCompassRecipe() {
+        ItemStack compass = createForgeCompass();
+        NamespacedKey key = new NamespacedKey(plugin, "forge_compass");
+        ShapedRecipe recipe = new ShapedRecipe(key, compass);
+        recipe.shape(" D ", "DCD", " D ");
+        recipe.setIngredient('D', Material.DIAMOND);
+        recipe.setIngredient('C', Material.COMPASS);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public ItemStack createForgeCompass() {
+        ItemStack item = new ItemStack(Material.COMPASS);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName("§6§lForge Compass");
+        meta.setLore(Arrays.asList("§7Right-click to point to", "§7a random Sacred Forge!"));
+        item.setItemMeta(meta);
+        return item;
     }
 
     public ItemStack createWardenHeart() {
@@ -162,12 +202,19 @@ public class ItemManager {
     public ItemStack createWardenMace() {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
-        meta.setDisplayName("§3Warden Mace");
+        meta.setDisplayName("§3§lWarden Mace");
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         List<String> lore = new ArrayList<>();
-        lore.add("§7Forged from the heart of the deep dark...");
-        lore.add("§7Abilities:");
-        lore.add("§b/wardenmace 1 §7- Sonic Wave");
-        lore.add("§b/wardenmace 2 §7- Warden's Grasp");
+        lore.add("§8§oForged from the heart of the deep dark...");
+        lore.add("");
+        lore.add("§6§lLegendary Weapon");
+        lore.add("§7Passives:");
+        lore.add("§b- Echo Sense: §7Gain night vision in caves");
+        lore.add("");
+        lore.add("§b§lAbilities:");
+        lore.add("§b/wardenmace 1 §8| §fSonic Wave");
+        lore.add("§b/wardenmace 2 §8| §fWarden's Grasp");
         meta.setLore(lore);
         mace.setItemMeta(meta);
         return mace;
@@ -176,12 +223,19 @@ public class ItemManager {
     public ItemStack createNetherMace() {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
-        meta.setDisplayName("§cNether Mace");
+        meta.setDisplayName("§c§lNether Mace");
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.FIRE_ASPECT, 2, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         List<String> lore = new ArrayList<>();
-        lore.add("§7Forged in the depths of the Nether...");
-        lore.add("§7Abilities:");
-        lore.add("§6/nethermace 1 §7- Infernal Wrath");
-        lore.add("§6/nethermace 2 §7- Fire Tornado");
+        lore.add("§8§oForged in the boiling rivers of the Nether...");
+        lore.add("");
+        lore.add("§6§lLegendary Weapon");
+        lore.add("§7Passives:");
+        lore.add("§c- Infernal Body: §7Immune to Fire & Wither");
+        lore.add("");
+        lore.add("§c§lAbilities:");
+        lore.add("§6/nethermace 1 §8| §fInfernal Wrath");
+        lore.add("§6/nethermace 2 §8| §fFire Tornado");
         meta.setLore(lore);
         mace.setItemMeta(meta);
         customNetherMace = mace;
@@ -191,15 +245,21 @@ public class ItemManager {
     public ItemStack createEndMace() {
         ItemStack item = new ItemStack(Material.MACE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName("§5End Mace");
-        List<String> lore = new ArrayList<>();
-        lore.add("§7Formed from the void itself");
-        lore.add("§7Abilities:");
-        lore.add("§5/endmace 1 §7- Void Cloak");
-        lore.add("§5/endmace 2 §7- Singularity");
-        meta.setLore(lore);
+        meta.setDisplayName("§5§lEnd Mace");
         meta.setUnbreakable(true);
         meta.addEnchant(org.bukkit.enchantments.Enchantment.BREACH, 3, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        List<String> lore = new ArrayList<>();
+        lore.add("§8§oFormed from the silent essence of the void...");
+        lore.add("");
+        lore.add("§6§lLegendary Weapon");
+        lore.add("§7Passives:");
+        lore.add("§d- Void Shield: §7Immune to Fall & Dragon Breath");
+        lore.add("");
+        lore.add("§d§lAbilities:");
+        lore.add("§5/endmace 1 §8| §fVoid Cloak");
+        lore.add("§5/endmace 2 §8| §fSingularity");
+        meta.setLore(lore);
         item.setItemMeta(meta);
         customEndMace = item;
         return item;
@@ -222,16 +282,21 @@ public class ItemManager {
     public ItemStack createGhostblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§7Ghostblade");
-        List<String> lore = new ArrayList<>();
-        lore.add("§7A spectral blade from the beyond.");
-        lore.add("§7Passives:");
-        lore.add("§f- Invisibility §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/ghostblade 1 (§fRight-Click§7) - Haunt");
-        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Spectral Pull");
-        meta.setLore(lore);
+        meta.setDisplayName("§f§lGhostblade");
         meta.setUnbreakable(true);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.SHARPNESS, 5, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        List<String> lore = new ArrayList<>();
+        lore.add("§8§oA spectral blade that exists between worlds.");
+        lore.add("");
+        lore.add("§6§lLegendary Blade");
+        lore.add("§7Passives:");
+        lore.add("§f- Ethereal: §7Invisibility while holding");
+        lore.add("");
+        lore.add("§f§lAbilities:");
+        lore.add("§7/ghostblade 1 §8| §fHaunt");
+        lore.add("§7/ghostblade 2 §8| §fSpectral Pull");
+        meta.setLore(lore);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -239,16 +304,21 @@ public class ItemManager {
     public ItemStack createDragonblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§6Dragonblade");
-        List<String> lore = new ArrayList<>();
-        lore.add("§7Forged in the breath of a dragon.");
-        lore.add("§7Passives:");
-        lore.add("§f- No Fall Damage §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/dragonblade 1 (§fRight-Click§7) - Dragon Leap");
-        lore.add("§7/dragonblade 2 (§fShift+Right-Click§7) - Dragon Strike");
-        meta.setLore(lore);
+        meta.setDisplayName("§6§lDragonblade");
         meta.setUnbreakable(true);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.KNOCKBACK, 2, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        List<String> lore = new ArrayList<>();
+        lore.add("§8§oForged in the dying breath of a King.");
+        lore.add("");
+        lore.add("§6§lLegendary Blade");
+        lore.add("§7Passives:");
+        lore.add("§e- Dragon Flight: §7Immune to fall damage");
+        lore.add("");
+        lore.add("§e§lAbilities:");
+        lore.add("§7/dragonblade 1 §8| §fDragon Leap");
+        lore.add("§7/dragonblade 2 §8| §fDragon Strike");
+        meta.setLore(lore);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -256,16 +326,21 @@ public class ItemManager {
     public ItemStack createMistblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§bMistblade");
-        List<String> lore = new ArrayList<>();
-        lore.add("§7A blade of pure condensation.");
-        lore.add("§7Passives:");
-        lore.add("§f- Dolphin's Grace §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/mistblade 1 (§fRight-Click§7) - Trident Storm");
-        lore.add("§7/mistblade 2 (§fShift+Right-Click§7) - Tidal Surge");
-        meta.setLore(lore);
+        meta.setDisplayName("§b§lMistblade");
         meta.setUnbreakable(true);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.LURE, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        List<String> lore = new ArrayList<>();
+        lore.add("§8§oA blade woven from sea spray and tidal force.");
+        lore.add("");
+        lore.add("§6§lLegendary Blade");
+        lore.add("§7Passives:");
+        lore.add("§b- Sea Grace: §7Dolphin's Grace while holding");
+        lore.add("");
+        lore.add("§b§lAbilities:");
+        lore.add("§7/mistblade 1 §8| §fTrident Storm");
+        lore.add("§7/mistblade 2 §8| §fTidal Surge");
+        meta.setLore(lore);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -273,16 +348,21 @@ public class ItemManager {
     public ItemStack createSoulblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§8Soulblade");
-        List<String> lore = new ArrayList<>();
-        lore.add("§7Consumes the very essence of the wielder.");
-        lore.add("§7Passives:");
-        lore.add("§f- Strength I §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/soulblade 1 (§fRight-Click§7) - Soul Beam");
-        lore.add("§7/soulblade 2 (§fShift+Right-Click§7) - Soul Devour");
-        meta.setLore(lore);
+        meta.setDisplayName("§8§lSoulblade");
         meta.setUnbreakable(true);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.BANE_OF_ARTHROPODS, 1, true); // Visual glint
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        List<String> lore = new ArrayList<>();
+        lore.add("§8§oIt hungers for the quintessence of its master.");
+        lore.add("");
+        lore.add("§6§lLegendary Blade");
+        lore.add("§7Passives:");
+        lore.add("§8- Soul Empowerment: §7Continuous Strength I");
+        lore.add("");
+        lore.add("§8§lAbilities:");
+        lore.add("§7/soulblade 1 §8| §fSoul Beam");
+        lore.add("§7/soulblade 2 §8| §fSoul Devour");
+        meta.setLore(lore);
         sword.setItemMeta(meta);
         return sword;
     }

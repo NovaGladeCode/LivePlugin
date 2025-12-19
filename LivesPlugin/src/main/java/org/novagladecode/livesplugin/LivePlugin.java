@@ -68,11 +68,8 @@ public class LivePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.BladeListener(this),
                 this);
 
-        // Register Recipes (Duplicates removed, kept one set)
-        itemManager.registerWardenMaceRecipe();
-        itemManager.registerNetherMaceRecipe();
-        itemManager.registerEndMaceRecipe();
-        itemManager.registerChickenBowRecipe();
+        // Register Recipes
+        itemManager.init();
 
         getLogger().info("Lives Plugin has been enabled! (Lite Mode)");
     }
