@@ -8,6 +8,10 @@ import org.novagladecode.livesplugin.commands.EndMaceCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class LivePlugin extends JavaPlugin {
 
     private PlayerDataManager dataManager;
@@ -15,11 +19,11 @@ public class LivePlugin extends JavaPlugin {
     private WardenMaceCommand wardenMaceCommand;
     private NetherMaceCommand netherMaceCommand;
     private EndMaceCommand endMaceCommand;
-    private java.util.HashMap<java.util.UUID, Boolean> maceInteractMode = new java.util.HashMap<>();
+    private HashMap<UUID, Boolean> maceInteractMode = new HashMap<>();
     private org.novagladecode.livesplugin.data.ForgeDataManager forgeDataManager;
     private org.novagladecode.livesplugin.logic.ForgeStructureManager forgeStructureManager;
     private boolean forgeActive = false;
-    private java.util.Map<String, Boolean> globalAbilityToggles = new java.util.HashMap<>();
+    private Map<String, Boolean> globalAbilityToggles = new HashMap<>();
 
     @Override
     public void onEnable() {
@@ -75,11 +79,11 @@ public class LivePlugin extends JavaPlugin {
         getLogger().info("Lives Plugin has been enabled! (Lite Mode)");
     }
 
-    public boolean isMaceInteractMode(java.util.UUID uuid) {
+    public boolean isMaceInteractMode(UUID uuid) {
         return maceInteractMode.getOrDefault(uuid, false);
     }
 
-    public void setMaceInteractMode(java.util.UUID uuid, boolean enabled) {
+    public void setMaceInteractMode(UUID uuid, boolean enabled) {
         maceInteractMode.put(uuid, enabled);
     }
 
