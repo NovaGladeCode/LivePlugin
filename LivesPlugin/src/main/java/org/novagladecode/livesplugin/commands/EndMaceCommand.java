@@ -14,8 +14,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ItemStack;
+
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -165,7 +166,7 @@ public class EndMaceCommand implements CommandExecutor, Listener {
     }
 
     @EventHandler
-    public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent e) {
+    public void onPlayerJoin(PlayerJoinEvent e) {
         Player newPlayer = e.getPlayer();
         for (UUID uuid : invisTasks.keySet()) {
             Player invisiblePlayer = Bukkit.getPlayer(uuid);

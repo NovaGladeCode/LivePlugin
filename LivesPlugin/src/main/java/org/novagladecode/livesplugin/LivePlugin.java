@@ -51,10 +51,10 @@ public class LivePlugin extends JavaPlugin {
         wardenMaceCommand = new WardenMaceCommand(this, dataManager);
         getCommand("wardenmace").setExecutor(wardenMaceCommand);
 
-        netherMaceCommand = new org.novagladecode.livesplugin.commands.NetherMaceCommand(this, dataManager);
+        netherMaceCommand = new NetherMaceCommand(this, dataManager);
         getCommand("nethermace").setExecutor(netherMaceCommand);
 
-        endMaceCommand = new org.novagladecode.livesplugin.commands.EndMaceCommand(this, dataManager);
+        endMaceCommand = new EndMaceCommand(this, dataManager);
         getCommand("endmace").setExecutor(endMaceCommand);
 
         getCommand("forge").setExecutor(new MaceCommand(this, dataManager));

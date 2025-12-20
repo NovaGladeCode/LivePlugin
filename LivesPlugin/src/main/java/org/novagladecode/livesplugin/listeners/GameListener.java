@@ -37,6 +37,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.AreaEffectCloud;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -311,7 +316,7 @@ public class GameListener implements Listener {
             ItemFrame frame = (ItemFrame) frameLoc.getWorld().spawnEntity(frameLoc,
                     EntityType.ITEM_FRAME);
             frame.setItem(itemManager.createDragonHeart());
-            frame.setFacingDirection(org.bukkit.block.BlockFace.UP);
+            frame.setFacingDirection(BlockFace.UP);
             frame.setFixed(true);
 
             Bukkit.broadcastMessage("§5The Dragon Heart has appeared on the portal!");
@@ -376,7 +381,7 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onPrepareItemCraft(org.bukkit.event.inventory.PrepareItemCraftEvent e) {
+    public void onPrepareItemCraft(PrepareItemCraftEvent e) {
         ItemStack result = e.getInventory().getResult();
         if (result == null)
             return;
@@ -406,7 +411,7 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onCraftItem(org.bukkit.event.inventory.CraftItemEvent e) {
+    public void onCraftItem(CraftItemEvent e) {
         if (!(e.getWhoClicked() instanceof Player))
             return;
         Player p = (Player) e.getWhoClicked();
@@ -562,23 +567,23 @@ public class GameListener implements Listener {
                         origin.getWorld().spawnParticle(Particle.FLAME, origin.clone().add(0.5, 1, 0.5), 20,
                                 0.5, 0.5, 0.5, 0.05);
                     } else if (maceType == 3) { // End
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH,
+                        origin.getWorld().spawnParticle(Particle.DRAGON_BREATH,
                                 origin.clone().add(0.5, 1, 0.5), 10, 0.2, 0.2, 0.2, 0.01);
                     } else if (maceType == 4) { // Ghost
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.ENTITY_VEX_AMBIENT, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.SOUL, origin.clone().add(0.5, 1, 0.5), 20,
+                        origin.getWorld().playSound(origin, Sound.ENTITY_VEX_AMBIENT, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(Particle.SOUL, origin.clone().add(0.5, 1, 0.5), 20,
                                 0.5, 0.5, 0.5, 0.05);
                     } else if (maceType == 5) { // Dragon
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.ENTITY_ENDER_DRAGON_GROWL, 0.5f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.DRAGON_BREATH,
+                        origin.getWorld().playSound(origin, Sound.ENTITY_ENDER_DRAGON_GROWL, 0.5f, 0.5f);
+                        origin.getWorld().spawnParticle(Particle.DRAGON_BREATH,
                                 origin.clone().add(0.5, 1, 0.5), 20, 0.5, 0.5, 0.5, 0.05);
                     } else if (maceType == 6) { // Mist
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_WATER_AMBIENT, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.SPLASH, origin.clone().add(0.5, 1, 0.5), 20,
+                        origin.getWorld().playSound(origin, Sound.BLOCK_WATER_AMBIENT, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(Particle.SPLASH, origin.clone().add(0.5, 1, 0.5), 20,
                                 0.5, 0.5, 0.5, 0.05);
                     } else if (maceType == 7) { // Soul
-                        origin.getWorld().playSound(origin, org.bukkit.Sound.BLOCK_SOUL_SAND_BREAK, 1.0f, 0.5f);
-                        origin.getWorld().spawnParticle(org.bukkit.Particle.SOUL_FIRE_FLAME,
+                        origin.getWorld().playSound(origin, Sound.BLOCK_SOUL_SAND_BREAK, 1.0f, 0.5f);
+                        origin.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME,
                                 origin.clone().add(0.5, 1, 0.5), 20, 0.5, 0.5, 0.5, 0.05);
                     }
                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
@@ -646,7 +651,7 @@ public class GameListener implements Listener {
                     Bukkit.broadcastMessage("§8§lTHE SOULBLADE HAS BEEN FORGED BY " + p.getName() + "!");
                 }
 
-                p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                p.getWorld().playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
                 cleanup();
                 this.cancel();
             }
@@ -741,7 +746,7 @@ public class GameListener implements Listener {
                         Chicken chicken = (Chicken) loc.getWorld().spawnEntity(loc, EntityType.CHICKEN);
                         chicken.setAdult();
                         // Angry Speed (Speed V)
-                        chicken.addPotionEffect(new org.bukkit.potion.PotionEffect(PotionEffectType.SPEED, 6000, 4));
+                        chicken.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 6000, 4));
                         chicken.setCustomName("§cAngry Chicken");
                         chicken.setCustomNameVisible(true);
 
@@ -764,7 +769,7 @@ public class GameListener implements Listener {
                     // Disable shield for 5 seconds (100 ticks)
                     victim.setCooldown(Material.SHIELD, 100);
                     victim.clearActiveItem(); // Force lower shield
-                    victim.getWorld().playSound(victim.getLocation(), org.bukkit.Sound.ITEM_SHIELD_BREAK, 1.0f, 1.0f);
+                    victim.getWorld().playSound(victim.getLocation(), Sound.ITEM_SHIELD_BREAK, 1.0f, 1.0f);
                     victim.sendMessage("§c§lSHIELD STUNNED! §7(5s cooldown)");
                     attacker.sendMessage("§aYou stunned their shield!");
                 }
@@ -802,7 +807,7 @@ public class GameListener implements Listener {
             }
 
             // Check if holding Warden Mace
-            if (weapon.getType() == org.bukkit.Material.MACE && weapon.hasItemMeta()
+            if (weapon.getType() == Material.MACE && weapon.hasItemMeta()
                     && weapon.getItemMeta().getDisplayName().equals("§3Warden Mace")) {
 
                 // Check if player has fallen at least 5 blocks
@@ -842,8 +847,8 @@ public class GameListener implements Listener {
                 org.bukkit.Location hitLoc = e.getEntity().getLocation();
 
                 // Play sonic boom sound
-                hitLoc.getWorld().playSound(hitLoc, org.bukkit.Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 1.0f);
-                hitLoc.getWorld().playSound(hitLoc, org.bukkit.Sound.ENTITY_WARDEN_SONIC_CHARGE, 1.5f, 1.2f);
+                hitLoc.getWorld().playSound(hitLoc, Sound.ENTITY_WARDEN_SONIC_BOOM, 2.0f, 1.0f);
+                hitLoc.getWorld().playSound(hitLoc, Sound.ENTITY_WARDEN_SONIC_CHARGE, 1.5f, 1.2f);
 
                 // Create sonic boom particles in a sphere
                 for (int i = 0; i < 20; i++) {
@@ -853,8 +858,8 @@ public class GameListener implements Listener {
                     double y = Math.sin(angle2) * Math.sin(angle1) * 2;
                     double z = Math.cos(angle2) * 2;
                     org.bukkit.Location particleLoc = hitLoc.clone().add(x, y + 1, z);
-                    hitLoc.getWorld().spawnParticle(org.bukkit.Particle.SONIC_BOOM, particleLoc, 1);
-                    hitLoc.getWorld().spawnParticle(org.bukkit.Particle.SCULK_SOUL, particleLoc, 3, 0.1, 0.1, 0.1, 0);
+                    hitLoc.getWorld().spawnParticle(Particle.SONIC_BOOM, particleLoc, 1);
+                    hitLoc.getWorld().spawnParticle(Particle.SCULK_SOUL, particleLoc, 3, 0.1, 0.1, 0.1, 0);
                 }
 
                 // Damage and knock back nearby entities (within 5 blocks)
@@ -879,12 +884,12 @@ public class GameListener implements Listener {
         Player victim = (Player) e.getEntity();
 
         // Check if damage source is AreaEffectCloud (Dragon Breath)
-        if (e.getDamager() instanceof org.bukkit.entity.AreaEffectCloud) {
-            org.bukkit.entity.AreaEffectCloud cloud = (org.bukkit.entity.AreaEffectCloud) e.getDamager();
+        if (e.getDamager() instanceof AreaEffectCloud) {
+            AreaEffectCloud cloud = (AreaEffectCloud) e.getDamager();
 
-            if (cloud.getParticle() == org.bukkit.Particle.DRAGON_BREATH) {
+            if (cloud.getParticle() == Particle.DRAGON_BREATH) {
                 // Check if victim has Dragon Egg
-                if (victim.getInventory().contains(org.bukkit.Material.DRAGON_EGG)) {
+                if (victim.getInventory().contains(Material.DRAGON_EGG)) {
                     e.setCancelled(true);
                 }
             }
@@ -1103,7 +1108,7 @@ public class GameListener implements Listener {
     }
 
     @EventHandler
-    public void onElytraToggle(org.bukkit.event.entity.EntityToggleGlideEvent e) {
+    public void onElytraToggle(EntityToggleGlideEvent e) {
         if (!(e.getEntity() instanceof Player))
             return;
         if (!e.isGliding())
