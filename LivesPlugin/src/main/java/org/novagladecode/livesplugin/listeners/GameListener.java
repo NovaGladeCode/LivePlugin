@@ -342,11 +342,102 @@ public class GameListener implements Listener {
         ItemStack item = e.getItemInHand();
         if (itemManager.isSacredForge(item)) {
             String type = itemManager.getForgeType(item);
+            Location center = e.getBlockPlaced().getLocation();
+
+            // Build the 7x7 forge structure
+            buildForgeStructure(center, type);
+
+            // Set metadata on the center crafting table
             e.getBlockPlaced().setMetadata("sacred_forge", new FixedMetadataValue(plugin, true));
             if (type != null) {
                 e.getBlockPlaced().setMetadata("forge_type", new FixedMetadataValue(plugin, type));
             }
-            e.getPlayer().sendMessage("§aYou have placed a " + (type == null ? "Sacred Forge" : type + " Forge") + "!");
+
+            e.getPlayer()
+                    .sendMessage("§6§l⚒ "
+                            + (type == null ? "Sacred Forge"
+                                    : type.substring(0, 1).toUpperCase() + type.substring(1) + " Forge")
+                            + " §ahas been constructed!");
+            e.getPlayer().getWorld().playSound(center, org.bukkit.Sound.BLOCK_ANVIL_PLACE, 1.0f, 0.8f);
+        }
+    }
+
+    private void buildForgeStructure(Location center, String forgeType) {
+        org.bukkit.World world = center.getWorld();
+        int cx = center.getBlockX();
+        int cy = center.getBlockY();
+        int cz = center.getBlockZ();
+
+        // Build 7x7 base platform (blackstone bricks with polished blackstone border)
+        for (int x = -3; x <= 3; x++) {
+            for (int z = -3; z <= 3; z++) {
+                Location loc = new Location(world, cx + x, cy - 1, cz + z);
+                // Border uses polished blackstone, inner uses blackstone bricks
+                if (x == -3 || x == 3 || z == -3 || z == 3) {
+                    loc.getBlock().setType(Material.POLISHED_BLACKSTONE);
+                } else {
+                    loc.getBlock().setType(Material.POLISHED_BLACKSTONE_BRICKS);
+                }
+            }
+        }
+
+        // Place soul lanterns at corners (on the platform level)
+        Location[] corners = {
+                new Location(world, cx - 3, cy, cz - 3),
+                new Location(world, cx + 3, cy, cz - 3),
+                new Location(world, cx - 3, cy, cz + 3),
+                new Location(world, cx + 3, cy, cz + 3)
+        };
+
+        for (Location corner : corners) {
+            // Pillar base
+            corner.getBlock().setType(Material.CHISELED_POLISHED_BLACKSTONE);
+            // Chain above pillar
+            corner.clone().add(0, 1, 0).getBlock().setType(Material.CHAIN);
+            // Soul lantern on top
+            corner.clone().add(0, 2, 0).getBlock().setType(Material.SOUL_LANTERN);
+        }
+
+        // Add decorative elements based on forge type
+        Material accentBlock = getForgeAccentBlock(forgeType);
+
+        // Inner ring decoration (2 blocks from center on each cardinal direction)
+        Location[] cardinals = {
+                new Location(world, cx, cy - 1, cz - 2),
+                new Location(world, cx, cy - 1, cz + 2),
+                new Location(world, cx - 2, cy - 1, cz),
+                new Location(world, cx + 2, cy - 1, cz)
+        };
+
+        for (Location cardinal : cardinals) {
+            cardinal.getBlock().setType(accentBlock);
+        }
+
+        // Center crafting table is already placed by the event
+        // Add particle effect
+        world.spawnParticle(org.bukkit.Particle.FLAME, center.clone().add(0.5, 1, 0.5), 30, 0.5, 0.5, 0.5, 0.05);
+    }
+
+    private Material getForgeAccentBlock(String forgeType) {
+        if (forgeType == null)
+            return Material.GOLD_BLOCK;
+        switch (forgeType.toLowerCase()) {
+            case "warden":
+                return Material.SCULK;
+            case "nether":
+                return Material.MAGMA_BLOCK;
+            case "end":
+                return Material.PURPUR_BLOCK;
+            case "ghostblade":
+                return Material.SOUL_SAND;
+            case "dragonblade":
+                return Material.CRYING_OBSIDIAN;
+            case "mistblade":
+                return Material.PRISMARINE;
+            case "soulblade":
+                return Material.SOUL_SOIL;
+            default:
+                return Material.GOLD_BLOCK;
         }
     }
 
@@ -361,10 +452,10 @@ public class GameListener implements Listener {
                 return;
             String displayName = result.getItemMeta().getDisplayName();
 
-            boolean isRitualItem = displayName.equals("§3Warden Mace") || displayName.equals("§cNether Mace")
-                    || displayName.equals("§5End Mace") || displayName.equals("§7Ghostblade")
-                    || displayName.equals("§6Dragonblade") || displayName.equals("§bMistblade")
-                    || displayName.equals("§8Soulblade");
+            boolean isRitualItem = displayName.equals("§3§lWarden Mace") || displayName.equals("§c§lNether Mace")
+                    || displayName.equals("§5§lEnd Mace") || displayName.equals("§7§lGhostblade")
+                    || displayName.equals("§6§lDragonblade") || displayName.equals("§b§lMistblade")
+                    || displayName.equals("§8§lSoulblade");
 
             if (isRitualItem) {
                 // Set result to dummy, not real item
@@ -393,13 +484,13 @@ public class GameListener implements Listener {
         }
 
         String displayName = result.getItemMeta().getDisplayName();
-        boolean isWarden = "§3Warden Mace".equals(displayName);
-        boolean isNether = "§cNether Mace".equals(displayName);
-        boolean isEnd = "§5End Mace".equals(displayName);
-        boolean isGhost = "§7Ghostblade".equals(displayName);
-        boolean isDragon = "§6Dragonblade".equals(displayName);
-        boolean isMist = "§bMistblade".equals(displayName);
-        boolean isSoul = "§8Soulblade".equals(displayName);
+        boolean isWarden = "§3§lWarden Mace".equals(displayName);
+        boolean isNether = "§c§lNether Mace".equals(displayName);
+        boolean isEnd = "§5§lEnd Mace".equals(displayName);
+        boolean isGhost = "§7§lGhostblade".equals(displayName);
+        boolean isDragon = "§6§lDragonblade".equals(displayName);
+        boolean isMist = "§b§lMistblade".equals(displayName);
+        boolean isSoul = "§8§lSoulblade".equals(displayName);
 
         if (!isWarden && !isNether && !isEnd && !isGhost && !isDragon && !isMist && !isSoul)
             return;
@@ -657,9 +748,9 @@ public class GameListener implements Listener {
         for (ItemStack item : p.getInventory().getContents()) {
             if (item != null && item.getType() == Material.MACE && item.hasItemMeta()) {
                 String dn = item.getItemMeta().getDisplayName();
-                if ("§cNether Mace".equals(dn)) {
+                if ("§c§lNether Mace".equals(dn)) {
                     hasNetherMace = true;
-                } else if ("§5End Mace".equals(dn)) {
+                } else if ("§5§lEnd Mace".equals(dn)) {
                     hasEndMace = true;
                 }
             }
@@ -747,8 +838,8 @@ public class GameListener implements Listener {
             // General Mace Attack Cooldown (20 seconds for all custom maces)
             if (weapon.getType() == Material.MACE && weapon.hasItemMeta()) {
                 String weaponName = weapon.getItemMeta().getDisplayName();
-                if (weaponName.equals("§3Warden Mace") || weaponName.equals("§cNether Mace")
-                        || weaponName.equals("§5End Mace")) {
+                if (weaponName.equals("§3§lWarden Mace") || weaponName.equals("§c§lNether Mace")
+                        || weaponName.equals("§5§lEnd Mace")) {
                     UUID attackerUUID = attacker.getUniqueId();
 
                     // Check Points (Must be > 0)
@@ -777,7 +868,7 @@ public class GameListener implements Listener {
 
             // Check if holding Warden Mace
             if (weapon.getType() == org.bukkit.Material.MACE && weapon.hasItemMeta()
-                    && weapon.getItemMeta().getDisplayName().equals("§3Warden Mace")) {
+                    && weapon.getItemMeta().getDisplayName().equals("§3§lWarden Mace")) {
 
                 // Check if player has fallen at least 5 blocks
                 double fallDistance = attacker.getFallDistance();
@@ -952,7 +1043,7 @@ public class GameListener implements Listener {
             String displayName = meta.getDisplayName();
 
             // End Mace: Only Density 2, remove all other enchants
-            if (displayName != null && displayName.equals("§5End Mace")) {
+            if (displayName != null && displayName.equals("§5§lEnd Mace")) {
                 // Remove all enchants first
                 for (org.bukkit.enchantments.Enchantment enchant : meta.getEnchants().keySet()) {
                     meta.removeEnchant(enchant);
@@ -965,7 +1056,7 @@ public class GameListener implements Listener {
                 }
             }
             // Warden Mace: Only Breach 2, remove all other enchants
-            else if (displayName != null && displayName.equals("§3Warden Mace")) {
+            else if (displayName != null && displayName.equals("§3§lWarden Mace")) {
                 // Remove all enchants first
                 for (org.bukkit.enchantments.Enchantment enchant : meta.getEnchants().keySet()) {
                     meta.removeEnchant(enchant);
@@ -978,7 +1069,7 @@ public class GameListener implements Listener {
                 }
             }
             // Nether Mace: Only Fire Aspect 2, remove all other enchants
-            else if (displayName != null && displayName.equals("§cNether Mace")) {
+            else if (displayName != null && displayName.equals("§c§lNether Mace")) {
                 // Remove all enchants except Fire Aspect
                 for (org.bukkit.enchantments.Enchantment enchant : meta.getEnchants().keySet()) {
                     if (enchant != Enchantment.FIRE_ASPECT) {

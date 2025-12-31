@@ -53,21 +53,21 @@ public class MaceListener implements Listener {
             // Right Click = Ability 1
             boolean isShift = p.isSneaking();
 
-            if (name.equals("§3Warden Mace")) {
+            if (name.equals("§3§lWarden Mace")) {
                 e.setCancelled(true); // Prevent normal interact if needed (e.g. placing blocks?)
                 if (isShift) {
                     wardenCmd.useAbility2(p);
                 } else {
                     wardenCmd.useAbility1(p);
                 }
-            } else if (name.equals("§cNether Mace")) {
+            } else if (name.equals("§c§lNether Mace")) {
                 e.setCancelled(true);
                 if (isShift) {
                     netherCmd.useAbility2(p);
                 } else {
                     netherCmd.useAbility1(p);
                 }
-            } else if (name.equals("§5End Mace")) {
+            } else if (name.equals("§5§lEnd Mace")) {
                 e.setCancelled(true);
                 if (isShift) {
                     endCmd.useAbility2(p);

@@ -162,13 +162,27 @@ public class ItemManager {
     public ItemStack createWardenMace() {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
-        meta.setDisplayName("§3Warden Mace");
+        meta.setDisplayName("§3§lWarden Mace");
         List<String> lore = new ArrayList<>();
-        lore.add("§7Forged from the heart of the deep dark...");
-        lore.add("§7Abilities:");
-        lore.add("§b/wardenmace 1 §7- Sonic Wave");
-        lore.add("§b/wardenmace 2 §7- Warden's Grasp");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7Forged from the heart of the §3Deep Dark§7,");
+        lore.add("§7this weapon echoes with ancient power.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Sonic Boom on crit (10% chance, 5+ block fall)");
+        lore.add("§f⬥ §7Shield Stun on hit");
+        lore.add("");
+        lore.add("§b§lABILITIES:");
+        lore.add("§3/wardenmace 1 §8» §fSonic Wave");
+        lore.add("  §7Emit a devastating shockwave");
+        lore.add("§3/wardenmace 2 §8» §fWarden's Grasp");
+        lore.add("  §7Pull nearby enemies toward you");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         mace.setItemMeta(meta);
         return mace;
     }
@@ -176,13 +190,28 @@ public class ItemManager {
     public ItemStack createNetherMace() {
         ItemStack mace = new ItemStack(Material.MACE);
         ItemMeta meta = mace.getItemMeta();
-        meta.setDisplayName("§cNether Mace");
+        meta.setDisplayName("§c§lNether Mace");
         List<String> lore = new ArrayList<>();
-        lore.add("§7Forged in the depths of the Nether...");
-        lore.add("§7Abilities:");
-        lore.add("§6/nethermace 1 §7- Infernal Wrath");
-        lore.add("§6/nethermace 2 §7- Fire Tornado");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7Forged in the §cinfernal depths§7 of the Nether,");
+        lore.add("§7this weapon burns with hellish fury.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Fire Immunity (all sources)");
+        lore.add("§f⬥ §7Effect Immunity (Wither/Poison/Magic)");
+        lore.add("§f⬥ §7Shield Stun on hit");
+        lore.add("");
+        lore.add("§c§lABILITIES:");
+        lore.add("§6/nethermace 1 §8» §fInfernal Wrath");
+        lore.add("  §7Unleash a fiery explosion");
+        lore.add("§6/nethermace 2 §8» §fFire Tornado");
+        lore.add("  §7Create a devastating fire vortex");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.FIRE_ASPECT, 2, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         mace.setItemMeta(meta);
         customNetherMace = mace;
         return mace;
@@ -191,15 +220,28 @@ public class ItemManager {
     public ItemStack createEndMace() {
         ItemStack item = new ItemStack(Material.MACE);
         ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName("§5End Mace");
+        meta.setDisplayName("§5§lEnd Mace");
         List<String> lore = new ArrayList<>();
-        lore.add("§7Formed from the void itself");
-        lore.add("§7Abilities:");
-        lore.add("§5/endmace 1 §7- Void Cloak");
-        lore.add("§5/endmace 2 §7- Singularity");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7Forged from the §5endless void§7 itself,");
+        lore.add("§7this weapon defies the laws of reality.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Fall Damage Immunity");
+        lore.add("§f⬥ §7Dragon Breath Immunity");
+        lore.add("§f⬥ §7Shield Stun on hit");
+        lore.add("");
+        lore.add("§5§lABILITIES:");
+        lore.add("§d/endmace 1 §8» §fVoid Cloak");
+        lore.add("  §7Become completely invisible (10s)");
+        lore.add("§d/endmace 2 §8» §fSingularity");
+        lore.add("  §7Pull and launch enemies away");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
-        meta.setUnbreakable(true);
         meta.addEnchant(org.bukkit.enchantments.Enchantment.BREACH, 3, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         item.setItemMeta(meta);
         customEndMace = item;
         return item;
@@ -222,16 +264,26 @@ public class ItemManager {
     public ItemStack createGhostblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§7Ghostblade");
+        meta.setDisplayName("§7§lGhostblade");
         List<String> lore = new ArrayList<>();
-        lore.add("§7A spectral blade from the beyond.");
-        lore.add("§7Passives:");
-        lore.add("§f- Invisibility §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/ghostblade 1 (§fRight-Click§7) - Haunt");
-        lore.add("§7/ghostblade 2 (§fShift+Right-Click§7) - Spectral Pull");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7A spectral blade forged from the");
+        lore.add("§7whispers of §frestless souls§7.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Complete Invisibility while holding");
+        lore.add("");
+        lore.add("§7§lABILITIES:");
+        lore.add("§f/ghostblade 1 §8» §fHaunt");
+        lore.add("  §7Possess and disorient your target");
+        lore.add("§f/ghostblade 2 §8» §fSpectral Pull");
+        lore.add("  §7Yank enemies toward you");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -239,16 +291,26 @@ public class ItemManager {
     public ItemStack createDragonblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§6Dragonblade");
+        meta.setDisplayName("§6§lDragonblade");
         List<String> lore = new ArrayList<>();
-        lore.add("§7Forged in the breath of a dragon.");
-        lore.add("§7Passives:");
-        lore.add("§f- No Fall Damage §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/dragonblade 1 (§fRight-Click§7) - Dragon Leap");
-        lore.add("§7/dragonblade 2 (§fShift+Right-Click§7) - Dragon Strike");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7Forged in the §6fiery breath§7 of");
+        lore.add("§7the §5Ender Dragon§7 itself.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Fall Damage Immunity while holding");
+        lore.add("");
+        lore.add("§6§lABILITIES:");
+        lore.add("§e/dragonblade 1 §8» §fDragon Leap");
+        lore.add("  §7Launch yourself into the air");
+        lore.add("§e/dragonblade 2 §8» §fDragon Strike");
+        lore.add("  §7Slam down with explosive force");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -256,16 +318,26 @@ public class ItemManager {
     public ItemStack createMistblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§bMistblade");
+        meta.setDisplayName("§b§lMistblade");
         List<String> lore = new ArrayList<>();
-        lore.add("§7A blade of pure condensation.");
-        lore.add("§7Passives:");
-        lore.add("§f- Dolphin's Grace §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/mistblade 1 (§fRight-Click§7) - Trident Storm");
-        lore.add("§7/mistblade 2 (§fShift+Right-Click§7) - Tidal Surge");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7A blade forged from §bpure ocean mist§7,");
+        lore.add("§7blessed by the §3sea guardians§7.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Dolphin's Grace while holding");
+        lore.add("");
+        lore.add("§b§lABILITIES:");
+        lore.add("§3/mistblade 1 §8» §fTrident Storm");
+        lore.add("  §7Summon a barrage of tridents");
+        lore.add("§3/mistblade 2 §8» §fTidal Surge");
+        lore.add("  §7Create a powerful water wave");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -273,16 +345,26 @@ public class ItemManager {
     public ItemStack createSoulblade() {
         ItemStack sword = new ItemStack(Material.NETHERITE_SWORD);
         ItemMeta meta = sword.getItemMeta();
-        meta.setDisplayName("§8Soulblade");
+        meta.setDisplayName("§8§lSoulblade");
         List<String> lore = new ArrayList<>();
-        lore.add("§7Consumes the very essence of the wielder.");
-        lore.add("§7Passives:");
-        lore.add("§f- Strength I §7while holding");
-        lore.add("§7Abilities:");
-        lore.add("§7/soulblade 1 (§fRight-Click§7) - Soul Beam");
-        lore.add("§7/soulblade 2 (§fShift+Right-Click§7) - Soul Devour");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7A dark blade that §8consumes souls§7,");
+        lore.add("§7growing stronger with each life taken.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Strength I while holding");
+        lore.add("");
+        lore.add("§8§lABILITIES:");
+        lore.add("§7/soulblade 1 §8» §fSoul Beam");
+        lore.add("  §7Fire a devastating soul projectile");
+        lore.add("§7/soulblade 2 §8» §fSoul Devour");
+        lore.add("  §7Drain the life force of nearby enemies");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -295,11 +377,19 @@ public class ItemManager {
         String name = (weaponType.substring(0, 1).toUpperCase() + weaponType.substring(1).toLowerCase() + " Forge");
         meta.setDisplayName("§6§l" + name);
         List<String> lore = new ArrayList<>();
-        lore.add("§7A station for forging legendary weapons.");
-        if (weaponType != null)
-            lore.add("§eSpecialized for: §b" + weaponType);
-        lore.add("§7Place this in the world to allow rituals.");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7A §6sacred station§7 for forging");
+        lore.add("§7legendary weapons of immense power.");
+        lore.add("");
+        lore.add("§eSpecialized for: §b" + weaponType);
+        lore.add("");
+        lore.add("§7Place this in the world to create");
+        lore.add("§7a §67x7 Forge Structure§7 for rituals.");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
+
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 1, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
 
         NamespacedKey key = new NamespacedKey(plugin, "sacred_forge");
         meta.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
@@ -401,19 +491,19 @@ public class ItemManager {
     public boolean isEndMace(ItemStack item) {
         if (item == null || item.getType() != Material.MACE || !item.hasItemMeta())
             return false;
-        return "§5End Mace".equals(item.getItemMeta().getDisplayName());
+        return "§5§lEnd Mace".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isWardenMaceAnywhere() {
-        return isMaceWithNameAnywhere("§3Warden Mace");
+        return isMaceWithNameAnywhere("§3§lWarden Mace");
     }
 
     public boolean isNetherMaceAnywhere() {
-        return isMaceWithNameAnywhere("§cNether Mace");
+        return isMaceWithNameAnywhere("§c§lNether Mace");
     }
 
     public boolean isEndMaceAnywhere() {
-        return isMaceWithNameAnywhere("§5End Mace");
+        return isMaceWithNameAnywhere("§5§lEnd Mace");
     }
 
     private boolean isMaceWithNameAnywhere(String name) {
@@ -445,21 +535,21 @@ public class ItemManager {
 
     public boolean isGhostblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§7Ghostblade".equals(item.getItemMeta().getDisplayName());
+                && "§7§lGhostblade".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isDragonblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§6Dragonblade".equals(item.getItemMeta().getDisplayName());
+                && "§6§lDragonblade".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isMistblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§bMistblade".equals(item.getItemMeta().getDisplayName());
+                && "§b§lMistblade".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isSoulblade(ItemStack item) {
         return item != null && item.getType() == Material.NETHERITE_SWORD && item.hasItemMeta()
-                && "§8Soulblade".equals(item.getItemMeta().getDisplayName());
+                && "§8§lSoulblade".equals(item.getItemMeta().getDisplayName());
     }
 }
