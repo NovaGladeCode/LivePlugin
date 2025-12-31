@@ -1,0 +1,23 @@
+{
+    "parent": "item/mace",
+    "overrides": [
+        {
+            "predicate": {
+                "custom_model_data": 1
+            },
+            "model": "maceandmight:item/warden_mace"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 2
+            },
+            "model": "maceandmight:item/nether_mace"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 3
+            },
+            "model": "maceandmight:item/end_mace"
+        }
+    ]
+}

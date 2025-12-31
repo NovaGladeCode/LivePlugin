@@ -1,0 +1,47 @@
+{
+    "parent": "block/crafting_table",
+    "overrides": [
+        {
+            "predicate": {
+                "custom_model_data": 100
+            },
+            "model": "maceandmight:item/warden_forge"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 101
+            },
+            "model": "maceandmight:item/nether_forge"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 102
+            },
+            "model": "maceandmight:item/end_forge"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 103
+            },
+            "model": "maceandmight:item/ghostblade_forge"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 104
+            },
+            "model": "maceandmight:item/dragonblade_forge"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 105
+            },
+            "model": "maceandmight:item/mistblade_forge"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 106
+            },
+            "model": "maceandmight:item/soulblade_forge"
+        }
+    ]
+}

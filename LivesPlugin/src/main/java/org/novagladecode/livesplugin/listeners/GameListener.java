@@ -368,20 +368,21 @@ public class GameListener implements Listener {
         int cy = center.getBlockY();
         int cz = center.getBlockZ();
 
-        // Build 7x7 base platform (blackstone bricks with polished blackstone border)
+        ForgeSettings settings = getForgeSettings(forgeType);
+
+        // Build 7x7 base platform
         for (int x = -3; x <= 3; x++) {
             for (int z = -3; z <= 3; z++) {
                 Location loc = new Location(world, cx + x, cy - 1, cz + z);
-                // Border uses polished blackstone, inner uses blackstone bricks
                 if (x == -3 || x == 3 || z == -3 || z == 3) {
-                    loc.getBlock().setType(Material.POLISHED_BLACKSTONE);
+                    loc.getBlock().setType(settings.border);
                 } else {
-                    loc.getBlock().setType(Material.POLISHED_BLACKSTONE_BRICKS);
+                    loc.getBlock().setType(settings.inner);
                 }
             }
         }
 
-        // Place soul lanterns at corners (on the platform level)
+        // Place pillars/lanterns at corners
         Location[] corners = {
                 new Location(world, cx - 3, cy, cz - 3),
                 new Location(world, cx + 3, cy, cz - 3),
@@ -390,18 +391,12 @@ public class GameListener implements Listener {
         };
 
         for (Location corner : corners) {
-            // Pillar base
-            corner.getBlock().setType(Material.CHISELED_POLISHED_BLACKSTONE);
-            // Chain above pillar
+            corner.getBlock().setType(settings.pillar);
             corner.clone().add(0, 1, 0).getBlock().setType(Material.CHAIN);
-            // Soul lantern on top
-            corner.clone().add(0, 2, 0).getBlock().setType(Material.SOUL_LANTERN);
+            corner.clone().add(0, 2, 0).getBlock().setType(settings.accessory);
         }
 
-        // Add decorative elements based on forge type
-        Material accentBlock = getForgeAccentBlock(forgeType);
-
-        // Inner ring decoration (2 blocks from center on each cardinal direction)
+        // Add decorative elements (cardinals)
         Location[] cardinals = {
                 new Location(world, cx, cy - 1, cz - 2),
                 new Location(world, cx, cy - 1, cz + 2),
@@ -410,34 +405,69 @@ public class GameListener implements Listener {
         };
 
         for (Location cardinal : cardinals) {
-            cardinal.getBlock().setType(accentBlock);
+            cardinal.getBlock().setType(settings.accent);
         }
 
-        // Center crafting table is already placed by the event
         // Add particle effect
-        world.spawnParticle(org.bukkit.Particle.FLAME, center.clone().add(0.5, 1, 0.5), 30, 0.5, 0.5, 0.5, 0.05);
+        world.spawnParticle(settings.particle, center.clone().add(0.5, 1, 0.5), 50, 0.5, 0.5, 0.5, 0.05);
     }
 
-    private Material getForgeAccentBlock(String forgeType) {
-        if (forgeType == null)
-            return Material.GOLD_BLOCK;
-        switch (forgeType.toLowerCase()) {
+    private static class ForgeSettings {
+        Material border;
+        Material inner;
+        Material pillar;
+        Material accessory;
+        Material accent;
+        org.bukkit.Particle particle;
+
+        ForgeSettings(Material border, Material inner, Material pillar, Material accessory, Material accent,
+                org.bukkit.Particle particle) {
+            this.border = border;
+            this.inner = inner;
+            this.pillar = pillar;
+            this.accessory = accessory;
+            this.accent = accent;
+            this.particle = particle;
+        }
+    }
+
+    private ForgeSettings getForgeSettings(String type) {
+        if (type == null) {
+            return new ForgeSettings(Material.POLISHED_BLACKSTONE, Material.POLISHED_BLACKSTONE_BRICKS,
+                    Material.CHISELED_POLISHED_BLACKSTONE, Material.SOUL_LANTERN, Material.GOLD_BLOCK,
+                    org.bukkit.Particle.FLAME);
+        }
+
+        switch (type.toLowerCase()) {
             case "warden":
-                return Material.SCULK;
+                return new ForgeSettings(Material.REINFORCED_DEEPSLATE, Material.DEEPSLATE_BRICKS,
+                        Material.CHISELED_DEEPSLATE, Material.SOUL_LANTERN, Material.SCULK,
+                        org.bukkit.Particle.SCULK_SOUL);
             case "nether":
-                return Material.MAGMA_BLOCK;
+                return new ForgeSettings(Material.POLISHED_BLACKSTONE_BRICKS, Material.NETHER_BRICKS,
+                        Material.CHISELED_POLISHED_BLACKSTONE, Material.SOUL_LANTERN, Material.MAGMA_BLOCK,
+                        org.bukkit.Particle.FLAME);
             case "end":
-                return Material.PURPUR_BLOCK;
+                return new ForgeSettings(Material.PURPUR_BLOCK, Material.END_STONE_BRICKS, Material.PURPUR_PILLAR,
+                        Material.END_ROD, Material.PURPUR_BLOCK, org.bukkit.Particle.PORTAL);
             case "ghostblade":
-                return Material.SOUL_SAND;
+                return new ForgeSettings(Material.POLISHED_BLACKSTONE_BRICKS, Material.SOUL_SAND,
+                        Material.CHISELED_POLISHED_BLACKSTONE, Material.SOUL_LANTERN, Material.SOUL_SOIL,
+                        org.bukkit.Particle.SOUL);
             case "dragonblade":
-                return Material.CRYING_OBSIDIAN;
+                return new ForgeSettings(Material.CRYING_OBSIDIAN, Material.OBSIDIAN, Material.GILDED_BLACKSTONE,
+                        Material.SOUL_LANTERN, Material.MAGMA_BLOCK, org.bukkit.Particle.DRAGON_BREATH);
             case "mistblade":
-                return Material.PRISMARINE;
+                return new ForgeSettings(Material.DARK_PRISMARINE, Material.PRISMARINE_BRICKS, Material.PRISMARINE,
+                        Material.SEA_LANTERN, Material.PRISMARINE, org.bukkit.Particle.SPLASH);
             case "soulblade":
-                return Material.SOUL_SOIL;
+                return new ForgeSettings(Material.CHISELED_POLISHED_BLACKSTONE, Material.BONE_BLOCK,
+                        Material.CHISELED_POLISHED_BLACKSTONE, Material.SOUL_LANTERN, Material.SOUL_SAND,
+                        org.bukkit.Particle.SOUL_FIRE_FLAME);
             default:
-                return Material.GOLD_BLOCK;
+                return new ForgeSettings(Material.POLISHED_BLACKSTONE, Material.POLISHED_BLACKSTONE_BRICKS,
+                        Material.CHISELED_POLISHED_BLACKSTONE, Material.SOUL_LANTERN, Material.GOLD_BLOCK,
+                        org.bukkit.Particle.FLAME);
         }
     }
 
@@ -712,6 +742,7 @@ public class GameListener implements Listener {
                 }
 
                 p.getWorld().playSound(p.getLocation(), org.bukkit.Sound.UI_TOAST_CHALLENGE_COMPLETE, 1.0f, 1.0f);
+                destroyForgeStructure(origin);
                 cleanup();
                 this.cancel();
             }
@@ -733,6 +764,39 @@ public class GameListener implements Listener {
                 dropped.setVelocity(new Vector(0, 0, 0));
             }
         }.runTaskTimer(plugin, 0L, 20L);
+    }
+
+    private void destroyForgeStructure(Location center) {
+        org.bukkit.World world = center.getWorld();
+        int cx = center.getBlockX();
+        int cy = center.getBlockY();
+        int cz = center.getBlockZ();
+
+        // 7x7 area destruction
+        for (int x = -3; x <= 3; x++) {
+            for (int z = -3; z <= 3; z++) {
+                // Platform level and below
+                for (int y = -1; y <= 3; y++) {
+                    Location loc = new Location(world, cx + x, cy + y, cz + z);
+                    Material type = loc.getBlock().getType();
+
+                    if (type != Material.AIR) {
+                        // Spawn particles for the block being destroyed
+                        if (Math.random() < 0.2) {
+                            world.spawnParticle(org.bukkit.Particle.BLOCK, loc.clone().add(0.5, 0.5, 0.5), 10,
+                                    0.2, 0.2, 0.2, type.createBlockData());
+                        }
+                        loc.getBlock().setType(Material.AIR);
+                    }
+                }
+            }
+        }
+
+        // Final explosion effects
+        world.playSound(center, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 2.0f, 0.5f);
+        world.playSound(center, org.bukkit.Sound.BLOCK_ANVIL_BREAK, 1.0f, 0.5f);
+        world.spawnParticle(org.bukkit.Particle.EXPLOSION_EMITTER, center.clone().add(0.5, 1, 0.5), 3, 1.0, 1.0, 1.0);
+        world.spawnParticle(org.bukkit.Particle.FLASH, center.clone().add(0.5, 1, 0.5), 10, 2.0, 2.0, 2.0);
     }
 
     @EventHandler

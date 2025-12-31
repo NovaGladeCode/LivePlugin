@@ -155,6 +155,7 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§3Warden Heart");
         meta.setLore(Arrays.asList("§7A pulsating heart dropped", "§7by the deep dark guardian."));
+        meta.setCustomModelData(1);
         item.setItemMeta(meta);
         return item;
     }
@@ -183,6 +184,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(1);
         mace.setItemMeta(meta);
         return mace;
     }
@@ -212,6 +214,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(2);
         mace.setItemMeta(meta);
         customNetherMace = mace;
         return mace;
@@ -242,6 +245,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(3);
         item.setItemMeta(meta);
         customEndMace = item;
         return item;
@@ -284,6 +288,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(1);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -311,6 +316,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(2);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -338,6 +344,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(3);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -365,6 +372,7 @@ public class ItemManager {
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
         meta.setUnbreakable(true);
         meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(4);
         sword.setItemMeta(meta);
         return sword;
     }
@@ -374,17 +382,20 @@ public class ItemManager {
             return null;
         ItemStack item = new ItemStack(Material.CRAFTING_TABLE);
         ItemMeta meta = item.getItemMeta();
-        String name = (weaponType.substring(0, 1).toUpperCase() + weaponType.substring(1).toLowerCase() + " Forge");
-        meta.setDisplayName("§6§l" + name);
+        String weaponName = weaponType.substring(0, 1).toUpperCase() + weaponType.substring(1).toLowerCase();
+        meta.setDisplayName("§6§l" + weaponName + " Forge");
         List<String> lore = new ArrayList<>();
         lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
-        lore.add("§7A §6sacred station§7 for forging");
-        lore.add("§7legendary weapons of immense power.");
+        lore.add("§7A §6sacred station§7 specifically built");
+        lore.add("§7for forging the legendary §b" + weaponName + "§7.");
         lore.add("");
-        lore.add("§eSpecialized for: §b" + weaponType);
+        lore.add("§e§lRITUAL STATION:");
+        lore.add("§7This forge §lONLY §7works for the");
+        lore.add("§b" + weaponName + " §7recipe.");
         lore.add("");
-        lore.add("§7Place this in the world to create");
-        lore.add("§7a §67x7 Forge Structure§7 for rituals.");
+        lore.add("§c§lWARNING:");
+        lore.add("§7The forge structure will be §4§lDESTROYED");
+        lore.add("§7once the ritual is successfully completed!");
         lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
         meta.setLore(lore);
 
@@ -397,6 +408,20 @@ public class ItemManager {
         if (weaponType != null) {
             NamespacedKey typeKey = new NamespacedKey(plugin, "forge_type");
             meta.getPersistentDataContainer().set(typeKey, PersistentDataType.STRING, weaponType.toLowerCase());
+
+            // Set CustomModelData for unique textures
+            int cmd = switch (weaponType.toLowerCase()) {
+                case "warden" -> 100;
+                case "nether" -> 101;
+                case "end" -> 102;
+                case "ghostblade" -> 103;
+                case "dragonblade" -> 104;
+                case "mistblade" -> 105;
+                case "soulblade" -> 106;
+                default -> 0;
+            };
+            if (cmd != 0)
+                meta.setCustomModelData(cmd);
         }
 
         item.setItemMeta(meta);
@@ -422,6 +447,7 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§6Level Item");
         meta.setLore(Arrays.asList("§7Right-click to gain a level!"));
+        meta.setCustomModelData(10);
         item.setItemMeta(meta);
         return item;
     }
@@ -431,6 +457,7 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§5Unban Token");
         meta.setLore(Arrays.asList("§7Right-click to open unban menu."));
+        meta.setCustomModelData(11);
         item.setItemMeta(meta);
         return item;
     }
@@ -457,10 +484,11 @@ public class ItemManager {
     }
 
     public ItemStack createWitherHeart() {
-        ItemStack item = new ItemStack(Material.NAUTILUS_SHELL);
+        ItemStack item = new ItemStack(Material.NETHER_STAR);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§8Wither Heart");
-        meta.setLore(Arrays.asList("§7A dark shell dropped", "§7by the Wither."));
+        meta.setLore(Arrays.asList("§7A dark heart dropped", "§7by the Wither."));
+        meta.setCustomModelData(2);
         item.setItemMeta(meta);
         return item;
     }
@@ -477,6 +505,7 @@ public class ItemManager {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("§5Dragon Heart");
         meta.setLore(Arrays.asList("§7The pulsing heart of", "§7the Ender Dragon."));
+        meta.setCustomModelData(3);
         item.setItemMeta(meta);
         return item;
     }

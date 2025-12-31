@@ -1,0 +1,32 @@
+{
+    "parent": "item/handheld",
+    "textures": {
+        "layer0": "item/netherite_sword"
+    },
+    "overrides": [
+        {
+            "predicate": {
+                "custom_model_data": 1
+            },
+            "model": "maceandmight:item/ghostblade"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 2
+            },
+            "model": "maceandmight:item/dragonblade"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 3
+            },
+            "model": "maceandmight:item/mistblade"
+        },
+        {
+            "predicate": {
+                "custom_model_data": 4
+            },
+            "model": "maceandmight:item/soulblade"
+        }
+    ]
+}
