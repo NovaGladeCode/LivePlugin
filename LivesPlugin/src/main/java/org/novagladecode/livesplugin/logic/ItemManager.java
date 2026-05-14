@@ -21,6 +21,7 @@ public class ItemManager {
     private final JavaPlugin plugin;
     public static ItemStack customNetherMace;
     public static ItemStack customEndMace;
+    public static ItemStack customStormMace;
 
     public ItemManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -29,6 +30,7 @@ public class ItemManager {
     public void init() {
         createNetherMace();
         createEndMace();
+        createStormMace();
 
         registerGhostbladeRecipe();
         registerDragonbladeRecipe();
@@ -84,6 +86,18 @@ public class ItemManager {
         recipe.setIngredient('H', Material.HEART_OF_THE_SEA); // Dragon Heart
         recipe.setIngredient('B', Material.BREEZE_ROD);
         recipe.setIngredient('M', Material.HEAVY_CORE);
+        Bukkit.addRecipe(recipe);
+    }
+
+    public void registerStormMaceRecipe() {
+        createStormMace();
+        NamespacedKey key = new NamespacedKey(plugin, "storm_mace");
+        ShapedRecipe recipe = new ShapedRecipe(key, customStormMace);
+        recipe.shape("LTL", "TMT", "LRL");
+        recipe.setIngredient('L', Material.LIGHTNING_ROD);
+        recipe.setIngredient('T', Material.COPPER_INGOT);
+        recipe.setIngredient('M', Material.HEAVY_CORE);
+        recipe.setIngredient('R', Material.BREEZE_ROD);
         Bukkit.addRecipe(recipe);
     }
 
@@ -249,6 +263,36 @@ public class ItemManager {
         item.setItemMeta(meta);
         customEndMace = item;
         return item;
+    }
+
+    public ItemStack createStormMace() {
+        ItemStack mace = new ItemStack(Material.MACE);
+        ItemMeta meta = mace.getItemMeta();
+        meta.setDisplayName("§e§lStorm Mace");
+        List<String> lore = new ArrayList<>();
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        lore.add("§7Struck by the §elightning of the heavens§7,");
+        lore.add("§7this weapon commands the storm itself.");
+        lore.add("");
+        lore.add("§6§lPASSIVES:");
+        lore.add("§f⬥ §7Lightning Immunity");
+        lore.add("§f⬥ §7Shield Stun on hit");
+        lore.add("");
+        lore.add("§e§lABILITIES:");
+        lore.add("§6/stormmace 1 §8» §fThunder Strike");
+        lore.add("  §7Chain lightning through up to 3 enemies");
+        lore.add("§6/stormmace 2 §8» §fStorm Surge");
+        lore.add("  §7Unleash a 6-second lightning storm");
+        lore.add("§8━━━━━━━━━━━━━━━━━━━━━━━");
+        meta.setLore(lore);
+        meta.addEnchant(org.bukkit.enchantments.Enchantment.POWER, 2, true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ENCHANTS);
+        meta.setUnbreakable(true);
+        meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_UNBREAKABLE);
+        meta.setCustomModelData(4);
+        mace.setItemMeta(meta);
+        customStormMace = mace;
+        return mace;
     }
 
     public ItemStack createChickenBow() {
@@ -418,6 +462,7 @@ public class ItemManager {
                 case "dragonblade" -> 104;
                 case "mistblade" -> 105;
                 case "soulblade" -> 106;
+                case "storm" -> 107;
                 default -> 0;
             };
             if (cmd != 0)
@@ -521,6 +566,12 @@ public class ItemManager {
         if (item == null || item.getType() != Material.MACE || !item.hasItemMeta())
             return false;
         return "§5§lEnd Mace".equals(item.getItemMeta().getDisplayName());
+    }
+
+    public boolean isStormMace(ItemStack item) {
+        if (item == null || item.getType() != Material.MACE || !item.hasItemMeta())
+            return false;
+        return "§e§lStorm Mace".equals(item.getItemMeta().getDisplayName());
     }
 
     public boolean isWardenMaceAnywhere() {

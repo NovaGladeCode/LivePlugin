@@ -19,6 +19,9 @@ commands:
   endmace:
     description: End Mace abilities
     usage: /endmace <1/2>
+  stormmace:
+    description: Storm Mace abilities
+    usage: /stormmace <1/2>
   ghostblade:
     description: Ghostblade abilities
     usage: /ghostblade <1/2>

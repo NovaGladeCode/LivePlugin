@@ -15,6 +15,7 @@ public class LivePlugin extends JavaPlugin {
     private WardenMaceCommand wardenMaceCommand;
     private NetherMaceCommand netherMaceCommand;
     private EndMaceCommand endMaceCommand;
+    private org.novagladecode.livesplugin.commands.StormMaceCommand stormMaceCommand;
     private java.util.HashMap<java.util.UUID, Boolean> maceInteractMode = new java.util.HashMap<>();
     private java.util.HashMap<String, Boolean> globalAbilityToggles = new java.util.HashMap<>();
     private boolean forgeActive = false;
@@ -39,6 +40,9 @@ public class LivePlugin extends JavaPlugin {
         endMaceCommand = new org.novagladecode.livesplugin.commands.EndMaceCommand(this, dataManager);
         getCommand("endmace").setExecutor(endMaceCommand);
 
+        stormMaceCommand = new org.novagladecode.livesplugin.commands.StormMaceCommand(this, dataManager);
+        getCommand("stormmace").setExecutor(stormMaceCommand);
+
         getCommand("forge").setExecutor(new org.novagladecode.livesplugin.commands.MaceCommand(this, dataManager));
 
         // getCommand("weapon").setExecutor(new
@@ -61,7 +65,7 @@ public class LivePlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.GameListener(this,
                 dataManager, itemManager), this);
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.MaceListener(this,
-                wardenMaceCommand, netherMaceCommand, endMaceCommand), this);
+                wardenMaceCommand, netherMaceCommand, endMaceCommand, stormMaceCommand), this);
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.BladeListener(this),
                 this);
 
@@ -69,6 +73,7 @@ public class LivePlugin extends JavaPlugin {
         itemManager.registerWardenMaceRecipe();
         itemManager.registerNetherMaceRecipe();
         itemManager.registerEndMaceRecipe();
+        itemManager.registerStormMaceRecipe();
         itemManager.registerChickenBowRecipe();
 
         getLogger().info("Lives Plugin has been enabled! (Lite Mode)");

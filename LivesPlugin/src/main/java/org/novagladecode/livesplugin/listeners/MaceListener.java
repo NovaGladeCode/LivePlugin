@@ -18,13 +18,15 @@ public class MaceListener implements Listener {
     private final WardenMaceCommand wardenCmd;
     private final NetherMaceCommand netherCmd;
     private final EndMaceCommand endCmd;
+    private final org.novagladecode.livesplugin.commands.StormMaceCommand stormCmd;
 
     public MaceListener(LivePlugin plugin, WardenMaceCommand wardenCmd, NetherMaceCommand netherCmd,
-            EndMaceCommand endCmd) {
+            EndMaceCommand endCmd, org.novagladecode.livesplugin.commands.StormMaceCommand stormCmd) {
         this.plugin = plugin;
         this.wardenCmd = wardenCmd;
         this.netherCmd = netherCmd;
         this.endCmd = endCmd;
+        this.stormCmd = stormCmd;
     }
 
     @EventHandler
@@ -73,6 +75,13 @@ public class MaceListener implements Listener {
                     endCmd.useAbility2(p);
                 } else {
                     endCmd.useAbility1(p);
+                }
+            } else if (name.equals("§e§lStorm Mace")) {
+                e.setCancelled(true);
+                if (isShift) {
+                    stormCmd.useAbility2(p);
+                } else {
+                    stormCmd.useAbility1(p);
                 }
             }
         }
