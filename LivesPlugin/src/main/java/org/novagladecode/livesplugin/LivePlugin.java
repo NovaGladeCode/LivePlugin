@@ -5,8 +5,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.novagladecode.livesplugin.commands.NetherMaceCommand;
 import org.novagladecode.livesplugin.commands.WardenMaceCommand;
 import org.novagladecode.livesplugin.commands.EndMaceCommand;
+import org.novagladecode.livesplugin.commands.SkillsAdminCommand;
 import org.novagladecode.livesplugin.data.PlayerDataManager;
 import org.novagladecode.livesplugin.logic.ItemManager;
+import org.novagladecode.livesplugin.warlord.WarlordManager;
+import org.novagladecode.livesplugin.necromancer.NecromancerManager;
 
 public class LivePlugin extends JavaPlugin {
 
@@ -60,6 +63,17 @@ public class LivePlugin extends JavaPlugin {
                 .setExecutor(new org.novagladecode.livesplugin.commands.MistbladeCommand(this, dataManager));
         getCommand("soulblade")
                 .setExecutor(new org.novagladecode.livesplugin.commands.SoulbladeCommand(this, dataManager));
+
+        // Register Boss Systems
+        WarlordManager warlordManager = WarlordManager.getInstance(this);
+        getServer().getPluginManager().registerEvents(warlordManager, this);
+
+        NecromancerManager necromancerManager = NecromancerManager.getInstance(this);
+        getServer().getPluginManager().registerEvents(necromancerManager, this);
+
+        SkillsAdminCommand skillsAdmin = new SkillsAdminCommand(this);
+        getCommand("skills").setExecutor(skillsAdmin);
+        getCommand("spawnboss").setExecutor(skillsAdmin);
 
         // Register Listeners
         getServer().getPluginManager().registerEvents(new org.novagladecode.livesplugin.listeners.GameListener(this,

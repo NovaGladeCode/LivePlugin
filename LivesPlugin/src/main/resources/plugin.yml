@@ -43,6 +43,14 @@ commands:
   weapon:
     description: Get custom weapons
     usage: /weapon get <name>
+  skills:
+    description: Skills admin commands (spawn bosses, give spawners)
+    usage: /skills admin <spawn|givespawner> <boss>
+    permission: livesplugin.admin
+  spawnboss:
+    description: Quickly spawn a boss at your location
+    usage: /spawnboss <warlord|necromancer>
+    permission: livesplugin.admin
 permissions:
   livesplugin.admin:
     description: Admin permissions

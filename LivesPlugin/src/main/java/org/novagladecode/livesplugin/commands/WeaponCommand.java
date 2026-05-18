@@ -1,6 +1,8 @@
 package org.novagladecode.livesplugin.commands;
 
 import org.bukkit.Material;
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -95,6 +97,23 @@ public class WeaponCommand implements CommandExecutor {
             ItemStack weapon = null;
             String type = args[1].toLowerCase();
 
+            if (type.equals("all")) {
+                List<ItemStack> weapons = new ArrayList<>();
+                weapons.add(itemManager.createWardenMace());
+                weapons.add(itemManager.createNetherMace());
+                weapons.add(itemManager.createEndMace());
+                weapons.add(itemManager.createGhostblade());
+                weapons.add(itemManager.createDragonblade());
+                weapons.add(itemManager.createMistblade());
+                weapons.add(itemManager.createSoulblade());
+                weapons.add(itemManager.createChickenBow());
+                weapons.add(itemManager.createStormMace());
+                for (ItemStack w : weapons) {
+                    p.getInventory().addItem(w);
+                }
+                p.sendMessage("§aGiven all weapons to your inventory.");
+                return true;
+            }
             switch (type) {
                 case "warden":
                     weapon = itemManager.createWardenMace();
@@ -108,8 +127,23 @@ public class WeaponCommand implements CommandExecutor {
                 case "end":
                     weapon = itemManager.createEndMace();
                     break;
+                case "ghostblade":
+                    weapon = itemManager.createGhostblade();
+                    break;
+                case "dragonblade":
+                    weapon = itemManager.createDragonblade();
+                    break;
+                case "mistblade":
+                    weapon = itemManager.createMistblade();
+                    break;
+                case "soulblade":
+                    weapon = itemManager.createSoulblade();
+                    break;
+                case "storm":
+                    weapon = itemManager.createStormMace();
+                    break;
                 default:
-                    p.sendMessage("§cUnknown weapon. Usage: /weapon give <warden|nether|end|chickenbow>");
+                    p.sendMessage("§cUnknown weapon. Usage: /weapon give <warden|nether|end|chickenbow|ghostblade|dragonblade|mistblade|soulblade|storm|all>");
                     return true;
             }
 
